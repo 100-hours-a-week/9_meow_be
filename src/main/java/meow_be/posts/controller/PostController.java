@@ -5,6 +5,7 @@ import meow_be.posts.domain.Post;
 import meow_be.posts.dto.PostDto;
 import meow_be.posts.service.PostService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +23,14 @@ public class PostController {
     private final PostService postService;
     // 게시물 전체 조회
     @GetMapping
-    public ResponseEntity<?> getPosts(Pageable pageable) {
-        Page<PostDto> postDto = postService.getPosts(pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(postDto);
+    public ResponseEntity<Page<PostDto>> getPosts(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);  // Pageable 객체 생성
+        Page<PostDto> postDtoPage = postService.getPosts(pageable);  // 게시물 조회
+
+        return ResponseEntity.status(HttpStatus.OK).body(postDtoPage);
     }
 
 
