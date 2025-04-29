@@ -29,15 +29,5 @@ public class PostController {
 
         return ResponseEntity.status(HttpStatus.OK).body(postDtoPage);
     }
-
-    @PostMapping("/dummy")
-    public ResponseEntity<String> createDummyPost() {
-        postService.createDummyPost();
-        return ResponseEntity.ok("더미 게시글 생성 완료!");
-    }
-
-
-
-
 }
 
