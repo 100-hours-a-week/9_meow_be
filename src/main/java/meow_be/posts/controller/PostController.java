@@ -5,13 +5,10 @@ import meow_be.posts.dto.PostDto;
 import meow_be.posts.service.PostService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -33,5 +30,9 @@ public class PostController {
         List<PostDto> responseData = postDtoPage.getContent();
         return ResponseEntity.ok(responseData);
     }
-
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDto> getPostById(@PathVariable("postId") int postId) {
+        PostDto postDto = postService.getPostById(postId);
+        return ResponseEntity.ok(postDto);
+    }
 }
