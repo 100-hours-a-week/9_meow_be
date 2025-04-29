@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -22,15 +23,15 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
+    @ResponseBody
     public ResponseEntity<List<PostDto>> getPosts(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<PostDto> postDtoPage = postService.getPosts(pageable);
-
+        System.out.println(postDtoPage);
         List<PostDto> responseData = postDtoPage.getContent();
-
         return ResponseEntity.ok(responseData);
     }
 
