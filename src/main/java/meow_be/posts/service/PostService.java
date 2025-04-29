@@ -26,30 +26,4 @@ public class PostService {
         Page<Post> posts = postRepository.findByIsDeletedFalse(pageable);  // 삭제되지 않은 게시물만 조회
         return posts.map(postMapper::toDto);  // Post -> PostDto로 변환 (PostMapper 사용)
     }
-
-    @Transactional
-    public void createDummyPost() {
-        // 더미 User 하나 가져오기 (id=1이라고 가정);
-
-        User dummyUser = User.builder()
-                .id(1) // id만 채운 User 객체
-                .build();
-
-        Post post = Post.builder()
-                .user(dummyUser)
-                .title("더미 제목")
-                .content("더미 내용")
-                .emotion("기쁨")
-                .postType("고양이")
-                .transformedContent("변환된 더미 내용")
-                .isDeleted(Boolean.FALSE)
-                .likeCount(0)
-                .commentCount(0)
-                .viewCount(0)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-        postRepository.save(post);
-    }
 }
