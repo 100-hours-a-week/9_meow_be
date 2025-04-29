@@ -30,7 +30,6 @@ public class PostController {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<PostDto> postDtoPage = postService.getPosts(pageable);
-        System.out.println(postDtoPage);
         List<PostDto> responseData = postDtoPage.getContent();
         return ResponseEntity.ok(responseData);
     }
