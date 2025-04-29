@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 public class PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;  // PostMapper 주입
-
     public Page<PostDto> getPosts(Pageable pageable) {
         Page<Post> posts = postRepository.findByIsDeletedFalse(pageable);  // 삭제되지 않은 게시물만 조회
         return posts.map(postMapper::toDto);  // Post -> PostDto로 변환 (PostMapper 사용)
