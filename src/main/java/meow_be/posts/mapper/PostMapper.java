@@ -19,19 +19,19 @@ public class PostMapper {
     public PostDto toDto(Post post) {
         // 게시물에 관련된 이미지 URL 리스트 가져오기
         List<String> imageUrls = postImageRepository.findByPostId(post.getId()).stream()
-                .map(PostImage::getImageUrl)  // PostImage에서 imageUrl만 추출
+                .map(PostImage::getImageUrl)
                 .collect(Collectors.toList());
 
         return new PostDto(
                 post.getId(),
-                post.getUser().getId(),  // 게시물 작성자의 ID
-                post.getUser().getNickname(),  // 게시물 작성자의 닉네임
-                post.getUser().getProfileImageUrl(),  // 게시물 작성자의 프로필 이미지 URL
+                post.getUser().getId(),
+                post.getUser().getNickname(),  // 필드명 변경
+                post.getUser().getProfileImageUrl(),  // 필드명 변경
                 post.getTitle(),
                 post.getTransformedContent(),
                 post.getEmotion(),
                 post.getPostType(),
-                imageUrls,  // 이미지 URL 리스트
+                imageUrls,
                 post.getLikeCount(),
                 post.getCommentCount(),
                 post.getViewCount(),
@@ -39,4 +39,5 @@ public class PostMapper {
                 post.getUpdatedAt()
         );
     }
+
 }
