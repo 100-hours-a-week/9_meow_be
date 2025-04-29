@@ -1,30 +1,36 @@
 package meow_be.posts.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class PostDto {
     private int id;
     private int userId;
-    private String username;
-    private String profileUrl;
+    private String nickname;  // 변경된 필드명
+    private String profileImageUrl;  // 변경된 필드명
     private String title;
     private String transformedContent;
     private String emotion;
     private String postType;
-    private List<String> imageUrls;  // 이미지 URL 리스트
+    private List<String> imageUrls;
     private int likeCount;
     private int commentCount;
     private int viewCount;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")  // 포맷 지정
     private LocalDateTime createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")  // 포맷 지정
     private LocalDateTime updatedAt;
 
     // Public 생성자
-    public PostDto(int id, int userId, String username, String profileUrl, String title, String transformedContent, String emotion, String postType, List<String> imageUrls, int likeCount, int commentCount, int viewCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public PostDto(int id, int userId, String nickname, String profileImageUrl, String title, String transformedContent, String emotion, String postType, List<String> imageUrls, int likeCount, int commentCount, int viewCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
-        this.username = username;
-        this.profileUrl = profileUrl;
+        this.nickname = nickname;
+        this.profileImageUrl = profileImageUrl;
         this.title = title;
         this.transformedContent = transformedContent;
         this.emotion = emotion;
@@ -36,5 +42,4 @@ public class PostDto {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
-
 }
