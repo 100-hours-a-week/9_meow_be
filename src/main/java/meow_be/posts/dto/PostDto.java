@@ -1,10 +1,11 @@
 package meow_be.posts.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Getter
 public class PostDto {
     private int id;
     private int userId;
