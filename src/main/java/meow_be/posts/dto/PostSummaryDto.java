@@ -16,7 +16,7 @@ public class PostSummaryDto {
     private String postType;
     private String thumbnailUrl; // thumbnailUrl로 필드명 변경
     private int commentCount;
-    private int viewCount;
+    private int likeCount;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -26,7 +26,7 @@ public class PostSummaryDto {
 
     public PostSummaryDto(int id, int userId, String nickname, String profileImageUrl,
                           String transformedContent, String emotion, String postType,
-                          String thumbnailUrl, int commentCount,
+                          String thumbnailUrl, int commentCount, int likeCount,
                           LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
@@ -37,6 +37,7 @@ public class PostSummaryDto {
         this.postType = postType;
         this.thumbnailUrl = thumbnailUrl;
         this.commentCount = commentCount;
+        this.likeCount=likeCount;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
