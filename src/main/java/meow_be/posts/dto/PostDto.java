@@ -11,12 +11,10 @@ public class PostDto {
     private int userId;
     private String nickname;  // 변경된 필드명
     private String profileImageUrl;  // 변경된 필드명
-    private String title;
     private String transformedContent;
     private String emotion;
     private String postType;
     private List<String> imageUrls;
-    private int likeCount;
     private int commentCount;
     private int viewCount;
 
@@ -27,17 +25,15 @@ public class PostDto {
     private LocalDateTime updatedAt;
 
     // Public 생성자
-    public PostDto(int id, int userId, String nickname, String profileImageUrl, String title, String transformedContent, String emotion, String postType, List<String> imageUrls, int likeCount, int commentCount, int viewCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public PostDto(int id, int userId, String nickname, String profileImageUrl, String transformedContent, String emotion, String postType, List<String> imageUrls, int commentCount, int viewCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
-        this.title = title;
         this.transformedContent = transformedContent;
         this.emotion = emotion;
         this.postType = postType;
         this.imageUrls = imageUrls;
-        this.likeCount = likeCount;
         this.commentCount = commentCount;
         this.viewCount = viewCount;
         this.createdAt = createdAt;
