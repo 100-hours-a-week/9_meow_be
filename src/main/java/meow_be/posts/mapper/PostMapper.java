@@ -41,7 +41,7 @@ public class PostMapper {
     public PostSummaryDto toSummaryDto(Post post) {
         // number == 1인 이미지 URL → thumbnailUrl
         String thumbnailUrl = postImageRepository.findByPostId(post.getId()).stream()
-                .filter(image -> image.getImageNumber() == 1)  // getImageNumber()로 수정
+                .filter(image -> image.getImageNumber() == 0)  // getImageNumber()로 수정
                 .map(PostImage::getImageUrl)
                 .findFirst()
                 .orElse(null);
