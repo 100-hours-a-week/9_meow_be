@@ -63,6 +63,7 @@ public class PostMapper {
                 post.getPostType(),
                 thumbnailUrl,
                 post.getCommentCount(),
+                post.getLikeCount(),
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );
