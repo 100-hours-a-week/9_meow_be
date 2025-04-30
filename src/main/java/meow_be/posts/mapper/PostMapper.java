@@ -27,14 +27,12 @@ public class PostMapper {
                 post.getUser().getId(),
                 post.getUser().getNickname(),  // 필드명 변경
                 post.getUser().getProfileImageUrl(),  // 필드명 변경
-                post.getTitle(),
                 post.getTransformedContent(),
                 post.getEmotion(),
                 post.getPostType(),
                 imageUrls,
                 post.getLikeCount(),
                 post.getCommentCount(),
-                post.getViewCount(),
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );
