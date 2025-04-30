@@ -20,9 +20,6 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 20)
-    private String title;
-
     @Column(nullable = false, length = 200)
     private String content;
 
@@ -43,9 +40,6 @@ public class Post {
 
     @Column(nullable = false)
     private Integer commentCount = 0;
-
-    @Column(nullable = false)
-    private Integer viewCount = 0;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
