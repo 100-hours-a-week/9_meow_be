@@ -19,7 +19,7 @@ public class S3Service {
 
     private final AmazonS3 amazonS3;
 
-    @Value("${cloud.aws.s3.bucket}")
+    @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
 
     public List<String> uploadImages(List<MultipartFile> imageFiles) {
