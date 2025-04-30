@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import meow_be.posts.domain.Post;
 import meow_be.posts.domain.PostImage;
 import meow_be.posts.dto.PostDto;
+import meow_be.posts.dto.PostSummaryDto;
 import meow_be.posts.repository.PostImageRepository;
 import org.springframework.stereotype.Component;
 
@@ -37,5 +38,35 @@ public class PostMapper {
                 post.getUpdatedAt()
         );
     }
+    public PostSummaryDto toSummaryDto(Post post) {
+        // number == 1인 이미지 URL → thumbnailUrl
+        String thumbnailUrl = postImageRepository.findByPostId(post.getId()).stream()
+                .filter(image -> image.getImageNumber() == 1)  // getImageNumber()로 수정
+                .map(PostImage::getImageUrl)
+                .findFirst()
+                .orElse(null);
+
+
+        // transformedContent 100자 제한
+        String shortContent = post.getTransformedContent();
+        if (shortContent != null && shortContent.length() > 100) {
+            shortContent = shortContent.substring(0, 100);
+        }
+
+        return new PostSummaryDto(
+                post.getId(),
+                post.getUser().getId(),
+                post.getUser().getNickname(),
+                post.getUser().getProfileImageUrl(),
+                shortContent,
+                post.getEmotion(),
+                post.getPostType(),
+                thumbnailUrl,
+                post.getCommentCount(),
+                post.getCreatedAt(),
+                post.getUpdatedAt()
+        );
+    }
+
 
 }
