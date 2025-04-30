@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,4 +39,16 @@ public class PostController {
         PostDto postDto = postService.getPostById(postId);
         return ResponseEntity.ok(postDto);
     }
+    @PostMapping
+    @ResponseBody
+    public ResponseEntity<String> createPost(
+            @RequestParam("content") String content,
+            @RequestParam("emotion") String emotion,
+            @RequestParam("post_type") String postType,
+            @RequestParam("images") List<MultipartFile> images) {
+
+        postService.createPost(content, emotion, postType, images);
+        return ResponseEntity.ok("게시물이 성공적으로 생성되었습니다.");
+    }
+
 }
