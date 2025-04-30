@@ -16,7 +16,7 @@ public class PostDto {
     private String postType;
     private List<String> imageUrls;
     private int commentCount;
-    private int viewCount;
+    private int likeCount;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")  // 포맷 지정
     private LocalDateTime createdAt;
@@ -25,7 +25,7 @@ public class PostDto {
     private LocalDateTime updatedAt;
 
     // Public 생성자
-    public PostDto(int id, int userId, String nickname, String profileImageUrl, String transformedContent, String emotion, String postType, List<String> imageUrls, int commentCount, int viewCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public PostDto(int id, int userId, String nickname, String profileImageUrl, String transformedContent, String emotion, String postType, List<String> imageUrls, int commentCount, int likeCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.nickname = nickname;
@@ -35,7 +35,7 @@ public class PostDto {
         this.postType = postType;
         this.imageUrls = imageUrls;
         this.commentCount = commentCount;
-        this.viewCount = viewCount;
+        this.likeCount = likeCount;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
