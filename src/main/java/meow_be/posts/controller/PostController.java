@@ -58,7 +58,7 @@ public class PostController {
             @RequestParam("content") String content,
             @RequestParam("emotion") String emotion,
             @RequestParam("post_type") String postType,
-            @RequestParam("images") List<MultipartFile> images) {
+            @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         String transformedContent = aiContentClient.transformContent(content,emotion,postType);
 
         postService.createPost(content, emotion, postType, images,transformedContent);
