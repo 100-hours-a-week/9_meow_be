@@ -29,7 +29,6 @@ public class PostService {
     private final PostMapper postMapper;
     private final S3Service s3Service;
     private final PostImageRepository postImageRepository;
-    // private final AiContentClient aiContentClient;
 
     public Page<PostSummaryDto> getPostSummaryPage(Pageable pageable) {
         return postRepository.findByIsDeletedFalse(pageable)
@@ -46,8 +45,8 @@ public class PostService {
     }
 
     @Transactional
-    public void createPost(String content, String emotion, String postType,
-                           List<MultipartFile> images,String transformedContent) {
+    public int createPost(String content, String emotion, String postType,
+                          List<MultipartFile> images, String transformedContent) {
 
         List<String> imageUrls = (images != null && !images.isEmpty())
                 ? s3Service.uploadImages(
@@ -58,7 +57,7 @@ public class PostService {
                 : List.of();
 
         User user = userRepository.findById(1)
-                .orElseThrow(() -> new IllegalArgumentException("User not found")); // 지금은 강제 입력이지만 추후 수정해야함
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Post post = Post.builder()
                 .user(user)
@@ -74,16 +73,18 @@ public class PostService {
                 .build();
         postRepository.save(post);
 
-        // 3. 이미지 URL 저장
         int index = 0;
         for (String imageUrl : imageUrls) {
             PostImage postImage = PostImage.builder()
                     .post(post)
                     .imageUrl(imageUrl)
-                    .imageNumber(index++) // 순서 보장
+                    .imageNumber(index++)
                     .build();
             postImageRepository.save(postImage);
         }
+
+        return post.getId();
     }
+
 
 }
