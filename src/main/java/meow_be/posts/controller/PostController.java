@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class PostController {
 
     private final PostService postService;
+    private final AiContentClient aiContentClient;
 
     @GetMapping
     @ResponseBody
@@ -46,8 +47,9 @@ public class PostController {
             @RequestParam("emotion") String emotion,
             @RequestParam("post_type") String postType,
             @RequestParam("images") List<MultipartFile> images) {
+        String transformedContent = aiContentClient.transformContent(content);
 
-        postService.createPost(content, emotion, postType, images);
+        postService.createPost(content, emotion, postType, images,transformedContent);
         return ResponseEntity.ok("게시물이 성공적으로 생성되었습니다.");
     }
 
