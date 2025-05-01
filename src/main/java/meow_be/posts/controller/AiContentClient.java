@@ -9,7 +9,7 @@ public class AiContentClient {
     private final WebClient webClient;
 
     public AiContentClient(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://127.0.0.1:8000://").build();
+        this.webClient = webClientBuilder.baseUrl("http://127.0.0.1:8000").build();
     }
 
     public String transformContent(String originalContent) {
