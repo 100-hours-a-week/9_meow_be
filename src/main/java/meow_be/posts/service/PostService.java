@@ -49,7 +49,9 @@ public class PostService {
     public void createPost(String content, String emotion, String postType,
                            List<MultipartFile> images,String transformedContent) {
 
-        List<String> imageUrls = s3Service.uploadImages(images);
+        List<String> imageUrls = (images != null && !images.isEmpty())
+                ? s3Service.uploadImages(images)
+                : List.of();  // 이미지가 없으면 빈 리스트 처리
         User user = userRepository.findById(1)
                 .orElseThrow(() -> new IllegalArgumentException("User not found")); // 지금은 강제 입력이지만 추후 수정해야함
         // String transformedContent = aiContentClient.transformContent(content);//추후에 넣기
