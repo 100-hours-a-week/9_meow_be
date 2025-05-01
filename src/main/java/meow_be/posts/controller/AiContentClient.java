@@ -12,12 +12,14 @@ public class AiContentClient {
         this.webClient = webClientBuilder.baseUrl("http://127.0.0.1:8000").build();
     }
 
-    public String transformContent(String originalContent) {
+    public String transformContent(String originalContent,String emotion, String post_type) {
         try {
             String aiResponse = webClient.post()
                     .uri(uriBuilder -> uriBuilder
                             .path("/generate/post")
                             .queryParam("content", originalContent)
+                            .queryParam("emotion", emotion)
+                            .queryParam("post_type", post_type)
                             .build())
                     .retrieve()
                     .bodyToMono(String.class)
