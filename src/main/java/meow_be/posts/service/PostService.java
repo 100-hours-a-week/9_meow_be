@@ -11,6 +11,7 @@ import meow_be.posts.repository.PostImageRepository;
 import meow_be.posts.repository.PostRepository;
 import meow_be.users.domain.User;
 import meow_be.users.repository.UserRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,12 +31,11 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     // private final AiContentClient aiContentClient;
 
-    public List<PostSummaryDto> getPostSummaries(Pageable pageable) {
+    public Page<PostSummaryDto> getPostSummaryPage(Pageable pageable) {
         return postRepository.findByIsDeletedFalse(pageable)
-                .stream()
-                .map(postMapper::toSummaryDto)
-                .collect(Collectors.toList());
+                .map(postMapper::toSummaryDto);
     }
+
 
     @Transactional(readOnly = true)
     public PostDto getPostById(int postId) {
