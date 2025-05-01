@@ -54,15 +54,17 @@ public class PostController {
     }
     @PostMapping
     @ResponseBody
-    public ResponseEntity<String> createPost(
+    public ResponseEntity<Integer> createPost(
             @RequestParam("content") String content,
             @RequestParam("emotion") String emotion,
             @RequestParam("post_type") String postType,
             @RequestParam(value = "images", required = false) List<MultipartFile> images) {
-        String transformedContent = aiContentClient.transformContent(content,emotion,postType);
 
-        postService.createPost(content, emotion, postType, images,transformedContent);
-        return ResponseEntity.ok("게시물이 성공적으로 생성되었습니다.");
+        String transformedContent = aiContentClient.transformContent(content, emotion, postType);
+        int postId = postService.createPost(content, emotion, postType, images, transformedContent);
+
+        return ResponseEntity.ok(postId);
     }
+
 
 }
