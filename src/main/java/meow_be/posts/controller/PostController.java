@@ -2,6 +2,7 @@ package meow_be.posts.controller;
 
 import lombok.RequiredArgsConstructor;
 import meow_be.posts.domain.Post;
+import meow_be.posts.dto.PageResponse;
 import meow_be.posts.dto.PostDto;
 import meow_be.posts.dto.PostSummaryDto;
 import meow_be.posts.service.PostService;
@@ -26,14 +27,25 @@ public class PostController {
 
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<PostSummaryDto>> getPosts(
+    public ResponseEntity<PageResponse<PostSummaryDto>> getPosts(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        List<PostSummaryDto> responseData = postService.getPostSummaries(pageable);  // 서비스에서 변환 완료된 DTO 반환
-        return ResponseEntity.ok(responseData);
+        Page<PostSummaryDto> postPage = postService.getPostSummaryPage(pageable); // Page<PostSummaryDto>로 반환되도록 서비스 수정 필요
+
+        PageResponse<PostSummaryDto> response = new PageResponse<>(
+                postPage.getContent(),
+                postPage.getNumber(),
+                postPage.getTotalPages(),
+                postPage.getTotalElements(),
+                postPage.getSize(),
+                postPage.isLast()
+        );
+
+        return ResponseEntity.ok(response);
     }
+
     @GetMapping("/{postId}")
     @ResponseBody
     public ResponseEntity<PostDto> getPostById(@PathVariable("postId") int postId) {
