@@ -25,9 +25,10 @@ import java.util.stream.Collectors;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final PostMapper postMapper;  // PostMapper 주입
+    private final PostMapper postMapper;
     private final S3Service s3Service;
     private final PostImageRepository postImageRepository;
+    // private final AiContentClient aiContentClient;
 
     public List<PostSummaryDto> getPostSummaries(Pageable pageable) {
         return postRepository.findByIsDeletedFalse(pageable)
@@ -46,18 +47,19 @@ public class PostService {
 
     @Transactional
     public void createPost(String content, String emotion, String postType,
-                           List<MultipartFile> images) {
+                           List<MultipartFile> images,String transformedContent) {
 
         List<String> imageUrls = s3Service.uploadImages(images);
         User user = userRepository.findById(1)
                 .orElseThrow(() -> new IllegalArgumentException("User not found")); // 지금은 강제 입력이지만 추후 수정해야함
+        // String transformedContent = aiContentClient.transformContent(content);//추후에 넣기
 
         Post post = Post.builder()
                 .user(user)
                 .content(content)
                 .emotion(emotion)
                 .postType(postType)
-                .transformedContent(content)
+                .transformedContent(transformedContent)
                 .likeCount(0)
                 .commentCount(0)
                 .isDeleted(false)
