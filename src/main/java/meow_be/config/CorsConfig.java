@@ -19,7 +19,8 @@ public class CorsConfig {
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
-                "http://www.meowng.com"
+                "http://www.meowng.com",
+                "https://d1234abcd.cloudfront.net/*"
         ));
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
