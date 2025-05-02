@@ -39,6 +39,9 @@ public class S3Service {
                 amazonS3.putObject(bucket, uniqueFileName, inputStream, metadata);
 
                 String fileUrl = amazonS3.getUrl(bucket, uniqueFileName).toString();
+                String s3Domain = "https://s3-an2-image-meowng.s3.ap-northeast-2.amazonaws.com";
+                String cloudFrontDomain = "https://d1234abcd.cloudfront.net";
+                fileUrl=fileUrl.replace(s3Domain, cloudFrontDomain);
                 imageUrls.add(fileUrl);
             } catch (Exception e) {
                 throw new RuntimeException("S3 이미지 업로드 중 오류 발생: " + e.getMessage());
