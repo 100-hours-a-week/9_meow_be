@@ -74,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = optionalUser.get();
-
+        System.out.print("일단 여기까지는 왔다.");
         String ourJwtAccessToken = tokenProvider.createToken(user.getId());
         tokenRepository.findByUser(user)
                 .ifPresentOrElse(
