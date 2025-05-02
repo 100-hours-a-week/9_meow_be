@@ -16,6 +16,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(nullable = false, unique = true)
+    private Long kakaoId;
+
     @Column(nullable = false, length = 30, unique = true)
     private String email;
 
