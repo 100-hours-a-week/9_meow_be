@@ -35,7 +35,6 @@ public class AuthServiceImpl implements AuthService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper;
     private final TokenProvider tokenProvider;
-
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
 
@@ -74,14 +73,15 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = optionalUser.get();
-        System.out.print("일단 여기까지는 왔다.");
         String ourJwtAccessToken = tokenProvider.createToken(user.getId());
-        tokenRepository.findByUser(user)
+
+        // userId를 사용하여 Token을 처리
+        tokenRepository.findByUserId(user.getId())
                 .ifPresentOrElse(
                         existingToken -> {
                             existingToken = Token.builder()
                                     .id(existingToken.getId())
-                                    .user(user)
+                                    .userId(user.getId()) // userId는 ID만 사용
                                     .accessToken(accessTokenFromKakao)
                                     .refreshToken(refreshTokenFromKakao)
                                     .build();
@@ -89,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
                         },
                         () -> {
                             Token newToken = Token.builder()
-                                    .user(user)
+                                    .userId(user.getId()) // userId는 ID만 사용
                                     .accessToken(accessTokenFromKakao)
                                     .refreshToken(refreshTokenFromKakao)
                                     .build();
