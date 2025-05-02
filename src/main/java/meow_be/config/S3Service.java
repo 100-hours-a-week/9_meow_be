@@ -40,7 +40,7 @@ public class S3Service {
 
                 String fileUrl = amazonS3.getUrl(bucket, uniqueFileName).toString();
                 String s3Domain = "https://s3-an2-image-meowng.s3.ap-northeast-2.amazonaws.com";
-                String cloudFrontDomain = "https://d1234abcd.cloudfront.net";
+                String cloudFrontDomain = "https://ds36vr51hmfa7.cloudfront.net/";
                 fileUrl=fileUrl.replace(s3Domain, cloudFrontDomain);
                 imageUrls.add(fileUrl);
             } catch (Exception e) {
