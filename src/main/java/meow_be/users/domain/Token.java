@@ -14,9 +14,9 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    private int userId;
 
     @Column(nullable = false, length = 512)
     private String accessToken;
