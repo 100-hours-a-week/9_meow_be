@@ -11,6 +11,12 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
     context-path: /api
+  jwt:
+    secret-key: c3ByaW5nU2VjdXJpdHlKd3RQcmFjdGljZUtleUphbmdKam9sa2l
+kakao:
+  client-id: faf26a5a6001ba7f6b3cd14f9fbc1d26
+  redirect-uri: http://localhost:8080/api/auth/kakao/callback
+  token-uri: https://kauth.kakao.com/oauth/token
 cloud:
   aws:
     credentials:
