@@ -40,4 +40,10 @@ public class AuthController {
         Long kakaoId = ((Number) payload.get("kakaoId")).longValue();
         return authService.loginWithKakaoId(kakaoId);
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshAccessToken(@RequestBody Map<String, String> payload) {
+        String refreshToken = payload.get("refreshToken");
+        return authService.refreshToken(refreshToken);
+    }
 }
