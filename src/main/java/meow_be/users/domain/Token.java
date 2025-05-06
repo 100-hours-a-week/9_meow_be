@@ -23,4 +23,11 @@ public class Token {
 
     @Column(nullable = false, length = 512)
     private String refreshToken;
+    @Builder
+    public Token(int userId, String accessToken, String refreshToken) {
+        this.userId = userId;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
+
 }
