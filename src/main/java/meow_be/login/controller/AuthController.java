@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import meow_be.login.service.AuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -22,7 +21,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-
     @GetMapping("/url")
     public ResponseEntity<String> getKakaoLoginUrl() {
         String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize" +
@@ -32,9 +30,14 @@ public class AuthController {
 
         return ResponseEntity.ok(kakaoAuthUrl);
     }
+
     @GetMapping("/kakao/callback")
     public ResponseEntity<?> kakaoCallback(@RequestParam("code") String code) {
         return authService.kakaoLogin(code);
     }
-
+    @PostMapping("/login")
+    public ResponseEntity<?> loginWithKakaoId(@RequestBody Map<String, Object> payload) {
+        Long kakaoId = ((Number) payload.get("kakaoId")).longValue();
+        return authService.loginWithKakaoId(kakaoId);
+    }
 }
