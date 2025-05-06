@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import meow_be.login.security.TokenProvider;
+import meow_be.users.domain.Token;
 import meow_be.users.domain.User;
+import meow_be.users.repository.TokenRepository;
 import meow_be.users.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -34,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private final ObjectMapper objectMapper;
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
 
     @Override
     public ResponseEntity<?> kakaoLogin(String code) {
@@ -65,7 +68,6 @@ public class AuthServiceImpl implements AuthService {
                     .body(Map.of("kakaoId", kakaoId, "isMember", false));
         }
 
-
         return ResponseEntity.ok()
                 .body(Map.of("kakaoId", kakaoId, "isMember", true));
     }
@@ -81,33 +83,47 @@ public class AuthServiceImpl implements AuthService {
 
         User user = optionalUser.get();
 
-        // Access Token과 Refresh Token을 생성
-        String accessToken = tokenProvider.createAccessToken(user.getId());
         String refreshToken = tokenProvider.createRefreshToken(user.getId());
+        String accessToken = tokenProvider.createAccessToken(user.getId());
 
-        // Refresh 토큰을 HttpOnly 쿠키로 설정
+        Token token = Token.builder()
+                .userId(user.getId())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+        tokenRepository.save(token);
+
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(true)  // HTTPS 환경에서만 전송
                 .path("/")
-                .maxAge(7 * 24 * 60 * 60) // 7일
+                .maxAge(24 * 60 * 60)
                 .build();
 
-        // Access Token을 응답 본문에 포함
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .body(Map.of(
-                        "accessToken", accessToken,
-                        "userId", user.getId(),
-                        "nickname", user.getNickname()
-                ));
+                .body(Map.of("accessToken", accessToken));
+    }
+
+    @Override
+    public ResponseEntity<?> refreshToken(String refreshToken) {
+        Optional<Token> tokenOptional = tokenRepository.findByRefreshToken(refreshToken);
+
+        if (tokenOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "유효하지 않은 Refresh Token"));
+        }
+
+        Token token = tokenOptional.get();
+        String newAccessToken = tokenProvider.createAccessToken(token.getUserId());
+
+        return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
 
     private Long getKakaoUserId(String accessToken) {
         String userInfoUri = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);  // Authorization: Bearer {access_token}
+        headers.setBearerAuth(accessToken);
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
         try {
