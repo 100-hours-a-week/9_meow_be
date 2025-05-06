@@ -47,18 +47,18 @@ public class PostMapper {
                 .orElse(null);
 
 
-        // transformedContent 100자 제한
-        String shortContent = post.getTransformedContent();
-        if (shortContent != null && shortContent.length() > 100) {
-            shortContent = shortContent.substring(0, 100);
-        }
+//        // transformedContent 100자 제한 전체 반환으로 수정 추후 수정 대비해 삭제 x
+//        String shortContent = post.getTransformedContent();
+//        if (shortContent != null && shortContent.length() > 100) {
+//            shortContent = shortContent.substring(0, 100);
+//        }
 
         return new PostSummaryDto(
                 post.getId(),
                 post.getUser().getId(),
                 post.getUser().getNickname(),
                 post.getUser().getProfileImageUrl(),
-                shortContent,
+                post.getTransformedContent(),
                 post.getEmotion(),
                 post.getPostType(),
                 thumbnailUrl,
