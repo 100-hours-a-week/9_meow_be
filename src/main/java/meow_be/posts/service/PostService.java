@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,8 +69,8 @@ public class PostService {
                 .likeCount(0)
                 .commentCount(0)
                 .isDeleted(false)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
+                .updatedAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
                 .build();
         postRepository.save(post);
 
