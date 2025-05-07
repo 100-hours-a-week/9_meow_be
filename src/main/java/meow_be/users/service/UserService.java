@@ -3,7 +3,6 @@ package meow_be.users.service;
 import lombok.RequiredArgsConstructor;
 import meow_be.config.S3Service;
 import meow_be.users.domain.User;
-import meow_be.users.dto.UserDto;
 import meow_be.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +16,7 @@ public class UserService {
 private final UserRepository userRepository;
 private final S3Service s3Service;
 
-public int createUser(UserDto userDto, MultipartFile profileImage) {
+public int createUser(Long kakaoId,String email,String nickname,String animalType, MultipartFile profileImage) {
     String profileImageUrl = null;
 
     if (profileImage != null && !profileImage.isEmpty()) {
@@ -25,10 +24,10 @@ public int createUser(UserDto userDto, MultipartFile profileImage) {
     }
 
     User user = User.builder()
-            .kakaoId(userDto.getKakaoId())
-            .email(userDto.getEmail())
-            .nickname(userDto.getNickname())
-            .animalType(userDto.getAnimalType())
+            .kakaoId(kakaoId)
+            .email(email)
+            .nickname(nickname)
+            .animalType(animalType)
             .profileImageUrl(profileImageUrl)
             .build();
 
