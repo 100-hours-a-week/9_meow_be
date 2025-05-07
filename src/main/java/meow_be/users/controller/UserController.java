@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import meow_be.users.dto.UserDto;
 import meow_be.users.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -19,10 +16,13 @@ public class UserController {
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<Integer> createUser(
-            @RequestPart("userDto") UserDto userDto,
+            @RequestParam("kakaoId") String kakaoId,
+            @RequestParam("email") String email,
+            @RequestParam("nickname") String nickname,
+            @RequestParam("animalType") String animalType,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
-        int userId = userService.createUser(userDto, profileImage);
+        int userId = userService.createUser(kakaoId,email,nickname, animalType,profileImage);
         return ResponseEntity.ok(userId);
     }
 }
