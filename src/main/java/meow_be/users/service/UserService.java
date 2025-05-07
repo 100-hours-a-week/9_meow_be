@@ -7,6 +7,7 @@ import meow_be.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -29,6 +30,8 @@ public int createUser(Long kakaoId,String email,String nickname,String animalTyp
             .nickname(nickname)
             .animalType(animalType)
             .profileImageUrl(profileImageUrl)
+            .createdAt(LocalDateTime.now())
+            .updatedAt(LocalDateTime.now())
             .build();
 
     return userRepository.save(user).getId();
