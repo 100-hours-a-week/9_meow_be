@@ -30,7 +30,7 @@ public class PostController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "created_at"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<PostSummaryDto> postPage = postService.getPostSummaryPage(pageable);
 
         PageResponse<PostSummaryDto> response = new PageResponse<>(
