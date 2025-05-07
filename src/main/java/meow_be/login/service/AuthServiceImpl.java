@@ -82,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = optionalUser.get();
-        System.out.println(user.getId());
+        tokenRepository.deleteByUserId(user.getId());
 
         String refreshToken = tokenProvider.createRefreshToken(user.getId());
         String accessToken = tokenProvider.createAccessToken(user.getId());
