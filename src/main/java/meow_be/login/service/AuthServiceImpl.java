@@ -84,17 +84,24 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = optionalUser.get();
-        tokenRepository.deleteByUserId(user.getId());
+        Optional<Token> existingTokenOpt = tokenRepository.findByUserId(user.getId());
 
         String refreshToken = tokenProvider.createRefreshToken(user.getId());
         String accessToken = tokenProvider.createAccessToken(user.getId());
+        if (existingTokenOpt.isPresent()) {
+            Token existingToken = existingTokenOpt.get();
+            existingToken.setAccessToken(accessToken);
+            existingToken.setRefreshToken(refreshToken);
+            tokenRepository.save(existingToken);
+        } else {
+            Token newToken = Token.builder()
+                    .userId(user.getId())
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+            tokenRepository.save(newToken);
+        }
 
-        Token token = Token.builder()
-                .userId(user.getId())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
-        tokenRepository.save(token);
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
