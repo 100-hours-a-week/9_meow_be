@@ -1,7 +1,6 @@
 package meow_be.users.controller;
 
 import lombok.RequiredArgsConstructor;
-import meow_be.users.dto.UserDto;
 import meow_be.users.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,7 @@ public class UserController {
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<Integer> createUser(
-            @RequestParam("kakaoId") String kakaoId,
+            @RequestParam("kakaoId") Long kakaoId,
             @RequestParam("email") String email,
             @RequestParam("nickname") String nickname,
             @RequestParam("animalType") String animalType,
