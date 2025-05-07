@@ -21,8 +21,7 @@ public int createUser(UserDto userDto, MultipartFile profileImage) {
     String profileImageUrl = null;
 
     if (profileImage != null && !profileImage.isEmpty()) {
-        List<String> urls = s3Service.uploadImages(List.of(profileImage));
-        profileImageUrl = urls.get(0);
+        profileImageUrl= s3Service.uploadImages(List.of(profileImage)).toString();
     }
 
     User user = User.builder()
