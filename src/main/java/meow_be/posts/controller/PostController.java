@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/posts")
@@ -71,7 +72,9 @@ public class PostController {
     }
     @PostMapping("/{postId}/likes")
     @ResponseBody
-    public ResponseEntity<String> likePost(@PathVariable("postId") int postId, @RequestBody Boolean isLiked, HttpServletRequest request) {
+    public ResponseEntity<String> likePost(@PathVariable("postId") int postId,
+                                           @RequestBody Map<String, Boolean> requestBody,
+                                           HttpServletRequest request) {
 
         String token = tokenProvider.extractTokenFromHeader(request);
         if (token == null) {
@@ -79,15 +82,20 @@ public class PostController {
         }
 
         Integer userId = tokenProvider.getUserIdFromToken(token);
-
         if (userId == null) {
-            return ResponseEntity.status(401).body("not invalid token.");
+            return ResponseEntity.status(401).body("not valid token.");
+        }
+
+        Boolean isLiked = requestBody.get("is_liked");
+        if (isLiked == null) {
+            return ResponseEntity.badRequest().body("Missing 'is_liked' field in request body.");
         }
 
         postLikeService.toggleLike(postId, userId, isLiked);
 
         return ResponseEntity.ok("success");
     }
+
 
 
 
