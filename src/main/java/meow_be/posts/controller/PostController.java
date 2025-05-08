@@ -34,10 +34,19 @@ public class PostController {
     @ResponseBody
     public ResponseEntity<PageResponse<PostSummaryDto>> getPosts(
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            HttpServletRequest request) {
+        String token = tokenProvider.extractTokenFromHeader(request);
+        Integer userId = null;
+        if (token != null) {
+            try {
+                userId = tokenProvider.getUserIdFromToken(token);
+            } catch (Exception e) {
+            }
+        }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<PostSummaryDto> postPage = postService.getPostSummaryPage(pageable);
+        Page<PostSummaryDto> postPage = postService.getPostSummaryPage(pageable,userId);
 
         PageResponse<PostSummaryDto> response = new PageResponse<>(
                 postPage.getContent(),
