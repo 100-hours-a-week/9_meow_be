@@ -39,12 +39,12 @@ public class PostMapper {
         );
     }
     public PostSummaryDto toSummaryDto(Post post) {
-        // number == 1인 이미지 URL → thumbnailUrl
-        String thumbnailUrl = postImageRepository.findByPostId(post.getId()).stream()
-                .filter(image -> image.getImageNumber() == 0)  // getImageNumber()로 수정
-                .map(PostImage::getImageUrl)
-                .findFirst()
-                .orElse(null);
+        // number == 1인 이미지 URL → thumbnailUrl -> 화질 수정된 post에 저장된 썸네일 이미지 url로 변경
+//        String thumbnailUrl = postImageRepository.findByPostId(post.getId()).stream()
+//                .filter(image -> image.getImageNumber() == 0)  // getImageNumber()로 수정
+//                .map(PostImage::getImageUrl)
+//                .findFirst()
+//                .orElse(null);
 
 
 //        // transformedContent 100자 제한 전체 반환으로 수정 추후 수정 대비해 삭제 x
@@ -61,7 +61,7 @@ public class PostMapper {
                 post.getTransformedContent(),
                 post.getEmotion(),
                 post.getPostType(),
-                thumbnailUrl,
+                post.getThumbnailUrl(),
                 post.getCommentCount(),
                 post.getLikeCount(),
                 post.getCreatedAt(),
