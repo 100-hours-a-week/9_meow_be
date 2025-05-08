@@ -3,6 +3,7 @@ package meow_be.login.security;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -70,5 +71,12 @@ public class TokenProvider {
         } catch (Exception e) {
             return false;
         }
+    }
+    public String extractTokenFromHeader(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            return null; // 토큰이 없거나 "Bearer "로 시작하지 않으면 null 반환
+        }
+        return token.substring(7); // "Bearer " 부분 제거하고 반환
     }
 }

@@ -25,4 +25,17 @@ public class PostLike {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public PostLike(Post post, User user, boolean isLiked) {
+        this.post = post;
+        this.user = user;
+        this.isLiked = isLiked;
+    }
+
+    // Getter, Setter, toString 등 필요에 따라 추가
+    public void setIsLiked(Boolean isLiked) {
+        this.isLiked = isLiked;
+    }
+
+
 }
