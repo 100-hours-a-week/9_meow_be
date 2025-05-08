@@ -50,13 +50,19 @@ public class PostService {
     public int createPost(String content, String emotion, String postType,
                           List<MultipartFile> images, String transformedContent) {
 
-        List<String> imageUrls = (images != null && !images.isEmpty())
-                ? s3Service.uploadImages(
-                images.stream()
-                        .filter(file -> !file.isEmpty() && file.getOriginalFilename() != null)
-                        .collect(Collectors.toList())
-        )
+        List<MultipartFile> filteredImages = (images != null && !images.isEmpty())
+                ? images.stream()
+                .filter(file -> !file.isEmpty() && file.getOriginalFilename() != null)
+                .collect(Collectors.toList())
                 : List.of();
+
+        List<String> imageUrls = s3Service.uploadImages(filteredImages);
+
+        String thumbnailUrl = null;
+        if (!filteredImages.isEmpty()) {
+            MultipartFile firstImage = filteredImages.get(0);
+            thumbnailUrl = s3Service.uploadThumbnail(firstImage);
+        }
 
         User user = userRepository.findById(1)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -67,6 +73,7 @@ public class PostService {
                 .emotion(emotion)
                 .postType(postType)
                 .transformedContent(transformedContent)
+                .thumbnailUrl(thumbnailUrl)
                 .likeCount(0)
                 .commentCount(0)
                 .isDeleted(false)
@@ -87,6 +94,7 @@ public class PostService {
 
         return post.getId();
     }
+
 
 
 }

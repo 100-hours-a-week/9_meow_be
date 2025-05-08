@@ -32,6 +32,10 @@ public class Post {
     @Column(nullable = false, length = 400)
     private String transformedContent;
 
+    @Column(length = 500)
+    private String thumbnailUrl;
+
+
     @Column(nullable = false)
     private Boolean isDeleted = false;
 
