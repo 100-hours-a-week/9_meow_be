@@ -60,7 +60,6 @@ public class PostController {
             @RequestParam(value = "images", required = false) List<MultipartFile> images) {
 
         String transformedContent = aiContentClient.transformContent(content, emotion, postType);
-        System.out.println(emotion);
         int postId = postService.createPost(content, emotion, postType, images, transformedContent);
 
         return ResponseEntity.ok(postId);
