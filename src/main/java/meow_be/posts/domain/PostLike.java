@@ -26,6 +26,9 @@ public class PostLike {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    public PostLike() {
+    }
+
     public PostLike(Post post, User user, boolean isLiked) {
         this.post = post;
         this.user = user;
