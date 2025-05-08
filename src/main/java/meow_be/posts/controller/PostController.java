@@ -1,9 +1,12 @@
 package meow_be.posts.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import meow_be.login.security.TokenProvider;
 import meow_be.posts.dto.PageResponse;
 import meow_be.posts.dto.PostDto;
 import meow_be.posts.dto.PostSummaryDto;
+import meow_be.posts.service.PostLikeService;
 import meow_be.posts.service.PostService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +26,8 @@ public class PostController {
 
     private final PostService postService;
     private final AiContentClient aiContentClient;
+    private final TokenProvider tokenProvider;
+    private final PostLikeService postLikeService;
 
     @GetMapping
     @ResponseBody
@@ -64,6 +69,26 @@ public class PostController {
 
         return ResponseEntity.ok(postId);
     }
+    @PostMapping("/{postId}/likes")
+    @ResponseBody
+    public ResponseEntity<String> likePost(@PathVariable("postId") int postId, @RequestBody Boolean isLiked, HttpServletRequest request) {
+
+        String token = tokenProvider.extractTokenFromHeader(request);
+        if (token == null) {
+            return ResponseEntity.status(401).body("토큰이 제공되지 않았습니다.");
+        }
+
+        Integer userId = tokenProvider.getUserIdFromToken(token);
+
+        if (userId == null) {
+            return ResponseEntity.status(401).body("유효하지 않은 토큰입니다.");
+        }
+
+        postLikeService.toggleLike(postId, userId, isLiked);
+
+        return ResponseEntity.ok("좋아요 상태가 변경되었습니다.");
+    }
+
 
 
 }
