@@ -34,7 +34,7 @@ public class PostService {
     public Page<PostSummaryDto> getPostSummaryPage(Pageable pageable,int userId) {
         
         return postRepository.findByIsDeletedFalse(pageable)
-                .map(postMapper::toSummaryDto);
+                .map(post -> postMapper.toSummaryDto(post, userId));
     }
 
 
