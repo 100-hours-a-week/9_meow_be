@@ -23,6 +23,7 @@ public class PostMapper {
         List<String> imageUrls = postImageRepository.findByPostId(post.getId()).stream()
                 .map(PostImage::getImageUrl)
                 .collect(Collectors.toList());
+        int likeCount = postLikeRepository.countByPostIdAndIsLikedTrue(post.getId());
 
         return new PostDto(
                 post.getId(),
@@ -33,7 +34,7 @@ public class PostMapper {
                 post.getEmotion(),
                 post.getPostType(),
                 imageUrls,
-                post.getLikeCount(),
+                likeCount,
                 post.getCommentCount(),
                 post.getCreatedAt(),
                 post.getUpdatedAt()
