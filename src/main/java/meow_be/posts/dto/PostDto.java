@@ -34,8 +34,8 @@ public class PostDto {
         this.emotion = emotion;
         this.postType = postType;
         this.imageUrls = imageUrls;
-        this.commentCount = commentCount;
         this.likeCount = likeCount;
+        this.commentCount = commentCount;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
