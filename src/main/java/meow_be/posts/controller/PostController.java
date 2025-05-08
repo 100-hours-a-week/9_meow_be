@@ -88,7 +88,7 @@ public class PostController {
 
         Boolean isLiked = requestBody.get("is_liked");
         if (isLiked == null) {
-            return ResponseEntity.badRequest().body("Missing 'is_liked' field in request body.");
+            return ResponseEntity.badRequest().body("Missing 'is_liked' field in request");
         }
 
         postLikeService.toggleLike(postId, userId, isLiked);
