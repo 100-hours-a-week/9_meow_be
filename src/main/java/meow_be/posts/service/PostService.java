@@ -31,7 +31,8 @@ public class PostService {
     private final S3Service s3Service;
     private final PostImageRepository postImageRepository;
 
-    public Page<PostSummaryDto> getPostSummaryPage(Pageable pageable) {
+    public Page<PostSummaryDto> getPostSummaryPage(Pageable pageable,int userId) {
+        
         return postRepository.findByIsDeletedFalse(pageable)
                 .map(postMapper::toSummaryDto);
     }

@@ -6,6 +6,7 @@ import meow_be.posts.domain.PostImage;
 import meow_be.posts.dto.PostDto;
 import meow_be.posts.dto.PostSummaryDto;
 import meow_be.posts.repository.PostImageRepository;
+import meow_be.posts.repository.PostLikeRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,9 +17,9 @@ import java.util.stream.Collectors;
 public class PostMapper {
 
     private final PostImageRepository postImageRepository;
+    private final PostLikeRepository postLikeRepository;
 
     public PostDto toDto(Post post) {
-        // 게시물에 관련된 이미지 URL 리스트 가져오기
         List<String> imageUrls = postImageRepository.findByPostId(post.getId()).stream()
                 .map(PostImage::getImageUrl)
                 .collect(Collectors.toList());
@@ -26,8 +27,8 @@ public class PostMapper {
         return new PostDto(
                 post.getId(),
                 post.getUser().getId(),
-                post.getUser().getNickname(),  // 필드명 변경
-                post.getUser().getProfileImageUrl(),  // 필드명 변경
+                post.getUser().getNickname(),
+                post.getUser().getProfileImageUrl(),
                 post.getTransformedContent(),
                 post.getEmotion(),
                 post.getPostType(),
@@ -38,21 +39,18 @@ public class PostMapper {
                 post.getUpdatedAt()
         );
     }
-    public PostSummaryDto toSummaryDto(Post post) {
-        // number == 1인 이미지 URL → thumbnailUrl -> 화질 수정된 post에 저장된 썸네일 이미지 url로 변경
-//        String thumbnailUrl = postImageRepository.findByPostId(post.getId()).stream()
-//                .filter(image -> image.getImageNumber() == 0)  // getImageNumber()로 수정
-//                .map(PostImage::getImageUrl)
-//                .findFirst()
-//                .orElse(null);
+    public PostSummaryDto toSummaryDto(Post post, Integer userId) {
+        String thumbnailUrl = postImageRepository.findByPostId(post.getId()).stream()
+                .filter(image -> image.getImageNumber() == 0)
+                .map(PostImage::getImageUrl)
+                .findFirst()
+                .orElse(null);
 
-
-//        // transformedContent 100자 제한 전체 반환으로 수정 추후 수정 대비해 삭제 x
-//        String shortContent = post.getTransformedContent();
-//        if (shortContent != null && shortContent.length() > 100) {
-//            shortContent = shortContent.substring(0, 100);
-//        }
-
+        boolean isLiked = false;
+        if (userId != null) {
+            isLiked = postLikeRepository.existsByPostIdAndUserIdAndIsLikedTrue(post.getId(), userId);
+        }
+        int likeCount = postLikeRepository.countByPostIdAndIsLikedTrue(post.getId());
         return new PostSummaryDto(
                 post.getId(),
                 post.getUser().getId(),
@@ -63,10 +61,16 @@ public class PostMapper {
                 post.getPostType(),
                 post.getThumbnailUrl(),
                 post.getCommentCount(),
-                post.getLikeCount(),
+                likeCount,
+                isLiked,
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );
+    }
+
+    // 기존 버전 (userId 없는 경우)
+    public PostSummaryDto toSummaryDto(Post post) {
+        return toSummaryDto(post, null);
     }
 
 
