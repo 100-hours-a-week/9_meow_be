@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    # CI에서는 SPRING_DATASOURCE_URL 환경변수로, 없으면 기본 로컬 URL 사용
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/meow1?serverTimezone=Asia/Seoul}
+    # CI에서는 SPRING_DATASOURCE_USERNAME 환경변수로, 없으면 기본 root 사용
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    # CI에서는 SPRING_DATASOURCE_PASSWORD 환경변수로, 없으면 기본 1234 사용
+    password: ${SPRING_DATASOURCE_PASSWORD:1234}
+    # 드라이버 클래스도 플레이스홀더로 감싸서 필요 시 덮어쓰기 가능
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+    context-path: /api
+
+  jwt:
+    secret-key: c3ByaW5nU2VjdXJpdHlKd3RQcmFjdGljZUtleUphbmdKam9sa2l
+
+kakao:
+  client-id: faf26a5a6001ba7f6b3cd14f9fbc1d26
+  redirect-uri: http://localhost:8080/api/auth/kakao/callback
+  token-uri: https://kauth.kakao.com/oauth/token
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID:}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:}
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: s3-an2-image-meowng
+    stack:
+      auto: false

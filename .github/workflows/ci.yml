@@ -1,0 +1,111 @@
+# .github/workflows/ci.yml
+name: MeowBe CI
+
+on:
+  push:
+    branches:
+      - develop
+      - 'feature/**'
+      - '*-feat-*'
+  pull_request:
+    branches:
+      - develop
+      - release
+
+jobs:
+  build:
+    name: ⚙️ Build & Unit Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle','**/settings.gradle') }}
+
+      - name: Ensure gradlew is executable
+        run: chmod +x gradlew
+
+      - name: Run tests
+        run: ./gradlew clean test
+
+  integration:
+    name: 🔗 Integration Test
+    runs-on: ubuntu-latest
+    needs: build
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          MYSQL_DATABASE: meow1
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Checkout AI Server repo
+        uses: actions/checkout@v3
+        with:
+          repository: your-org/ai-server-repo   # 실제 AI 서버 레포로 변경
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ai-server
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install AI Server dependencies
+        run: |
+          cd ai-server
+          pip install -r requirements.txt
+
+      - name: Start AI Server
+        run: |
+          cd ai-server
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+
+      - name: Wait for AI health
+        run: |
+          until curl -s http://localhost:8000/health; do sleep 5; done
+
+      - name: Build Spring Boot app
+        run: |
+          chmod +x gradlew
+          ./gradlew bootJar -x test
+
+      - name: Start Spring Boot app
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/meow1?serverTimezone=Asia/Seoul
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+          SERVER_PORT: 8080
+        run: |
+          java -jar build/libs/*.jar &
+
+      - name: Wait for Backend health
+        run: |
+          until curl -s http://localhost:8080/api/health; do sleep 5; done
+
+      - name: Smoke test /infer
+        run: curl -f "http://localhost:8080/api/infer?text=hello&type=cat"
