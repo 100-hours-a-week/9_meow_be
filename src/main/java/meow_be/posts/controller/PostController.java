@@ -62,8 +62,16 @@ public class PostController {
 
     @GetMapping("/{postId}")
     @ResponseBody
-    public ResponseEntity<PostDto> getPostById(@PathVariable("postId") int postId) {
-        PostDto postDto = postService.getPostById(postId);
+    public ResponseEntity<PostDto> getPostById(@PathVariable("postId") int postId,HttpServletRequest request) {
+        String token = tokenProvider.extractTokenFromHeader(request);
+        Integer userId = null;
+        if (token != null) {
+            try {
+                userId = tokenProvider.getUserIdFromToken(token);
+            } catch (Exception e) {
+            }
+        }
+        PostDto postDto = postService.getPostById(postId,userId);
         return ResponseEntity.ok(postDto);
     }
     @PostMapping
