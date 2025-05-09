@@ -67,7 +67,7 @@ public class PostMapper {
                 post.getTransformedContent(),
                 post.getEmotion(),
                 post.getPostType(),
-                post.getThumbnailUrl(),
+                thumbnailUrl,
                 post.getCommentCount(),
                 likeCount,
                 isLiked,
