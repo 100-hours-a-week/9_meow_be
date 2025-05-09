@@ -14,7 +14,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<Integer> createUser(
+    public ResponseEntity<Long> createUser(
             @RequestParam("kakaoId") Long kakaoId,
             @RequestParam("email") String email,
             @RequestParam("nickname") String nickname,
@@ -22,6 +22,6 @@ public class UserController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         int userId = userService.createUser(kakaoId,email,nickname, animalType,profileImage);
-        return ResponseEntity.ok(userId);
+        return ResponseEntity.ok(kakaoId);
     }
 }
