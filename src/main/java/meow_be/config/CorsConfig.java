@@ -18,6 +18,7 @@ public class CorsConfig {
         config.setAllowCredentials(true);
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
+                "https://localhost:*",
                 "http://127.0.0.1:*",
                 "https://127.0.0.1:*",
                 "http://www.meowng.com",
