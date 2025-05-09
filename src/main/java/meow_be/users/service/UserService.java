@@ -34,4 +34,7 @@ public int createUser(Long kakaoId,String nickname,String animalType, MultipartF
 
     return userRepository.save(user).getId();
 }
+    public boolean isNicknameDuplicate(String nickname) {
+        return userRepository.existsByNickname(nickname);
+    }
 }

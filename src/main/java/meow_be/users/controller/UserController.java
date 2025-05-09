@@ -23,4 +23,9 @@ public class UserController {
         int userId = userService.createUser(kakaoId,nickname, animalType,profileImage);
         return ResponseEntity.ok(kakaoId);
     }
+    @GetMapping("/check-nickname")
+    public ResponseEntity<Boolean> checkNicknameDuplicate(@RequestParam("nickname") String nickname) {
+        boolean isDuplicate = userService.isNicknameDuplicate(nickname);
+        return ResponseEntity.ok(isDuplicate);
+    }
 }
