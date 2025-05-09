@@ -19,11 +19,17 @@ public class PostMapper {
     private final PostImageRepository postImageRepository;
     private final PostLikeRepository postLikeRepository;
 
-    public PostDto toDto(Post post) {
+    public PostDto toDto(Post post, Integer userId) {
         List<String> imageUrls = postImageRepository.findByPostId(post.getId()).stream()
                 .map(PostImage::getImageUrl)
                 .collect(Collectors.toList());
+
         int likeCount = postLikeRepository.countByPostIdAndIsLikedTrue(post.getId());
+
+        boolean isLiked = false;
+        if (userId != null) {
+            isLiked = postLikeRepository.existsByPostIdAndUserIdAndIsLikedTrue(post.getId(), userId);
+        }
 
         return new PostDto(
                 post.getId(),
@@ -36,6 +42,7 @@ public class PostMapper {
                 imageUrls,
                 likeCount,
                 post.getCommentCount(),
+                isLiked,
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );
