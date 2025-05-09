@@ -23,8 +23,8 @@ public class Post {
     @Column(nullable = false, length = 200)
     private String content;
 
-    @Column(nullable = false, length = 10)
-    private String emotion;
+    @Enumerated(EnumType.STRING)
+    private Emotion emotion;
 
     @Column(nullable = false, length = 10)
     private String postType;
