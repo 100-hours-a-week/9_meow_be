@@ -39,10 +39,10 @@ public class PostService {
 
 
     @Transactional(readOnly = true)
-    public PostDto getPostById(int postId) {
+    public PostDto getPostById(int postId,Integer userId) {
         Post post = postRepository.findByIdAndIsDeletedFalse(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
-        return postMapper.toDto(post);
+        return postMapper.toDto(post,userId);
 
     }
 
