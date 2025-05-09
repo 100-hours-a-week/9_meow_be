@@ -17,16 +17,14 @@ public class UserService {
 private final UserRepository userRepository;
 private final S3Service s3Service;
 
-public int createUser(Long kakaoId,String email,String nickname,String animalType, MultipartFile profileImage) {
+public int createUser(Long kakaoId,String nickname,String animalType, MultipartFile profileImage) {
     String profileImageUrl = null;
 
     if (profileImage != null && !profileImage.isEmpty()) {
         profileImageUrl= s3Service.uploadImages(List.of(profileImage)).toString();
     }
-
     User user = User.builder()
             .kakaoId(kakaoId)
-            .email(email)
             .nickname(nickname)
             .animalType(animalType)
             .profileImageUrl(profileImageUrl)

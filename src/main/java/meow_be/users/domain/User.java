@@ -19,9 +19,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private Long kakaoId;
 
-    @Column(nullable = false, length = 30, unique = true)
-    private String email;
-
     @Column(nullable = false, length = 10)
     private String nickname;
 
