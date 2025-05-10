@@ -65,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
         Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
 
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity.ok()
                     .body(Map.of("kakaoId", kakaoId, "isMember", false));
         }
 
