@@ -21,8 +21,9 @@ public int createUser(Long kakaoId,String nickname,String animalType, MultipartF
     String profileImageUrl = null;
 
     if (profileImage != null && !profileImage.isEmpty()) {
-        profileImageUrl= s3Service.uploadImages(List.of(profileImage)).toString();
+        profileImageUrl= s3Service.uploadImages(List.of(profileImage)).get(0);
     }
+
     User user = User.builder()
             .kakaoId(kakaoId)
             .nickname(nickname)
