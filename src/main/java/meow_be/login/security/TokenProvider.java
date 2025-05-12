@@ -12,7 +12,7 @@ import java.util.Date;
 @Component
 public class TokenProvider {
 
-    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 15;  // 15분
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 *24 *21;  // 21일
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7;  // 7일
     private static final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
