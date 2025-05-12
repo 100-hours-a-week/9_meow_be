@@ -1,6 +1,7 @@
 package meow_be.login.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import meow_be.login.service.AuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     @Value("${kakao.client-id}")
@@ -27,9 +29,8 @@ public class AuthController {
                 "?response_type=code" +
                 "&client_id=" + kakaoClientId +
                 "&redirect_uri=" + kakaoRedirectUri;
-        System.out.println(kakaoAuthUrl);
-        System.out.println(kakaoRedirectUri);
-
+        log.info(kakaoAuthUrl);
+        log.info(kakaoRedirectUri);
         return ResponseEntity.ok(kakaoAuthUrl);
     }
 
