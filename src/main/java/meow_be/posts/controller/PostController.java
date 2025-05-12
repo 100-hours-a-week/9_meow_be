@@ -8,6 +8,8 @@ import meow_be.posts.dto.PostDto;
 import meow_be.posts.dto.PostSummaryDto;
 import meow_be.posts.service.PostLikeService;
 import meow_be.posts.service.PostService;
+import meow_be.users.domain.User;
+import meow_be.users.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,7 @@ public class PostController {
     private final AiContentClient aiContentClient;
     private final TokenProvider tokenProvider;
     private final PostLikeService postLikeService;
+    private final UserRepository userRepository;
 
     @GetMapping
     @ResponseBody
@@ -80,14 +83,18 @@ public class PostController {
     public ResponseEntity<?> createPost(
             @RequestParam("content") String content,
             @RequestParam("emotion") String emotion,
-            @RequestParam("post_type") String postType,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
             HttpServletRequest request) {
 
         Integer userId = getAuthenticatedUserId(request);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        String postType=user.getAnimalType();
+
+
         
         String transformedContent = aiContentClient.transformContent(content, emotion, postType);
-        int postId = postService.createPost(content, emotion, postType, images, transformedContent,userId);
+        int postId = postService.createPost(content, emotion, postType,images, transformedContent,userId);
 
         return ResponseEntity.ok(postId);
     }

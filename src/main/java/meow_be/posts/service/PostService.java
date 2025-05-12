@@ -71,7 +71,7 @@ public class PostService {
                 .user(user)
                 .content(content)
                 .emotion(emotion)
-                .postType(user.getAnimalType())
+                .postType(postType)
                 .transformedContent(transformedContent)
                 .thumbnailUrl(thumbnailUrl)
                 .likeCount(0)
