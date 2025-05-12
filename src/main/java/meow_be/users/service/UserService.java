@@ -37,10 +37,12 @@ public int createUser(Long kakaoId,String nickname,String animalType, MultipartF
     public boolean isNicknameDuplicate(String nickname) {
         return userRepository.existsByNickname(nickname);
     }
-    public String getProfileImageUrlByKakaoId(Long kakaoId) {
-        User user = userRepository.findByKakaoId(kakaoId)
+    public String getProfileImageUrlByUserId(Integer userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         return user.getProfileImageUrl();
     }
+
+
 
 }
