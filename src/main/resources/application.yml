@@ -15,7 +15,7 @@ spring:
     secret-key: c3ByaW5nU2VjdXJpdHlKd3RQcmFjdGljZUtleUphbmdKam9sa2l
 kakao:
   client-id: faf26a5a6001ba7f6b3cd14f9fbc1d26
-  redirect-uri: https://localhost:5173/redirect
+  redirect-uri: localhost:5173/redirect
   token-uri: https://kauth.kakao.com/oauth/token
 cloud:
   aws:
