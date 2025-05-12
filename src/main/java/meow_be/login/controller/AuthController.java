@@ -6,7 +6,7 @@ import meow_be.login.service.AuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @RestController
@@ -24,11 +24,19 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/url")
-    public ResponseEntity<String> getKakaoLoginUrl() {
+    public ResponseEntity<String> getKakaoLoginUrl(HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        String redirectUri;
+        if (referer != null && referer.contains("localhost:5173")) {
+            redirectUri = "http://localhost:5173/redirect";
+        } else {
+            redirectUri = kakaoRedirectUri;
+        }
+
         String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize" +
                 "?response_type=code" +
                 "&client_id=" + kakaoClientId +
-                "&redirect_uri=" + kakaoRedirectUri;
+                "&redirect_uri=" + redirectUri;
         log.info(kakaoAuthUrl);
         log.info(kakaoRedirectUri);
         return ResponseEntity.ok(kakaoAuthUrl);
