@@ -12,7 +12,7 @@ spring:
       max-request-size: 10MB
     context-path: /api
   jwt:
-    secret-key: c3ByaW5nU2VjdXJpdHlKd3RQcmFjdGljZUtleUphbmdKam9sa2l
+    secret-key: V1JZQk1BTVNEQ1ZCV1ZKR0hVSUdVSk1OT1BLWVNXTEtTTk9PT0xLS0xKTU5VSk1MS1NKT1A=
 kakao:
   client-id: faf26a5a6001ba7f6b3cd14f9fbc1d26
   redirect-uri: https://www.meowng.com/redirect
