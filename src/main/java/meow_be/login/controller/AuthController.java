@@ -26,7 +26,7 @@ public class AuthController {
         String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize" +
                 "?response_type=code" +
                 "&client_id=" + kakaoClientId +
-                "&redirect_uri=" + kakaoRedirectUri;
+                "&redirect_uri=" + "https://www.meowng.com/redirect";
 
         return ResponseEntity.ok(kakaoAuthUrl);
     }
