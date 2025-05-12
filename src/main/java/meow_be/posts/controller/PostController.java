@@ -2,6 +2,7 @@ package meow_be.posts.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import meow_be.login.security.TokenProvider;
 import meow_be.posts.dto.PageResponse;
 import meow_be.posts.dto.PostDto;
@@ -26,6 +27,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/posts")
 @RequiredArgsConstructor
+@Slf4j
 public class PostController {
 
     private final PostService postService;
@@ -91,6 +93,7 @@ public class PostController {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         String postType=user.getAnimalType();
 
+        log.info(emotion);
 
         
         String transformedContent = aiContentClient.transformContent(content, emotion, postType);
