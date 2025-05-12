@@ -48,7 +48,7 @@ public class PostService {
 
     @Transactional
     public int createPost(String content, String emotion, String postType,
-                          List<MultipartFile> images, String transformedContent) {
+                          List<MultipartFile> images, String transformedContent,Integer userId) {
 
         List<MultipartFile> filteredImages = (images != null && !images.isEmpty())
                 ? images.stream()
@@ -64,14 +64,14 @@ public class PostService {
             thumbnailUrl = s3Service.uploadThumbnail(firstImage);
         }
 
-        User user = userRepository.findById(1)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Post post = Post.builder()
                 .user(user)
                 .content(content)
                 .emotion(emotion)
-                .postType(postType)
+                .postType(user.getAnimalType())
                 .transformedContent(transformedContent)
                 .thumbnailUrl(thumbnailUrl)
                 .likeCount(0)

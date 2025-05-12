@@ -76,14 +76,26 @@ public class PostController {
     }
     @PostMapping
     @ResponseBody
-    public ResponseEntity<Integer> createPost(
+    public ResponseEntity<?> createPost(
             @RequestParam("content") String content,
             @RequestParam("emotion") String emotion,
             @RequestParam("post_type") String postType,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            HttpServletRequest request) {
+
+        String token = tokenProvider.extractTokenFromHeader(request);
+        if (token == null) {
+            return ResponseEntity.status(401).body("token not provided");
+        }
+
+        Integer userId = tokenProvider.getUserIdFromToken(token);
+        if (userId == null) {
+            return ResponseEntity.status(401).body("not valid token.");
+        }
+
 
         String transformedContent = aiContentClient.transformContent(content, emotion, postType);
-        int postId = postService.createPost(content, emotion, postType, images, transformedContent);
+        int postId = postService.createPost(content, emotion, postType, images, transformedContent,userId);
 
         return ResponseEntity.ok(postId);
     }
