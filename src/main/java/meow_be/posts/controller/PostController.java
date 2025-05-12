@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -83,17 +84,8 @@ public class PostController {
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
             HttpServletRequest request) {
 
-        String token = tokenProvider.extractTokenFromHeader(request);
-        if (token == null) {
-            return ResponseEntity.status(401).body("token not provided");
-        }
-
-        Integer userId = tokenProvider.getUserIdFromToken(token);
-        if (userId == null) {
-            return ResponseEntity.status(401).body("not valid token.");
-        }
-
-
+        Integer userId = getAuthenticatedUserId(request);
+        
         String transformedContent = aiContentClient.transformContent(content, emotion, postType);
         int postId = postService.createPost(content, emotion, postType, images, transformedContent,userId);
 
@@ -105,15 +97,7 @@ public class PostController {
                                            @RequestBody Map<String, Boolean> requestBody,
                                            HttpServletRequest request) {
 
-        String token = tokenProvider.extractTokenFromHeader(request);
-        if (token == null) {
-            return ResponseEntity.status(401).body("token not provided");
-        }
-
-        Integer userId = tokenProvider.getUserIdFromToken(token);
-        if (userId == null) {
-            return ResponseEntity.status(401).body("not valid token.");
-        }
+        Integer userId = getAuthenticatedUserId(request);
 
         Boolean isLiked = requestBody.get("is_liked");
         if (isLiked == null) {
@@ -124,6 +108,27 @@ public class PostController {
 
         return ResponseEntity.ok("success");
     }
+    private Integer getAuthenticatedUserId(HttpServletRequest request) {
+        String token = tokenProvider.extractTokenFromHeader(request);
+        if (token == null) {
+            throw new UnauthorizedException("token not provided");
+        }
+
+        Integer userId = tokenProvider.getUserIdFromToken(token);
+        if (userId == null) {
+            throw new UnauthorizedException("not valid token.");
+        }
+
+        return userId;
+    }
+    @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+    public class UnauthorizedException extends RuntimeException {
+        public UnauthorizedException(String message) {
+            super(message);
+        }
+    }
+
+
 
 
 
