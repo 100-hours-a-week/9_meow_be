@@ -27,6 +27,7 @@ public class AuthController {
                 "?response_type=code" +
                 "&client_id=" + kakaoClientId +
                 "&redirect_uri=" + kakaoRedirectUri;
+        System.out.println(kakaoAuthUrl);
 
         return ResponseEntity.ok(kakaoAuthUrl);
     }
