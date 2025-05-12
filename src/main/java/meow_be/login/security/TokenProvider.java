@@ -4,17 +4,23 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+
 
 @Component
 public class TokenProvider {
+    private final SecretKey key;
+    public TokenProvider(@Value("${spring.jwt.secret-key}") String secretKey) {
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    }
 
     private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 *24 *21;  // 21일
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7;  // 7일
-    private static final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
     public String createAccessToken(Integer userId) {
         return generateToken(userId, ACCESS_TOKEN_EXPIRATION_TIME);
@@ -29,14 +35,14 @@ public class TokenProvider {
                 .setSubject(userId.toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(secretKey)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
     public Integer getUserIdFromToken(String token) {
         return Integer.parseInt(
                 Jwts.parserBuilder()
-                        .setSigningKey(secretKey)
+                        .setSigningKey(key)
                         .build()
                         .parseClaimsJws(token)
                         .getBody()
@@ -45,7 +51,7 @@ public class TokenProvider {
 
     public boolean isTokenExpired(String token) {
         Date expiration = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -64,7 +70,7 @@ public class TokenProvider {
     public boolean validateRefreshToken(String refreshToken) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(refreshToken);
             return true;
