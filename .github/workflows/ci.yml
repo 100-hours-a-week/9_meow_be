@@ -1,32 +1,94 @@
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/meow1?serverTimezone=Asia/Seoul
-    username: root
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
-    context-path: /api
-  jwt:
-    secret-key: c3ByaW5nU2VjdXJpdHlKd3RQcmFjdGljZUtleUphbmdKam9sa2l
+# .github/workflows/ci.yml
+name: MeowBe CI
 
-kakao:
-  client-id: faf26a5a6001ba7f6b3cd14f9fbc1d26
-  redirect-uri: https://www.meowng.com/redirect
-  token-uri: https://kauth.kakao.com/oauth/token
+on:
+  push:
+    branches:
+      - develop
+      - 'feature/**'
+      - '*-feat-*'
+  pull_request:
+    branches:
+      - develop
+      - release
 
-cloud:
-  aws:
-    credentials:
-      access-key: ${AWS_ACCESS_KEY_ID}
-      secret-key: ${AWS_SECRET_ACCESS_KEY}
-    region:
-      static: ap-northeast-2
-    s3:
-      bucket: s3-an2-image-meowng
-    stack:
-      auto: false
+jobs:
+  build:
+    name: ⚙️ Build & Unit Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle','**/settings.gradle') }}
+
+      - name: Ensure gradlew is executable
+        run: chmod +x gradlew
+
+      - name: Run tests
+        run: ./gradlew clean test
+
+  integration:
+    name: 🔗 Integration Smoke Test
+    runs-on: ubuntu-latest
+    needs: build
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          MYSQL_DATABASE: meow1
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s --health-retries=3
+
+    env:
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/meow1?serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SERVER_PORT: 8080
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Ensure gradlew is executable
+        run: chmod +x gradlew
+
+      - name: Build Spring Boot app (no tests)
+        run: ./gradlew bootJar -x test
+
+      - name: Start Spring Boot app
+        run: |
+          java -jar build/libs/*.jar &
+
+      - name: Wait for Backend health
+        run: |
+          for i in {1..12}; do
+            curl -sf http://localhost:$SERVER_PORT/api/health && echo "🟢 OK" && exit 0
+            sleep 5
+          done
+          echo "❌ Backend health check failed" && exit 1
