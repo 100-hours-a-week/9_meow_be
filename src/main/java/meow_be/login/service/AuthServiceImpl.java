@@ -105,6 +105,7 @@ public class AuthServiceImpl implements AuthService {
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
+                .secure(true)
                 .path("/")
                 .maxAge(24 * 60 * 60)
                 .build();
