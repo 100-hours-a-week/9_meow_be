@@ -28,9 +28,6 @@ public class AuthServiceImpl implements AuthService {
     @Value("${kakao.client-id}")
     private String clientId;
 
-    @Value("${kakao.redirect-uri}")
-    private String redirectUri;
-
     @Value("${kakao.token-uri}")
     private String tokenUri;
 
@@ -41,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final TokenRepository tokenRepository;
 
     @Override
-    public ResponseEntity<?> kakaoLogin(String code) {
+    public ResponseEntity<?> kakaoLogin(String code,String redirectUri) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
