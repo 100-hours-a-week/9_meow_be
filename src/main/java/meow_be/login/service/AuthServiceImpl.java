@@ -117,7 +117,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<?> refreshToken(String refreshToken) {
+    public ResponseEntity<?> refreshTokenFromCookie(String refreshToken) {
         Optional<Token> tokenOptional = tokenRepository.findByRefreshToken(refreshToken);
 
         if (tokenOptional.isEmpty()) {
