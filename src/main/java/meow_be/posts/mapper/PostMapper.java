@@ -30,6 +30,8 @@ public class PostMapper {
         if (userId != null) {
             isLiked = postLikeRepository.existsByPostIdAndUserIdAndIsLikedTrue(post.getId(), userId);
         }
+        boolean isMyPost = userId != null && userId.equals(post.getUser().getId());
+
 
         return new PostDto(
                 post.getId(),
@@ -43,6 +45,7 @@ public class PostMapper {
                 likeCount,
                 post.getCommentCount(),
                 isLiked,
+                isMyPost,
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );
@@ -59,6 +62,7 @@ public class PostMapper {
             isLiked = postLikeRepository.existsByPostIdAndUserIdAndIsLikedTrue(post.getId(), userId);
         }
         int likeCount = postLikeRepository.countByPostIdAndIsLikedTrue(post.getId());
+        boolean isMyPost = userId != null && userId.equals(post.getUser().getId());
         return new PostSummaryDto(
                 post.getId(),
                 post.getUser().getId(),
@@ -71,6 +75,7 @@ public class PostMapper {
                 post.getCommentCount(),
                 likeCount,
                 isLiked,
+                isMyPost,
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );
