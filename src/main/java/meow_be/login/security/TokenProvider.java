@@ -19,7 +19,7 @@ public class TokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 *24 *21;  // 21일
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 10;  //10분
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7;  // 7일
 
     public String createAccessToken(Integer userId) {
