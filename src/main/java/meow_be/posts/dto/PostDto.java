@@ -9,8 +9,8 @@ import java.util.List;
 public class PostDto {
     private int id;
     private int userId;
-    private String nickname;  // 변경된 필드명
-    private String profileImageUrl;  // 변경된 필드명
+    private String nickname;
+    private String profileImageUrl;
     private String transformedContent;
     private String emotion;
     private String postType;
@@ -18,15 +18,15 @@ public class PostDto {
     private int commentCount;
     private int likeCount;
     private boolean isLiked;
+    private boolean isMyPost;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")  // 포맷 지정
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")  // 포맷 지정
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    // Public 생성자
-    public PostDto(int id, int userId, String nickname, String profileImageUrl, String transformedContent, String emotion, String postType, List<String> imageUrls, int likeCount, int commentCount,boolean isLiked, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public PostDto(int id, int userId, String nickname, String profileImageUrl, String transformedContent, String emotion, String postType, List<String> imageUrls, int likeCount, int commentCount,boolean isLiked,boolean isMyPost, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.nickname = nickname;
@@ -38,6 +38,7 @@ public class PostDto {
         this.likeCount = likeCount;
         this.commentCount = commentCount;
         this.isLiked=isLiked;
+        this.isMyPost=isMyPost;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

@@ -18,6 +18,7 @@ public class PostSummaryDto {
     private int commentCount;
     private int likeCount;
     private boolean isLiked;
+    private boolean isMyPost;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -28,7 +29,7 @@ public class PostSummaryDto {
     public PostSummaryDto(int id, int userId, String nickname, String profileImageUrl,
                           String transformedContent, String emotion, String postType,
                           String thumbnailUrl, int commentCount, int likeCount,
-                          boolean isLiked,
+                          boolean isLiked,boolean isMyPost,
                           LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
@@ -41,6 +42,7 @@ public class PostSummaryDto {
         this.commentCount = commentCount;
         this.likeCount=likeCount;
         this.isLiked=isLiked;
+        this.isMyPost=isMyPost;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
