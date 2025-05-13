@@ -5,18 +5,33 @@ on:
   push:
     branches:
       - develop
-      - 'feature/**'
-      - '*-feat-*'
+      - release
   pull_request:
     branches:
       - develop
       - release
+      - main
 
 jobs:
   build:
     name: ⚙️ Build & Unit Test
     runs-on: ubuntu-latest
-
+    if: >
+      !contains(github.event.head_commit.message, '[skip ci]')
+      && !contains(github.event.head_commit.message, '[ci skip]')
+      && (
+        (
+          github.event_name == 'pull_request'
+          && (
+            github.base_ref == 'develop' && contains(github.head_ref, '-feat-')
+            || github.base_ref == 'main'    && startsWith(github.head_ref, 'hotfix/')
+          )
+        )
+        || (
+          github.event_name == 'push'
+          && github.ref == 'refs/heads/develop'
+        )
+      )
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -45,7 +60,34 @@ jobs:
     name: 🔗 Integration Smoke Test
     runs-on: ubuntu-latest
     needs: build
-
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    # skip-ci / ci skip 메시지가 있으면 이 Job 전체를 건너뜁니다.
+    # PR: release ← develop, main ← release/*, main ← hotfix/*, main ← develop
+    # Push: develop→develop, release/*→release/*, main→main
+    if: >
+      !contains(github.event.head_commit.message, '[skip ci]')
+      && !contains(github.event.head_commit.message, '[ci skip]')
+      && (
+        (
+          github.event_name == 'pull_request'
+          && (
+            github.base_ref == 'release' && github.head_ref == 'develop'
+            || github.base_ref == 'main'    && startsWith(github.head_ref, 'release/')
+            || github.base_ref == 'main'    && startsWith(github.head_ref, 'hotfix/')
+            || github.base_ref == 'main'    && github.head_ref == 'develop'
+          )
+        )
+        || (
+          github.event_name == 'push'
+          && (
+               github.ref == 'refs/heads/develop'
+            || startsWith(github.ref, 'refs/heads/release/')
+            || github.ref == 'refs/heads/main'
+          )
+        )
+      )
     services:
       mysql:
         image: mysql:8.0
