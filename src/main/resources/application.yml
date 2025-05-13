@@ -18,7 +18,7 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-    url: /api/api-docs
+    url: /api-docs
     groups-order: DESC
     tags-sorter: alpha
     operations-sorter: method
