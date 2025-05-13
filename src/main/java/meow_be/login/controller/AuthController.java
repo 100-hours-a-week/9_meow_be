@@ -45,8 +45,19 @@ public class AuthController {
     }
 
     @GetMapping("/kakao/callback")
-    public ResponseEntity<?> kakaoCallback(@RequestParam("code") String code) {
-        return authService.kakaoLogin(code);
+    public ResponseEntity<?> kakaoCallback(@RequestParam("code") String code,
+                                           HttpServletRequest request) {
+        // referer 기반 redirect uri 추정
+        String referer = request.getHeader("Referer");
+        String redirectUri;
+
+        if (referer != null && referer.contains("localhost:5173")) {
+            redirectUri = "http://localhost:5173/redirect";
+        } else {
+            redirectUri = kakaoRedirectUri;
+        }
+
+        return authService.kakaoLogin(code, redirectUri);  // 수정된 부분
     }
     @PostMapping("/login")
     public ResponseEntity<?> loginWithKakaoId(@RequestBody Map<String, Object> payload) {
