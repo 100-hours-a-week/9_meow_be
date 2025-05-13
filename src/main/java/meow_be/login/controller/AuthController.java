@@ -1,5 +1,6 @@
 package meow_be.login.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.util.Map;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name="게시글 컨트롤러",description = "게시글 작성,조회 엔드포인트")
 public class AuthController {
 
     @Value("${kakao.client-id}")
