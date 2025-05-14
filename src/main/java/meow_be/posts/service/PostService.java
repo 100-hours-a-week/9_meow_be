@@ -101,6 +101,10 @@ public class PostService {
 
         return post.getId();
     }
+    public Page<PostSummaryDto> getUserPostSummaryPage(Integer userId, Pageable pageable) {
+        return postRepository.findByUserIdAndIsDeletedFalse(userId, pageable)
+                .map(post -> postMapper.toSummaryDto(post, userId));
+    }
 
 
 
