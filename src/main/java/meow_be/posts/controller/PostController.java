@@ -1,5 +1,6 @@
 package meow_be.posts.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class PostController {
 
     @GetMapping
     @ResponseBody
+    @Operation(summary = "게시글 전체 조회")
     public ResponseEntity<PageResponse<PostSummaryDto>> getPosts(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,

@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
         info =@Info(
-                title ="Example API Docs",
-                description = "Description",
+                title ="meowng API 명세서 ",
+                description = "meowng api 명세서 실시간 최신 버전",
                 version = "v1"
         )
 )
