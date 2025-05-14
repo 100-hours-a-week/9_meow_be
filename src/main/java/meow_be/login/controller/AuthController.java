@@ -1,5 +1,6 @@
 package meow_be.login.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.Map;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name="게시글 컨트롤러",description = "게시글 작성,조회 엔드포인트")
+@Tag(name="로그인 관련 컨트롤러",description = "카카오 로그인, 인증, 자체로그인")
 public class AuthController {
 
     @Value("${kakao.client-id}")
@@ -28,6 +29,7 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/url")
+    @Operation(summary = "카카오 로그인 url 요청")
     public ResponseEntity<String> getKakaoLoginUrl(HttpServletRequest request) {
         String referer = request.getHeader("Referer");
         String redirectUri;
@@ -47,9 +49,9 @@ public class AuthController {
     }
 
     @GetMapping("/kakao/callback")
+    @Operation(summary = "카카오 인증")
     public ResponseEntity<?> kakaoCallback(@RequestParam("code") String code,
                                            HttpServletRequest request) {
-        // referer 기반 redirect uri 추정
         String referer = request.getHeader("Referer");
         String redirectUri;
 
@@ -62,6 +64,7 @@ public class AuthController {
         return authService.kakaoLogin(code, redirectUri);  // 수정된 부분
     }
     @PostMapping("/login")
+    @Operation(summary = "kakaoId 자체 로그인")
     public ResponseEntity<?> loginWithKakaoId(@RequestBody Map<String, Object> payload) {
         Long kakaoId = ((Number) payload.get("kakaoId")).longValue();
         return authService.loginWithKakaoId(kakaoId);

@@ -71,6 +71,7 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
+    @Operation(summary = "게시글 상세 조회")
     @ResponseBody
     public ResponseEntity<PostDto> getPostById(@PathVariable("postId") int postId,HttpServletRequest request) {
         String token = tokenProvider.extractTokenFromHeader(request);
@@ -86,6 +87,7 @@ public class PostController {
     }
     @PostMapping
     @ResponseBody
+    @Operation(summary = "게시글 생성")
     public ResponseEntity<?> createPost(
             @RequestParam("content") String content,
             @RequestParam("emotion") String emotion,
@@ -106,6 +108,7 @@ public class PostController {
         return ResponseEntity.ok(postId);
     }
     @PostMapping("/{postId}/likes")
+    @Operation(summary = "게시글 좋아요")
     @ResponseBody
     public ResponseEntity<String> likePost(@PathVariable("postId") int postId,
                                            @RequestBody Map<String, Boolean> requestBody,
