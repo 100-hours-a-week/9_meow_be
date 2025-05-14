@@ -18,9 +18,7 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-    urls:
-      - name: Meowng API
-      - url: /api-docs
+    urls: /api-docs
     groups-order: DESC
     tags-sorter: alpha
     operations-sorter: method
