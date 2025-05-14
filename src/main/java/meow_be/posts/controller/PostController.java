@@ -110,7 +110,7 @@ public class PostController {
 
         return ResponseEntity.ok(postId);
     }
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     @Operation(summary = "특정 유저의 게시글 조회")
     public ResponseEntity<PageResponse<PostSummaryDto>> getUserPosts(
             @PathVariable("userId") Integer userId,
