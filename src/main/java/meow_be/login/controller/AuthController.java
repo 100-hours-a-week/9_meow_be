@@ -1,6 +1,8 @@
 package meow_be.login.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
 
 @RestController
@@ -64,7 +65,10 @@ public class AuthController {
         return authService.kakaoLogin(code, redirectUri);  // 수정된 부분
     }
     @PostMapping("/login")
-    @Operation(summary = "kakaoId 자체 로그인")
+    @Operation(summary = "kakaoId 자체 로그인",requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "카카오 ID 요청 예시",
+            required = true,
+            content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "kakaoId 예시", value = "{ \"kakaoId\": 1234567890 }"))))
     public ResponseEntity<?> loginWithKakaoId(@RequestBody Map<String, Object> payload) {
         Long kakaoId = ((Number) payload.get("kakaoId")).longValue();
         return authService.loginWithKakaoId(kakaoId);
