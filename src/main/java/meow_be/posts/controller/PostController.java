@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import meow_be.common.ApiResponse;
 import meow_be.login.security.TokenProvider;
 import meow_be.posts.dto.PageResponse;
 import meow_be.posts.dto.PostDto;
@@ -108,7 +109,7 @@ public class PostController {
         String transformedContent = aiContentClient.transformContent(content, emotion, postType);
         int postId = postService.createPost(content, emotion, postType,images, transformedContent,userId);
 
-        return ResponseEntity.ok(postId);
+        return ResponseEntity.ok(ApiResponse.success(postId));
     }
     @GetMapping("/user/{userId}")
     @Operation(summary = "특정 유저의 게시글 조회")
