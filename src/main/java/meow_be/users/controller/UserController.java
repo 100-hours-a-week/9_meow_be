@@ -1,5 +1,6 @@
 package meow_be.users.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import meow_be.login.security.TokenProvider;
@@ -19,6 +20,7 @@ public class UserController {
     private final TokenProvider tokenProvider;
 
     @PostMapping(consumes = "multipart/form-data")
+    @Operation(summary = "회원가입")
     public ResponseEntity<Long> createUser(
             @RequestParam("kakaoId") Long kakaoId,
             @RequestParam("nickname") String nickname,
@@ -29,11 +31,13 @@ public class UserController {
         return ResponseEntity.ok(kakaoId);
     }
     @GetMapping("/check-nickname")
+    @Operation(summary = "닉네임 중복 확인")
     public ResponseEntity<Boolean> checkNicknameDuplicate(@RequestParam("nickname") String nickname) {
         boolean isDuplicate = userService.isNicknameDuplicate(nickname);
         return ResponseEntity.ok(isDuplicate);
     }
     @GetMapping("/profileimage")
+    @Operation(summary = "유저 프로필 이미지 조회")
     public ResponseEntity<?> getUserProfileImage(HttpServletRequest request) {
         String token = tokenProvider.extractTokenFromHeader(request);
         if (token == null) {
