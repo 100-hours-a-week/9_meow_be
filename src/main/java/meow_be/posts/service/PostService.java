@@ -31,11 +31,18 @@ public class PostService {
     private final S3Service s3Service;
     private final PostImageRepository postImageRepository;
 
-    public Page<PostSummaryDto> getPostSummaryPage(Pageable pageable,Integer userId) {
-        
-        return postRepository.findByIsDeletedFalse(pageable)
-                .map(post -> postMapper.toSummaryDto(post, userId));
+    public Page<PostSummaryDto> getPostSummaryPage(String postType, Pageable pageable, Integer userId) {
+        Page<Post> posts;
+
+        if (postType != null && !postType.isBlank()) {
+            posts = postRepository.findByIsDeletedFalseAndPostType(postType, pageable);
+        } else {
+            posts = postRepository.findByIsDeletedFalse(pageable);
+        }
+
+        return posts.map(post -> postMapper.toSummaryDto(post, userId));
     }
+
 
 
     @Transactional(readOnly = true)
