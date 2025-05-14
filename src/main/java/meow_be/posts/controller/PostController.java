@@ -110,6 +110,28 @@ public class PostController {
 
         return ResponseEntity.ok(postId);
     }
+    @GetMapping("/{userId}")
+    @Operation(summary = "특정 유저의 게시글 조회")
+    public ResponseEntity<PageResponse<PostSummaryDto>> getUserPosts(
+            @PathVariable("userId") Integer userId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<PostSummaryDto> postPage = postService.getUserPostSummaryPage(userId, pageable);
+
+        PageResponse<PostSummaryDto> response = new PageResponse<>(
+                postPage.getContent(),
+                postPage.getNumber(),
+                postPage.getTotalPages(),
+                postPage.getTotalElements(),
+                postPage.getSize(),
+                postPage.isLast()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{postId}/likes")
     @Operation(summary = "게시글 좋아요")
     @ResponseBody
