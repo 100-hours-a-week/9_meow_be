@@ -41,22 +41,25 @@ public class PostController {
 
     @GetMapping
     @ResponseBody
-    @Operation(summary = "게시글 전체 조회")
+    @Operation(summary = "게시글 전체 조회 또는 postType으로 필터링된 게시글 조회")
     public ResponseEntity<PageResponse<PostSummaryDto>> getPosts(
+            @RequestParam(value = "postType", required = false) String postType,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             HttpServletRequest request) {
+
         String token = tokenProvider.extractTokenFromHeader(request);
         Integer userId = null;
         if (token != null) {
             try {
                 userId = tokenProvider.getUserIdFromToken(token);
             } catch (Exception e) {
+                // 예외 무시 or 로깅
             }
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<PostSummaryDto> postPage = postService.getPostSummaryPage(pageable,userId);
+        Page<PostSummaryDto> postPage = postService.getPostSummaryPage(postType, pageable, userId);
 
         PageResponse<PostSummaryDto> response = new PageResponse<>(
                 postPage.getContent(),
