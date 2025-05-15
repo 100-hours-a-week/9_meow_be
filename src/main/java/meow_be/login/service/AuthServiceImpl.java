@@ -106,6 +106,7 @@ public class AuthServiceImpl implements AuthService {
                 .secure(true)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
+                .sameSite("None")
                 .build();
 
         return ResponseEntity.ok()
