@@ -65,14 +65,17 @@ public class AuthController {
         return authService.kakaoLogin(code, redirectUri);  // 수정된 부분
     }
     @PostMapping("/login")
-    @Operation(summary = "kakaoId 자체 로그인",requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+    @Operation(summary = "kakaoId 자체 로그인", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "카카오 ID 요청 예시",
             required = true,
-            content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "kakaoId 예시", value = "{ \"kakaoId\": 1234567890 }"))))
-    public ResponseEntity<?> loginWithKakaoId(@RequestBody Map<String, Object> payload) {
+            content = @Content(mediaType = "application/json",
+                    examples = @ExampleObject(name = "kakaoId 예시", value = "{ \"kakaoId\": 1234567890 }"))))
+    public ResponseEntity<?> loginWithKakaoId(@RequestBody Map<String, Object> payload,
+                                              HttpServletRequest request) {
         Long kakaoId = ((Number) payload.get("kakaoId")).longValue();
-        return authService.loginWithKakaoId(kakaoId);
+        return authService.loginWithKakaoId(kakaoId, request); //
     }
+
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
