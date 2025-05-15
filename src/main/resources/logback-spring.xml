@@ -8,7 +8,7 @@
     <property name="LOG_PATTERN"
               value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] %green([%thread]) %highlight(%-5level) %boldWhite([%C.%M:%yellow(%L)]) - %msg%n"/>
 
-    <springProperty name="DISCORD_ERROR_WEBHOOK_URL" source="logging.discord-error.webhook-url"/>
+    <springProperty name="DISCORD_ERROR_WEBHOOK_URL" source="logging.discord.webhook-url"/>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>

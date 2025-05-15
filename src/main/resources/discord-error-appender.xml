@@ -5,7 +5,8 @@
             <pattern>
 
                 \n [ERROR LOG] ============================================================================
-                \n %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%logger{2}.%M:%L] - %ex{short}%n
+                \n %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%logger{2}.%M:%L] - %msg%n  
+    %ex{full}%n
             </pattern>
         </layout>
         <username>[에러 발생]</username>
