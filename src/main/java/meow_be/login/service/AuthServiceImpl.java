@@ -2,7 +2,6 @@ package meow_be.login.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import meow_be.login.security.TokenProvider;
 import meow_be.users.domain.Token;
@@ -74,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public ResponseEntity<?> loginWithKakaoId(Long kakaoId, HttpServletRequest request) {
+    public ResponseEntity<?> loginWithKakaoId(Long kakaoId) {
         Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
 
         if (optionalUser.isEmpty()) {
@@ -87,7 +86,6 @@ public class AuthServiceImpl implements AuthService {
 
         String refreshToken = tokenProvider.createRefreshToken(user.getId());
         String accessToken = tokenProvider.createAccessToken(user.getId());
-
         if (existingTokenOpt.isPresent()) {
             Token existingToken = existingTokenOpt.get();
             existingToken.setAccessToken(accessToken);
@@ -102,15 +100,13 @@ public class AuthServiceImpl implements AuthService {
             tokenRepository.save(newToken);
         }
 
-        String referer = request.getHeader("Referer");
-        boolean isLocal = referer != null && referer.contains("localhost");
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(!isLocal) // 로컬이면 false, 운영이면 true
-                .sameSite("None")
+                .secure(true)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
+                .sameSite("None")
                 .build();
 
         return ResponseEntity.ok()
