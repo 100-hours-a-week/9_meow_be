@@ -17,12 +17,12 @@ public class CorsConfig {
 
         config.setAllowCredentials(true);
         config.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
+                "http://localhost:",
                 "http://localhost:5173",
-                "https://localhost:*",
+                "https://localhost:",
                 "https://localhost:5173",
-                "http://127.0.0.1:*",
-                "https://127.0.0.1:*",
+                "http://127.0.0.1:",
+                "https://127.0.0.1:",
                 "http://www.meowng.com",
                 "https://www.meowng.com",
                 "https://ds36vr51hmfa7.cloudfront.net"
