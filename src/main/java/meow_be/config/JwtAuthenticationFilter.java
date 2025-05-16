@@ -34,10 +34,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        
+
         if (request.getMethod().equals("OPTIONS")) {
+            String origin = request.getHeader("Origin");
             response.setStatus(HttpServletResponse.SC_OK);
-            response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+            response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             response.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
             response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -62,23 +63,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     } else {
-                        sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+                        sendErrorResponse(request, response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
                         return;
                     }
                 }
             } catch (Exception e) {
-                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed: " + e.getMessage());
+                sendErrorResponse(request, response, HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed: " + e.getMessage());
                 return;
             }
         }
         filterChain.doFilter(request, response);
     }
 
-    private void sendErrorResponse(HttpServletResponse response, int statusCode, String message) throws IOException {
+    private void sendErrorResponse(HttpServletRequest request, HttpServletResponse response, int statusCode, String message) throws IOException {
+        String origin = request.getHeader("Origin");
+        if (origin != null) {
+            response.setHeader("Access-Control-Allow-Origin", origin);
+        }
+        response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setStatus(statusCode);
         response.setContentType("application/json;charset=UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
+
         ApiResponse<String> errorResponse = ApiResponse.error(statusCode, message);
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
