@@ -92,7 +92,7 @@ public class PostController {
     @PostMapping
     @ResponseBody
     @Operation(summary = "게시글 생성")
-    public ResponseEntity<?> createPost(
+    public ResponseEntity<ApiResponse<Integer>> createPost(
             @RequestParam("content") String content,
             @RequestParam("emotion") String emotion,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
@@ -101,16 +101,16 @@ public class PostController {
         Integer userId = getAuthenticatedUserId(request);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        String postType=user.getAnimalType();
+        String postType = user.getAnimalType();
 
         log.info(emotion);
 
-        
         String transformedContent = aiContentClient.transformContent(content, emotion, postType);
-        int postId = postService.createPost(content, emotion, postType,images, transformedContent,userId);
+        int postId = postService.createPost(content, emotion, postType, images, transformedContent, userId);
 
-        return ResponseEntity.ok(ApiResponse.success(postId));
+        return ResponseEntity.ok(ApiResponse.success(postId, "게시글이 성공적으로 생성되었습니다."));
     }
+
     @GetMapping("/user/{userId}")
     @Operation(summary = "특정 유저의 게시글 조회")
     public ResponseEntity<PageResponse<PostSummaryDto>> getUserPosts(
@@ -136,21 +136,24 @@ public class PostController {
     @PostMapping("/{postId}/likes")
     @Operation(summary = "게시글 좋아요")
     @ResponseBody
-    public ResponseEntity<String> likePost(@PathVariable("postId") int postId,
-                                           @RequestBody Map<String, Boolean> requestBody,
-                                           HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<String>> likePost(@PathVariable("postId") int postId,
+                                                        @RequestBody Map<String, Boolean> requestBody,
+                                                        HttpServletRequest request) {
 
         Integer userId = getAuthenticatedUserId(request);
 
         Boolean isLiked = requestBody.get("is_liked");
         if (isLiked == null) {
-            return ResponseEntity.badRequest().body("Missing 'is_liked' field in request");
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponse.error(400, "Missing 'is_liked' field in request"));
         }
 
         postLikeService.toggleLike(postId, userId, isLiked);
 
-        return ResponseEntity.ok("success");
+        return ResponseEntity.ok(ApiResponse.success("success", "좋아요 상태가 변경되었습니다."));
     }
+
     private Integer getAuthenticatedUserId(HttpServletRequest request) {
         String token = tokenProvider.extractTokenFromHeader(request);
         if (token == null) {
