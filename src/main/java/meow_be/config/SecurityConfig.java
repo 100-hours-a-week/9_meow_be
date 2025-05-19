@@ -26,6 +26,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증이 필요한 경로만 지정, 나머지는 모두 허용
                         .requestMatchers(HttpMethod.POST, "/posts/*/likes").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/auth/refresh").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
