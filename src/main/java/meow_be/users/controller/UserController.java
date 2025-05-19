@@ -52,6 +52,7 @@ public class UserController {
         String profileImageUrl = userService.getProfileImageUrlByUserId(userId);
         return ResponseEntity.ok().body(Map.of("profileImageUrl", profileImageUrl));
     }
+    
 
 
 }
