@@ -36,7 +36,9 @@ public class AuthController {
         String redirectUri;
         if (referer != null && referer.contains("localhost:5173")) {
             redirectUri = "http://localhost:5173/redirect";
-        } else {
+        } else if (referer.contains("3.39.3.208")) {
+            redirectUri = "http://3.39.3.208/redirect";}
+        else {
             redirectUri = kakaoRedirectUri;
         }
 
@@ -58,6 +60,8 @@ public class AuthController {
 
         if (referer != null && referer.contains("localhost:5173")) {
             redirectUri = "http://localhost:5173/redirect";
+        } else if (referer != null && referer.contains("3.39.3.208")) {
+            redirectUri = "http://3.39.3.208/redirect";
         } else {
             redirectUri = kakaoRedirectUri;
         }
