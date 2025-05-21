@@ -42,4 +42,5 @@ public class PostDto {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
 }

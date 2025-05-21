@@ -52,8 +52,32 @@ dependencies {
 
 	// <<< 추가: Logback → Discord Webhook Appender
     implementation 'com.github.napstr:logback-discord-appender:1.0.0'
+
+	// QueryDsl
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
 }
 
+def querydslDir = "C:/Users/SAMSUNG/meow-be/generated/querydsl"
+
+sourceSets {
+	main {
+		java {
+			srcDirs += querydslDir
+		}
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+}
+
+clean {
+	delete file(querydslDir)
+}
 tasks.named('test') {
 	useJUnitPlatform()
 }

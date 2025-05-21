@@ -8,6 +8,7 @@ import meow_be.posts.dto.PostDto;
 import meow_be.posts.dto.PostSummaryDto;
 import meow_be.posts.mapper.PostMapper;
 import meow_be.posts.repository.PostImageRepository;
+import meow_be.posts.repository.PostQueryRepository;
 import meow_be.posts.repository.PostRepository;
 import meow_be.users.domain.User;
 import meow_be.users.repository.UserRepository;
@@ -30,17 +31,10 @@ public class PostService {
     private final PostMapper postMapper;
     private final S3Service s3Service;
     private final PostImageRepository postImageRepository;
+    private final PostQueryRepository postQueryRepository;
 
     public Page<PostSummaryDto> getPostSummaryPage(String postType, Pageable pageable, Integer userId) {
-        Page<Post> posts;
-
-        if (postType != null && !postType.isBlank()) {
-            posts = postRepository.findByIsDeletedFalseAndPostType(postType, pageable);
-        } else {
-            posts = postRepository.findByIsDeletedFalse(pageable);
-        }
-
-        return posts.map(post -> postMapper.toSummaryDto(post, userId));
+        return postQueryRepository.findPostsByPostType(postType, pageable, userId);
     }
 
 
@@ -102,8 +96,7 @@ public class PostService {
         return post.getId();
     }
     public Page<PostSummaryDto> getUserPostSummaryPage(Integer userId, Pageable pageable) {
-        return postRepository.findByUserIdAndIsDeletedFalse(userId, pageable)
-                .map(post -> postMapper.toSummaryDto(post, userId));
+        return postQueryRepository.findUserPostSummaryPage(userId, pageable);
     }
 
 

@@ -1,6 +1,7 @@
 package meow_be.posts.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class PostSummaryDto {
     private String postType;
     private String thumbnailUrl;
     private int commentCount;
-    private int likeCount;
+    private Long likeCount;
     private boolean isLiked;
     private boolean isMyPost;
 
@@ -26,11 +27,22 @@ public class PostSummaryDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public PostSummaryDto(int id, int userId, String nickname, String profileImageUrl,
-                          String transformedContent, String emotion, String postType,
-                          String thumbnailUrl, int commentCount, int likeCount,
-                          boolean isLiked,boolean isMyPost,
-                          LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public PostSummaryDto(
+            Integer id,
+            Integer userId,
+            String nickname,
+            String profileImageUrl,
+            String transformedContent,
+            String emotion,
+            String postType,
+            String thumbnailUrl,
+            Integer commentCount,
+            Long likeCount,
+            Boolean isLiked,
+            Boolean isMyPost,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt
+    ) {
         this.id = id;
         this.userId = userId;
         this.nickname = nickname;
@@ -40,10 +52,11 @@ public class PostSummaryDto {
         this.postType = postType;
         this.thumbnailUrl = thumbnailUrl;
         this.commentCount = commentCount;
-        this.likeCount=likeCount;
-        this.isLiked=isLiked;
-        this.isMyPost=isMyPost;
+        this.likeCount = likeCount;
+        this.isLiked = isLiked;
+        this.isMyPost = isMyPost;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
 }
