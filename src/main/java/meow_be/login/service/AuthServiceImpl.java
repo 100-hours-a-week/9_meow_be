@@ -65,8 +65,6 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> kakaoUserInfo = getKakaoUserInfo(accessTokenFromKakao);
         Long kakaoId = (Long) kakaoUserInfo.get("kakaoId");
         String name = (String) kakaoUserInfo.get("name");
-        log.info("카카오 사용자 정보2: {}", kakaoUserInfo);
-
         Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
 
         boolean isMember = optionalUser.isPresent();
@@ -163,7 +161,6 @@ public class AuthServiceImpl implements AuthService {
             JsonNode root = objectMapper.readTree(response.getBody());
             Long kakaoId = root.path("id").asLong();
             String name = root.path("properties").path("nickname").asText();
-            log.info("카카오 사용자 정보1: {}", name);
 
 
             return Map.of("kakaoId", kakaoId, "name", name);
