@@ -61,7 +61,7 @@ dependencies {
 
 }
 
-def querydslDir = "C:/Users/SAMSUNG/meow-be/generated/querydsl"
+def querydslDir = "$buildDir/generated/querydsl"
 
 sourceSets {
 	main {
