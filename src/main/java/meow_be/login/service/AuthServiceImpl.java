@@ -3,6 +3,7 @@ package meow_be.login.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import meow_be.login.security.TokenProvider;
 import meow_be.users.domain.Token;
 import meow_be.users.domain.User;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
@@ -63,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> kakaoUserInfo = getKakaoUserInfo(accessTokenFromKakao);
         Long kakaoId = (Long) kakaoUserInfo.get("kakaoId");
         String name = (String) kakaoUserInfo.get("name");
+        log.info("카카오 사용자 정보2: {}", kakaoUserInfo);
 
         Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
 
@@ -160,6 +163,8 @@ public class AuthServiceImpl implements AuthService {
             JsonNode root = objectMapper.readTree(response.getBody());
             Long kakaoId = root.path("id").asLong();
             String name = root.path("properties").path("nickname").asText();
+            log.info("카카오 사용자 정보1: {}", name);
+
 
             return Map.of("kakaoId", kakaoId, "name", name);
         } catch (HttpClientErrorException e) {
