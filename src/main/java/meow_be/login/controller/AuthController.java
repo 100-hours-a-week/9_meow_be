@@ -46,8 +46,6 @@ public class AuthController {
                 "?response_type=code" +
                 "&client_id=" + kakaoClientId +
                 "&redirect_uri=" + redirectUri;
-        log.info(kakaoAuthUrl);
-        log.info(kakaoRedirectUri);
         return ResponseEntity.ok(kakaoAuthUrl);
     }
 
@@ -66,7 +64,7 @@ public class AuthController {
             redirectUri = kakaoRedirectUri;
         }
 
-        return authService.kakaoLogin(code, redirectUri);  // 수정된 부분
+        return authService.kakaoLogin(code, redirectUri);
     }
     @PostMapping("/login")
     @Operation(summary = "kakaoId 자체 로그인",requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
