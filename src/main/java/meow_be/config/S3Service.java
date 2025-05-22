@@ -26,8 +26,12 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    private final String s3Domain = "https://s3-an2-image-meowng.s3.ap-northeast-2.amazonaws.com";
-    private final String cloudFrontDomain = "https://ds36vr51hmfa7.cloudfront.net";
+    @Value("${cloud.aws.s3.domain}")
+    private String s3Domain;
+
+    @Value("${cloud.aws.cloudfront.domain}")
+    private String cloudFrontDomain;
+
 
     // 이미지 업로드
     public List<String> uploadImages(List<MultipartFile> imageFiles) {
@@ -47,7 +51,7 @@ public class S3Service {
                 amazonS3.putObject(bucket, uniqueFileName, inputStream, metadata);
 
                 String fileUrl = amazonS3.getUrl(bucket, uniqueFileName).toString();
-                fileUrl = fileUrl.replace(s3Domain, cloudFrontDomain);  // CloudFront URL로 변환
+                fileUrl = fileUrl.replace(s3Domain, cloudFrontDomain);
                 imageUrls.add(fileUrl);
             } catch (Exception e) {
                 throw new RuntimeException("S3 이미지 업로드 중 오류 발생: " + e.getMessage());
