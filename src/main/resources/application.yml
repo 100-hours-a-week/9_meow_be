@@ -48,6 +48,9 @@ cloud:
       static: ap-northeast-2
     s3:
       bucket: s3-an2-image-meowng
+      domain: https://s3-an2-image-meowng.s3.ap-northeast-2.amazonaws.com
+    cloudfront:
+      domain: https://ds36vr51hmfa7.cloudfront.net
     stack:
       auto: false
 logging:
