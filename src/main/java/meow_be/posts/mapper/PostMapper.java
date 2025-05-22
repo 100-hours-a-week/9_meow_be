@@ -50,41 +50,6 @@ public class PostMapper {
                 post.getUpdatedAt()
         );
     }
-    public PostSummaryDto toSummaryDto(Post post, Integer userId) {
-        String thumbnailUrl = postImageRepository.findByPostId(post.getId()).stream()
-                .filter(image -> image.getImageNumber() == 0)
-                .map(PostImage::getImageUrl)
-                .findFirst()
-                .orElse(null);
-
-        boolean isLiked = false;
-        if (userId != null) {
-            isLiked = postLikeRepository.existsByPostIdAndUserIdAndIsLikedTrue(post.getId(), userId);
-        }
-        int likeCount = postLikeRepository.countByPostIdAndIsLikedTrue(post.getId());
-        boolean isMyPost = userId != null && userId.equals(post.getUser().getId());
-        return new PostSummaryDto(
-                post.getId(),
-                post.getUser().getId(),
-                post.getUser().getNickname(),
-                post.getUser().getProfileImageUrl(),
-                post.getTransformedContent(),
-                post.getEmotion(),
-                post.getPostType(),
-                thumbnailUrl,
-                post.getCommentCount(),
-                likeCount,
-                isLiked,
-                isMyPost,
-                post.getCreatedAt(),
-                post.getUpdatedAt()
-        );
-    }
-
-    // 기존 버전 (userId 없는 경우)
-    public PostSummaryDto toSummaryDto(Post post) {
-        return toSummaryDto(post, null);
-    }
 
 
 }
