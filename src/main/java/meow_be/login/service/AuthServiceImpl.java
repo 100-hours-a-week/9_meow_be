@@ -18,6 +18,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private final TokenRepository tokenRepository;
 
     @Override
-    public ResponseEntity<?> kakaoLogin(String code,String redirectUri) {
+    public ResponseEntity<?> kakaoLogin(String code, String redirectUri) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -58,19 +59,30 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String accessTokenFromKakao = tokenJson.get("access_token").asText();
-        Long kakaoId = getKakaoUserId(accessTokenFromKakao);
+
+        Map<String, Object> kakaoUserInfo = getKakaoUserInfo(accessTokenFromKakao);
+        Long kakaoId = (Long) kakaoUserInfo.get("kakaoId");
+        String name = (String) kakaoUserInfo.get("name");
 
         Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
 
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.ok()
-                    .body(Map.of("kakaoId", kakaoId, "isMember", false));
+        boolean isMember = optionalUser.isPresent();
+        if (isMember) {
+            User existingUser = optionalUser.get();
+            User updatedUser = existingUser.toBuilder()
+                    .name(name)
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+            userRepository.save(updatedUser);
         }
 
         return ResponseEntity.ok()
-                .body(Map.of("kakaoId", kakaoId, "isMember", true));
+                .body(Map.of(
+                        "kakaoId", kakaoId,
+                        "name", name,
+                        "isMember", isMember
+                ));
     }
-
     @Override
     @Transactional
     public ResponseEntity<?> loginWithKakaoId(Long kakaoId) {
@@ -130,7 +142,7 @@ public class AuthServiceImpl implements AuthService {
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
 
-    private Long getKakaoUserId(String accessToken) {
+    private Map<String, Object> getKakaoUserInfo(String accessToken) {
         String userInfoUri = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders headers = new HttpHeaders();
@@ -146,7 +158,10 @@ public class AuthServiceImpl implements AuthService {
             );
 
             JsonNode root = objectMapper.readTree(response.getBody());
-            return root.path("id").asLong();
+            Long kakaoId = root.path("id").asLong();
+            String name = root.path("properties").path("nickname").asText();
+
+            return Map.of("kakaoId", kakaoId, "name", name);
         } catch (HttpClientErrorException e) {
             throw new RuntimeException("카카오 사용자 정보 요청 실패: " + e.getResponseBodyAsString());
         } catch (Exception e) {
