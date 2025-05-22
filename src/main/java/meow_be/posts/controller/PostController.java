@@ -59,7 +59,7 @@ public class PostController {
             }
         }
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size);
         Page<PostSummaryDto> postPage = postService.getPostSummaryPage(postType, pageable, userId);
 
         PageResponse<PostSummaryDto> response = new PageResponse<>(
