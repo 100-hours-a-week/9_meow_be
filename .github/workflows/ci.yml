@@ -121,3 +121,60 @@ jobs:
             sleep 5
           done
           echo "❌ Backend health check failed" && exit 1
+
+  deploy-backend:
+    name: 🚀 Deploy Backend
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.head_commit.message, '[skip cd]')
+      && !contains(github.event.head_commit.message, '[cd skip]')
+      && github.event_name == 'push'
+      && github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID_FOR_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_ACTIONS }}
+          aws-region:            ${{ secrets.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Determine ECR Namespace
+        id: ns
+        run: |
+          BRANCH=${GITHUB_REF#refs/heads/}
+          if [[ "$BRANCH" == "develop" ]]; then
+            echo "ENV=dev" >> $GITHUB_ENV
+          elif [[ "$BRANCH" =~ ^release/ ]]; then
+            echo "ENV=release" >> $GITHUB_ENV
+          elif [[ "$BRANCH" == "main" ]]; then
+            echo "ENV=prod" >> $GITHUB_ENV
+          else
+            echo "ENV=skip" >> $GITHUB_ENV
+          fi
+
+      - name: Build, Tag & Push to ECR
+        if: env.ENV != 'skip'
+        run: |
+          SERVICE=9_meow_be
+          IMAGE_URI=${{ secrets.ECR_REGISTRY }}/${ENV}/${SERVICE}
+          docker build -t $IMAGE_URI:latest .
+          docker push $IMAGE_URI:latest
+
+      # --------------------------------------------------------
+      # # BE용 SSH 배포 (필요할 경우 주석 해제하고 사용)
+      # - name: Deploy BE via SSH
+      #   uses: appleboy/ssh-action@v0.1.8
+      #   with:
+      #     host:     ${{ secrets.SERVER_HOST }}
+      #     username: ${{ secrets.SERVER_USER }}
+      #     key:      ${{ secrets.SERVER_SSH_KEY }}
+      #     script: |
+      #       cd /home/ubuntu/deployment
+      #       docker-compose pull backend
+      #       docker-compose up -d backend
