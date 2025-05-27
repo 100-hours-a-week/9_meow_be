@@ -105,7 +105,7 @@ public class PostController {
 
         log.info(emotion);
 
-        String transformedContent = aiContentClient.transformContent(content, emotion, postType);
+        String transformedContent = aiContentClient.transformpostContent(content, emotion, postType);
         int postId = postService.createPost(content, emotion, postType, images, transformedContent, userId);
 
         return ResponseEntity.ok(ApiResponse.success(postId, "게시글이 성공적으로 생성되었습니다."));

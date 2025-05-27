@@ -10,6 +10,8 @@ import meow_be.login.security.TokenProvider;
 import meow_be.posts.dto.CommentResponseDto;
 import meow_be.posts.dto.PageResponse;
 import meow_be.posts.service.CommentService;
+import meow_be.users.domain.User;
+import meow_be.users.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,8 @@ import java.util.Map;
 public class CommentController {
     private final CommentService commentService;
     private final TokenProvider tokenProvider;
+    private final AiContentClient aiContentClient;
+    private final UserRepository userRepository;
 
     @PostMapping("/{postId}/comments")
     @Operation(summary = "댓글 작성", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -41,9 +45,13 @@ public class CommentController {
         if (userId == null) {
             return ResponseEntity.status(401).body("not valid token.");
         }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        String postType = user.getAnimalType();
+        String transformedcontent= aiContentClient.transformcommentContent(content,postType);
 
 
-        commentService.addComment(postId, content, userId);
+        commentService.addComment(postId, transformedcontent, userId);
         return ResponseEntity.ok().build();
     }
 
