@@ -5,6 +5,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.JPAExpressions;
 import lombok.RequiredArgsConstructor;
+import meow_be.posts.domain.QComment;
 import meow_be.posts.domain.QPost;
 import meow_be.posts.domain.QPostImage;
 import meow_be.posts.domain.QPostLike;
@@ -27,6 +28,8 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         QUser user = QUser.user;
         QPostImage postImage = QPostImage.postImage;
         QPostLike postLike = QPostLike.postLike;
+        QComment comment = QComment.comment;
+
 
         var query = queryFactory
                         .select(Projections.constructor(PostSummaryDto.class,
@@ -42,7 +45,10 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                         .where(postImage.post.id.eq(post.id)
                                                 .and(postImage.imageNumber.eq(0)))
                                         .limit(1),
-                                post.commentCount,
+                                JPAExpressions.select(comment.count())
+                                        .from(comment)
+                                        .where(comment.post.id.eq(post.id)
+                                                .and(comment.isDeleted.isFalse())),
                                 JPAExpressions.select(postLike.count())
                                         .from(postLike)
                                         .where(postLike.post.id.eq(post.id)
@@ -86,6 +92,8 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         QUser user = QUser.user;
         QPostImage postImage = QPostImage.postImage;
         QPostLike postLike = QPostLike.postLike;
+        QComment comment = QComment.comment;
+
 
         var query = queryFactory
                 .select(Projections.constructor(PostSummaryDto.class,
@@ -101,7 +109,10 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                 .where(postImage.post.id.eq(post.id)
                                         .and(postImage.imageNumber.eq(0)))
                                 .limit(1),
-                        post.commentCount,
+                        JPAExpressions.select(comment.count())
+                                .from(comment)
+                                .where(comment.post.id.eq(post.id)
+                                        .and(comment.isDeleted.isFalse())),
                         JPAExpressions.select(postLike.count())
                                 .from(postLike)
                                 .where(postLike.post.id.eq(post.id)
