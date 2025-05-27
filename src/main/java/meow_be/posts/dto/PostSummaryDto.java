@@ -16,7 +16,7 @@ public class PostSummaryDto {
     private String emotion;
     private String postType;
     private String thumbnailUrl;
-    private int commentCount;
+    private Long commentCount;
     private Long likeCount;
     private boolean isLiked;
     private boolean isMyPost;
@@ -36,7 +36,7 @@ public class PostSummaryDto {
             String emotion,
             String postType,
             String thumbnailUrl,
-            Integer commentCount,
+            Long commentCount,
             Long likeCount,
             Boolean isLiked,
             Boolean isMyPost,
@@ -51,7 +51,7 @@ public class PostSummaryDto {
         this.emotion = emotion;
         this.postType = postType;
         this.thumbnailUrl = thumbnailUrl;
-        this.commentCount = commentCount;
+        this.commentCount=commentCount;
         this.likeCount = likeCount;
         this.isLiked = isLiked;
         this.isMyPost = isMyPost;
