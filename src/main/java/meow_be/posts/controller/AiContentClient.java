@@ -1,7 +1,6 @@
 package meow_be.posts.controller;
 
-import meow_be.common.ApiResponse;
-import org.springframework.core.ParameterizedTypeReference;
+import meow_be.common.AiContentResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.stereotype.Component;
@@ -25,12 +24,12 @@ public class AiContentClient {
             requestBody.put("emotion", emotion);
             requestBody.put("post_type", post_type);
 
-            ApiResponse<String> aiResponse = webClient.post()
+            AiContentResponse aiResponse = webClient.post()
                     .uri("/generate/post")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestBody)
                     .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<ApiResponse<String>>() {})
+                    .bodyToMono(AiContentResponse.class)
                     .block();
 
             if (aiResponse != null && aiResponse.getStatusCode() == 200) {
