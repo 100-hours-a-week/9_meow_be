@@ -17,7 +17,7 @@ public class AiContentClient {
         this.webClient = webClientBuilder.baseUrl("http://ai:8000").build();
     }
 
-    public String transformContent(String originalContent, String emotion, String post_type) {
+    public String transformpostContent(String originalContent, String emotion, String post_type) {
         try {
             Map<String, String> requestBody = new HashMap<>();
             requestBody.put("content", originalContent);
@@ -26,6 +26,30 @@ public class AiContentClient {
 
             AiContentResponse aiResponse = webClient.post()
                     .uri("/generate/post")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(AiContentResponse.class)
+                    .block();
+
+            if (aiResponse != null && aiResponse.getStatusCode() == 200) {
+                return aiResponse.getData();
+            } else {
+                throw new RuntimeException("AI 서버 오류 응답: " +
+                        (aiResponse != null ? aiResponse.getMessage() : "응답 없음"));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("AI 서버 요청 실패: " + e.getMessage(), e);
+        }
+    }
+    public String transformcommentContent(String originalContent,String post_type) {
+        try {
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("content", originalContent);
+            requestBody.put("post_type", post_type);
+
+            AiContentResponse aiResponse = webClient.post()
+                    .uri("/generate/comment")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestBody)
                     .retrieve()
