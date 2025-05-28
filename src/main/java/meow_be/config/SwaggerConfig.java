@@ -10,14 +10,14 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@Configuration
 @OpenAPIDefinition(
-        info =@Info(
+        info = @Info(
                 title = "meowng API 명세서",
                 description = "meowng api 명세서 실시간 최신 버전",
                 version = "v1"
         )
 )
-@Configuration
 public class SwaggerConfig {
     private static final String BEARER_TOKEN_PREFIX = "Bearer";
 
@@ -25,8 +25,13 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         String securityJwtName = "JWT";
 
-        Server server = new Server();
-        server.setUrl("https://www.meowng.com/api");
+        Server localServer = new Server()
+                .url("http://3.39.3.208/api")
+                .description("개발 서버");
+
+        Server prodServer = new Server()
+                .url("https://www.meowng.com/api")
+                .description("운영 서버");
 
         SecurityRequirement securityRequirement = new SecurityRequirement().addList(securityJwtName);
         Components components = new Components()
@@ -34,11 +39,12 @@ public class SwaggerConfig {
                         .name(securityJwtName)
                         .type(SecurityScheme.Type.HTTP)
                         .scheme(BEARER_TOKEN_PREFIX)
-                        .bearerFormat(securityJwtName)
+                        .bearerFormat("JWT")
                 );
 
         return new OpenAPI()
-                .addServersItem(server)
+                .addServersItem(localServer)
+                .addServersItem(prodServer)
                 .addSecurityItem(securityRequirement)
                 .components(components);
     }
