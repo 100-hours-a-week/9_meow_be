@@ -31,7 +31,7 @@ public class CommentController {
     @PostMapping("/{postId}/comments")
     @Operation(summary = "댓글 작성", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             content = @Content(mediaType = "application/json", examples =
-            @ExampleObject(name = "댓글 내용", value = "{ \"content\": 태스트 댓글입니다  }"))))
+            @ExampleObject(name = "댓글 내용", value = "{ \"content\": \"테스트 댓글입니다\" }"))))
     public ResponseEntity<?> addComment(@PathVariable("postId") int postId,
                                         @RequestBody Map<String, String> requestBody,
                                         HttpServletRequest request) {
