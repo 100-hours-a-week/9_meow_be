@@ -23,13 +23,11 @@ jobs:
       contains(github.head_ref, 'feat')
     steps:
       - uses: actions/checkout@v3
-
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
-
       - name: Cache Gradle
         uses: actions/cache@v3
         with:
@@ -37,10 +35,8 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle','**/settings.gradle') }}
-
       - name: Ensure gradlew is executable
         run: chmod +x gradlew
-
       - name: Run tests
         run: ./gradlew clean test
 
@@ -80,33 +76,26 @@ jobs:
         options: >-
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s --health-retries=3
-
     env:
       SPRING_DATASOURCE_URL:       jdbc:mysql://localhost:3306/meow1?serverTimezone=Asia/Seoul
       SPRING_DATASOURCE_USERNAME:  root
       SPRING_DATASOURCE_PASSWORD:  ${{ secrets.DB_ROOT_PASSWORD }}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SERVER_PORT:                 8080
-
     steps:
       - uses: actions/checkout@v3
-
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
-
       - name: Ensure gradlew is executable
         run: chmod +x gradlew
-
       - name: Build Spring Boot app (no tests)
         run: ./gradlew bootJar -x test
-
       - name: Start Spring Boot app
         run: |
           java -jar build/libs/*.jar &
-
       - name: Wait for Backend health
         run: |
           for i in {1..12}; do
@@ -141,22 +130,26 @@ jobs:
         shell: bash
         run: |
           branch=${GITHUB_REF#refs/heads/}
-          if [[ "$branch" == "develop" ]]; then deploy_env=dev
-          elif [[ "$branch" =~ ^release/ ]]; then deploy_env=release
-          elif [[ "$branch" == "main" ]]; then deploy_env=prod
-          else deploy_env=skip; fi
+          if [[ "$branch" == "develop" ]]; then
+            deploy_env=dev
+          elif [[ "$branch" =~ ^release/ ]]; then
+            deploy_env=release
+          elif [[ "$branch" == "main" ]]; then
+            deploy_env=prod
+          else
+            deploy_env=skip
+          fi
 
-          echo "ENV=${deploy_env}" >> $GITHUB_ENV
-          echo "SERVICE=9_meow_be" >> $GITHUB_ENV
-
+          service_name=9_meow_be
           registry="${{ secrets.ECR_REGISTRY }}"; registry="${registry%/}"
-          echo "REGISTRY=${registry}" >> $GITHUB_ENV
+          image_uri="${registry}/${deploy_env}/${service_name}"
 
-          image_uri="${registry}/${deploy_env}/${SERVICE}"
-          echo "IMAGE_URI=${image_uri}" >> $GITHUB_ENV
-
-          echo "APP_NAME=meow-${deploy_env}-deployment"       >> $GITHUB_ENV
-          echo "DG_NAME=meow-${deploy_env}-deployment_group" >> $GITHUB_ENV
+          echo "ENV=${deploy_env}"                             >> $GITHUB_ENV
+          echo "SERVICE=${service_name}"                       >> $GITHUB_ENV
+          echo "REGISTRY=${registry}"                          >> $GITHUB_ENV
+          echo "IMAGE_URI=${image_uri}"                        >> $GITHUB_ENV
+          echo "APP_NAME=meow-${deploy_env}-deployment"        >> $GITHUB_ENV
+          echo "DG_NAME=meow-${deploy_env}-deployment_group"   >> $GITHUB_ENV
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
