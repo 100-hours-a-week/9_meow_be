@@ -6,7 +6,6 @@ import meow_be.posts.domain.Post;
 import meow_be.posts.domain.PostImage;
 import meow_be.posts.dto.PostDto;
 import meow_be.posts.dto.PostSummaryDto;
-import meow_be.posts.mapper.PostMapper;
 import meow_be.posts.repository.PostImageRepository;
 import meow_be.posts.repository.PostQueryRepository;
 import meow_be.posts.repository.PostRepository;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final PostMapper postMapper;
     private final S3Service s3Service;
     private final PostImageRepository postImageRepository;
     private final PostQueryRepository postQueryRepository;
@@ -41,9 +39,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostDto getPostById(int postId,Integer userId) {
-        Post post = postRepository.findByIdAndIsDeletedFalse(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
-        return postMapper.toDto(post,userId);
+        return postQueryRepository.findPostDetailById(postId,userId);
 
     }
 

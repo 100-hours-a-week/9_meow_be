@@ -1,6 +1,7 @@
 package meow_be.posts.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.JPAExpressions;
@@ -9,11 +10,13 @@ import meow_be.posts.domain.QComment;
 import meow_be.posts.domain.QPost;
 import meow_be.posts.domain.QPostImage;
 import meow_be.posts.domain.QPostLike;
+import meow_be.posts.dto.PostDto;
 import meow_be.users.domain.QUser;
 import meow_be.posts.dto.PostSummaryDto;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -86,6 +89,84 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
         return new PageImpl<>(content, pageable, total);
     }
+    @Override
+    public PostDto findPostDetailById(int postId, Integer userId) {
+        QPost post = QPost.post;
+        QUser user = QUser.user;
+        QPostLike postLike = QPostLike.postLike;
+        QComment comment = QComment.comment;
+        QPostImage postImage = QPostImage.postImage;
+
+        PostDto basePostDto = queryFactory
+                .select(Projections.constructor(PostDto.class,
+                        post.id,
+                        user.id,
+                        user.nickname,
+                        user.profileImageUrl,
+                        post.transformedContent,
+                        post.emotion,
+                        post.postType,
+                        Expressions.constant(Collections.emptyList()),
+                        JPAExpressions.select(comment.count())
+                                .from(comment)
+                                .where(comment.post.id.eq(post.id)
+                                        .and(comment.isDeleted.isFalse())),
+                        JPAExpressions.select(postLike.count())
+                                .from(postLike)
+                                .where(postLike.post.id.eq(post.id)
+                                        .and(postLike.isLiked.isTrue())),
+                        userId != null ?
+                                JPAExpressions.selectOne()
+                                        .from(postLike)
+                                        .where(postLike.post.id.eq(post.id)
+                                                .and(postLike.user.id.eq(userId))
+                                                .and(postLike.isLiked.isTrue()))
+                                        .exists()
+                                : Expressions.constant(false),
+                        userId != null ?
+                                post.user.id.eq(userId)
+                                : Expressions.constant(false),
+                        post.createdAt,
+                        post.updatedAt
+                ))
+                .from(post)
+                .join(post.user, user)
+                .where(post.id.eq(postId)
+                        .and(post.isDeleted.isFalse()))
+                .fetchOne();
+
+        if (basePostDto == null) {
+            throw new IllegalArgumentException("게시물을 찾을 수 없습니다.");
+        }
+
+        List<String> imageUrls = queryFactory
+                .select(postImage.imageUrl)
+                .from(postImage)
+                .where(postImage.post.id.eq(postId))
+                .orderBy(postImage.imageNumber.asc())
+                .fetch();
+
+        PostDto postDtoWithImages = PostDto.builder()
+                .id(basePostDto.getId())
+                .userId(basePostDto.getUserId())
+                .nickname(basePostDto.getNickname())
+                .profileImageUrl(basePostDto.getProfileImageUrl())
+                .transformedContent(basePostDto.getTransformedContent())
+                .emotion(basePostDto.getEmotion())
+                .postType(basePostDto.getPostType())
+                .imageUrls(imageUrls)
+                .commentCount(basePostDto.getCommentCount())
+                .likeCount(basePostDto.getLikeCount())
+                .isLiked(basePostDto.isLiked())
+                .isMyPost(basePostDto.isMyPost())
+                .createdAt(basePostDto.getCreatedAt())
+                .updatedAt(basePostDto.getUpdatedAt())
+                .build();
+
+        return postDtoWithImages;
+    }
+
+
     @Override
     public Page<PostSummaryDto> findUserPostSummaryPage(Integer userId, Pageable pageable) {
         QPost post = QPost.post;

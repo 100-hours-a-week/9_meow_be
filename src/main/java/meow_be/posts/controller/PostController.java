@@ -103,8 +103,6 @@ public class PostController {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         String postType = user.getAnimalType();
 
-        log.info(emotion);
-
         String transformedContent = aiContentClient.transformpostContent(content, emotion, postType);
         int postId = postService.createPost(content, emotion, postType, images, transformedContent, userId);
 
