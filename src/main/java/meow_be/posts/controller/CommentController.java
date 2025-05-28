@@ -15,7 +15,7 @@ import meow_be.users.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -31,7 +31,7 @@ public class CommentController {
     @PostMapping("/{postId}/comments")
     @Operation(summary = "댓글 작성", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             content = @Content(mediaType = "application/json", examples =
-            @ExampleObject(name = "댓글 내용", value = "{ \"content\":  }"))))
+            @ExampleObject(name = "댓글 내용", value = "{ \"content\": 태스트 댓글입니다  }"))))
     public ResponseEntity<?> addComment(@PathVariable("postId") int postId,
                                         @RequestBody Map<String, String> requestBody,
                                         HttpServletRequest request) {
@@ -52,7 +52,10 @@ public class CommentController {
 
 
         commentService.addComment(postId, transformedcontent, userId);
-        return ResponseEntity.ok().build();
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("post_id", postId);
+
+        return ResponseEntity.ok(responseBody);
     }
 
     @GetMapping("/{postId}/comments")
