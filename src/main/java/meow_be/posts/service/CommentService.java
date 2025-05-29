@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,14 +37,14 @@ public class CommentService {
                 .post(post)
                 .user(user)
                 .content(content)
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
                 .build();
 
         commentRepository.save(comment);
     }
 
     public PageResponse<CommentResponseDto> getComments(int postId, int page, int size, Integer userId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt"));
         Page<Comment> commentPage = commentRepository.findByPostIdAndIsDeletedFalse(postId, pageable);
 
         List<CommentResponseDto> content = commentPage.getContent().stream()
@@ -53,7 +54,7 @@ public class CommentService {
                         .nickname(comment.getUser().getNickname())
                         .profileImageUrl(comment.getUser().getProfileImageUrl())
                         .transformedContent(comment.getContent())
-                        .postType(comment.getPost().getPostType())
+                        .postType(comment.getUser().getAnimalType())
                         .createdAt(comment.getCreatedAt().toString())
                         .isMyComment(userId != null && comment.getUser().getId()==(userId))
                         .build())
