@@ -20,6 +20,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Collections;
 import java.util.List;
 
+import static meow_be.posts.domain.QPostImage.postImage;
+
 @Repository
 @RequiredArgsConstructor
 public class PostQueryRepositoryImpl implements PostQueryRepository {
@@ -226,23 +228,47 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     }
 
     @Override
-    public PostEditInfoDto findPostEditInfoById(int postId) {
+    public PostEditInfoDto findPostEditInfoById(Integer postId) {
         QPost post = QPost.post;
         QUser user = QUser.user;
+        QPostImage postImage = QPostImage.postImage;
 
-        return queryFactory
+        PostEditInfoDto editInfo = queryFactory
                 .select(Projections.constructor(PostEditInfoDto.class,
                         post.id,
                         user.nickname,
                         user.profileImageUrl,
-                        post.content
+                        post.content,
+                        post.emotion,
+                        null
                 ))
                 .from(post)
                 .join(post.user, user)
                 .where(post.id.eq(postId)
                         .and(post.isDeleted.isFalse()))
                 .fetchOne();
+
+        if (editInfo == null) {
+            return null;
+        }
+
+        List<String> imageUrls = queryFactory
+                .select(postImage.imageUrl)
+                .from(postImage)
+                .where(postImage.post.id.eq(postId))
+                .orderBy(postImage.imageNumber.asc())
+                .fetch();
+
+        return new PostEditInfoDto(
+                editInfo.getId(),
+                editInfo.getUsername(),
+                editInfo.getProfileImageUrl(),
+                editInfo.getContent(),
+                editInfo.getEmotion(),
+                imageUrls
+        );
     }
+
 
 
 }
