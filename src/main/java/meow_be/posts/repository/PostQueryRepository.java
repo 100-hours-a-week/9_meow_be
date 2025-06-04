@@ -8,5 +8,5 @@ public interface PostQueryRepository {
     Page<PostSummaryDto> findPostsByPostType(String postType, Pageable pageable, Integer userId);
     Page<PostSummaryDto> findUserPostSummaryPage(Integer userId, Pageable pageable);
     PostDto findPostDetailById(int postId, Integer userId);
-    PostEditInfoDto findPostEditInfoById(int postId);
+    PostEditInfoDto findPostEditInfoById(Integer postId);
 }
