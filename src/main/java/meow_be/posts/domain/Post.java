@@ -60,5 +60,9 @@ public class Post {
         this.thumbnailUrl = thumbnailUrl;
         this.updatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
+    public void delete() {
+        this.isDeleted = true;
+        this.updatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+    }
 
 }

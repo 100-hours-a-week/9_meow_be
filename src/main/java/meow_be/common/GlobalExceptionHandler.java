@@ -1,5 +1,6 @@
 package meow_be.common;
 
+import meow_be.common.exception.UnauthorizedException;
 import meow_be.posts.controller.PostController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,8 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(PostController.UnauthorizedException.class)
-    public ResponseEntity<ApiResponse<String>> handleUnauthorizedException(PostController.UnauthorizedException ex) {
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse<String>> handleUnauthorizedException(UnauthorizedException ex) {
         ApiResponse<String> response = ApiResponse.error(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }

@@ -1,6 +1,7 @@
 package meow_be.posts.service;
 
 import lombok.RequiredArgsConstructor;
+import meow_be.common.exception.UnauthorizedException;
 import meow_be.config.S3Service;
 import meow_be.posts.controller.PostController;
 import meow_be.posts.domain.Post;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -113,6 +115,9 @@ public class PostService {
         Post post = postRepository.findByIdAndIsDeletedFalse(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
+        if (post.getUser().getId() != userId) {
+            throw new UnauthorizedException("인증되지 않은 사용자입니다.");
+        }
 
         List<MultipartFile> filteredImages = (images != null && !images.isEmpty())
                 ? images.stream()
@@ -141,4 +146,17 @@ public class PostService {
 
         post.update(content, emotion, postType, transformedContent, thumbnailUrl);
     }
+
+    @Transactional
+    public void deletePost(int postId, Integer userId) {
+        Post post = postRepository.findByIdAndIsDeletedFalse(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+        if (!Objects.equals(userId, post.getUser().getId())) {
+            throw new UnauthorizedException("인증되지 않은 사용자입니다.");
+        }
+
+
+        post.delete();
+    }
+
 }
