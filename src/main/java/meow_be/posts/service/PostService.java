@@ -99,7 +99,7 @@ public class PostService {
         return postQueryRepository.findUserPostSummaryPage(userId, pageable);
     }
     @Transactional(readOnly = true)
-    public PostEditInfoDto getPostEditInfo(int postId) {
+    public PostEditInfoDto getPostEditInfo(Integer postId) {
         PostEditInfoDto dto = postQueryRepository.findPostEditInfoById(postId);
 
         if (dto == null) {
