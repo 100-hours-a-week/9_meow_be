@@ -177,7 +177,8 @@ public class PostController {
     public ResponseEntity<?> getPostEditInfo(@PathVariable("postId") int postId,
                                              HttpServletRequest request) {
         try {
-            PostEditInfoDto editInfo = postService.getPostEditInfo(postId);
+            Integer userId = getAuthenticatedUserId(request);
+            PostEditInfoDto editInfo = postService.getPostEditInfo(postId,userId);
             return ResponseEntity.ok(editInfo);
         } catch (UnauthorizedException e) {
             ApiResponse<String> response = ApiResponse.error(401, null, "unauthorized");
