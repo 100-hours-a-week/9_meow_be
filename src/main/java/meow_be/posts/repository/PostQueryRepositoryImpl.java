@@ -240,7 +240,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                         user.profileImageUrl,
                         post.content,
                         post.emotion,
-                        null
+                        Expressions.constant(Collections.emptyList())
                 ))
                 .from(post)
                 .join(post.user, user)
