@@ -9,6 +9,7 @@ import meow_be.common.ApiResponse;
 import meow_be.login.security.TokenProvider;
 import meow_be.posts.dto.PageResponse;
 import meow_be.posts.dto.PostDto;
+import meow_be.posts.dto.PostEditInfoDto;
 import meow_be.posts.dto.PostSummaryDto;
 import meow_be.posts.service.PostLikeService;
 import meow_be.posts.service.PostService;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,7 @@ public class PostController {
     private final TokenProvider tokenProvider;
     private final PostLikeService postLikeService;
     private final UserRepository userRepository;
+
 
     @GetMapping
     @ResponseBody
@@ -165,16 +168,50 @@ public class PostController {
 
         return userId;
     }
+    @GetMapping("/{postId}/edit")
+    @Operation(summary = "게시글 수정 정보 조회")
+    @ResponseBody
+    public ResponseEntity<?> getPostEditInfo(@PathVariable("postId") int postId,
+                                             HttpServletRequest request) {
+        try {
+            PostEditInfoDto editInfo = postService.getPostEditInfo(postId);
+            return ResponseEntity.ok(editInfo);
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "unauthorized", "data", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "internal_server_error", "data", null));
+        }
+    }
+    @PutMapping("/{postId}")
+    @ResponseBody
+    @Operation(summary = "게시글 수정")
+    public ResponseEntity<?> editPost(@PathVariable("postId") int postId,
+                                      @RequestParam("content") String content,
+                                      @RequestParam("emotion") String emotion,
+                                      @RequestParam(value = "images", required = false) List<MultipartFile> images,
+                                      HttpServletRequest request) {
+
+        Integer userId = getAuthenticatedUserId(request);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        String postType = user.getAnimalType();
+
+        String transformedContent = aiContentClient.transformpostContent(content, emotion, postType);
+        postService.editPost(postId, content, emotion, postType, images, transformedContent, userId);
+
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("post_id", postId);
+        return ResponseEntity.ok(responseBody);
+    }
+
+
     @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
     public class UnauthorizedException extends RuntimeException {
         public UnauthorizedException(String message) {
             super(message);
         }
     }
-
-
-
-
-
-
 }
