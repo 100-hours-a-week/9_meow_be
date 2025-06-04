@@ -99,8 +99,14 @@ public class PostService {
         return postQueryRepository.findUserPostSummaryPage(userId, pageable);
     }
     @Transactional(readOnly = true)
-    public PostEditInfoDto getPostEditInfo(Integer postId) {
+    public PostEditInfoDto getPostEditInfo(Integer postId, Integer userId) {
         PostEditInfoDto dto = postQueryRepository.findPostEditInfoById(postId);
+        Post post = postRepository.findByIdAndIsDeletedFalse(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+
+        if (post.getUser().getId() != userId) {
+            throw new UnauthorizedException("인증되지 않은 사용자입니다.");
+        }
 
         if (dto == null) {
             throw new IllegalArgumentException("Post not found");
