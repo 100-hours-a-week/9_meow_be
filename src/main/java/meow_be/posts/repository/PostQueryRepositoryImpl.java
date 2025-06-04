@@ -248,10 +248,6 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                         .and(post.isDeleted.isFalse()))
                 .fetchOne();
 
-        if (editInfo == null) {
-            return null;
-        }
-
         List<String> imageUrls = queryFactory
                 .select(postImage.imageUrl)
                 .from(postImage)
