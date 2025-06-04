@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import meow_be.common.ApiResponse;
+import meow_be.common.exception.UnauthorizedException;
 import meow_be.login.security.TokenProvider;
 import meow_be.posts.dto.PageResponse;
 import meow_be.posts.dto.PostDto;
@@ -80,7 +81,7 @@ public class PostController {
     @GetMapping("/{postId}")
     @Operation(summary = "게시글 상세 조회")
     @ResponseBody
-    public ResponseEntity<PostDto> getPostById(@PathVariable("postId") int postId,HttpServletRequest request) {
+    public ResponseEntity<PostDto> getPostById(@PathVariable("postId") int postId, HttpServletRequest request) {
         String token = tokenProvider.extractTokenFromHeader(request);
         Integer userId = null;
         if (token != null) {
@@ -89,9 +90,10 @@ public class PostController {
             } catch (Exception e) {
             }
         }
-        PostDto postDto = postService.getPostById(postId,userId);
+        PostDto postDto = postService.getPostById(postId, userId);
         return ResponseEntity.ok(postDto);
     }
+
     @PostMapping
     @ResponseBody
     @Operation(summary = "게시글 생성")
@@ -168,6 +170,7 @@ public class PostController {
 
         return userId;
     }
+
     @GetMapping("/{postId}/edit")
     @Operation(summary = "게시글 수정 정보 조회")
     @ResponseBody
@@ -177,13 +180,14 @@ public class PostController {
             PostEditInfoDto editInfo = postService.getPostEditInfo(postId);
             return ResponseEntity.ok(editInfo);
         } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "unauthorized", "data", null));
+            ApiResponse<String> response = ApiResponse.error(401, null, "unauthorized");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "internal_server_error", "data", null));
+            ApiResponse<String> response = ApiResponse.error(500, null, "internal_server_error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
     @PutMapping("/{postId}")
     @ResponseBody
     @Operation(summary = "게시글 수정")
@@ -193,25 +197,48 @@ public class PostController {
                                       @RequestParam(value = "images", required = false) List<MultipartFile> images,
                                       HttpServletRequest request) {
 
-        Integer userId = getAuthenticatedUserId(request);
+        try {
+            Integer userId = getAuthenticatedUserId(request);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        String postType = user.getAnimalType();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            String postType = user.getAnimalType();
 
-        String transformedContent = aiContentClient.transformpostContent(content, emotion, postType);
-        postService.editPost(postId, content, emotion, postType, images, transformedContent, userId);
+            String transformedContent = aiContentClient.transformpostContent(content, emotion, postType);
+            postService.editPost(postId, content, emotion, postType, images, transformedContent, userId);
 
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("post_id", postId);
-        return ResponseEntity.ok(responseBody);
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("post_id", postId);
+            return ResponseEntity.ok(responseBody);
+
+        } catch (UnauthorizedException e) {
+            ApiResponse<String> response = ApiResponse.error(401, null, "unauthorized");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        } catch (IllegalArgumentException e) {
+            ApiResponse<String> response = ApiResponse.error(400, null, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = ApiResponse.error(500, null, "internal_server_error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
-
-    @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
-    public class UnauthorizedException extends RuntimeException {
-        public UnauthorizedException(String message) {
-            super(message);
+    @DeleteMapping("/{postId}")
+    @Operation(summary = "게시글 삭제")
+    public ResponseEntity<?> deletePost(@PathVariable("postId") int postId,
+                                        HttpServletRequest request) {
+        try {
+            Integer userId = getAuthenticatedUserId(request);
+            postService.deletePost(postId, userId);
+            return ResponseEntity.ok().build();
+        } catch (UnauthorizedException e) {
+            ApiResponse<String> response = ApiResponse.error(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "internal_server_error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+
+
     }
 }
