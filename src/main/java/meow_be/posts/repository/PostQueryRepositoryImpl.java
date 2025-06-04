@@ -11,6 +11,7 @@ import meow_be.posts.domain.QPost;
 import meow_be.posts.domain.QPostImage;
 import meow_be.posts.domain.QPostLike;
 import meow_be.posts.dto.PostDto;
+import meow_be.posts.dto.PostEditInfoDto;
 import meow_be.users.domain.QUser;
 import meow_be.posts.dto.PostSummaryDto;
 import org.springframework.data.domain.*;
@@ -223,5 +224,25 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
         return new PageImpl<>(content, pageable, total);
     }
+
+    @Override
+    public PostEditInfoDto findPostEditInfoById(int postId) {
+        QPost post = QPost.post;
+        QUser user = QUser.user;
+
+        return queryFactory
+                .select(Projections.constructor(PostEditInfoDto.class,
+                        post.id,
+                        user.nickname,
+                        user.profileImageUrl,
+                        post.content
+                ))
+                .from(post)
+                .join(post.user, user)
+                .where(post.id.eq(postId)
+                        .and(post.isDeleted.isFalse()))
+                .fetchOne();
+    }
+
 
 }

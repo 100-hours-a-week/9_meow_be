@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface PostImageRepository extends JpaRepository<PostImage, Integer> {
     List<PostImage> findByPostId(int postId);
+    void deleteAllByPost(Post post);
+
 }

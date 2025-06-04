@@ -5,6 +5,8 @@ import lombok.*;
 import meow_be.users.domain.User;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 @Entity
 @Table(name = "posts")
 @Getter
@@ -50,4 +52,13 @@ public class Post {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+    public void update(String content, String emotion, String postType, String transformedContent, String thumbnailUrl) {
+        this.content = content;
+        this.emotion = emotion;
+        this.postType = postType;
+        this.transformedContent = transformedContent;
+        this.thumbnailUrl = thumbnailUrl;
+        this.updatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+    }
+
 }
