@@ -12,7 +12,7 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     Optional<Token> findByUserId(int userId);
     Optional<Token> findByRefreshToken(String refreshToken);
     @Modifying
-    @Query(value = "UPDATE token t SET t.accessToken = '', t.refreshToken = '' WHERE t.user_id = :userId", nativeQuery = true)
+    @Query(value = "UPDATE token t SET t.access_token = '', t.refresh_token = '' WHERE t.user_id = :userId", nativeQuery = true)
     void deleteByUserIdNative(@Param("userId") int userId);
 
 }
