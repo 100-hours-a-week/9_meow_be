@@ -96,7 +96,7 @@ public class S3Service {
     }
 
     public PresignedUrlResponseDto generatePresignedUrl(PresignedUrlRequestDto fileInfo, int expirationMinutes) {
-        String ext = getFileExtension(fileInfo.getFilename()).orElse("jpg").toLowerCase();
+        String ext = getFileExtension(fileInfo.getFileName()).orElse("jpg").toLowerCase();
         String uniqueFileName = UUID.randomUUID() + "." + ext;
 
         Date expiration = new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000);
@@ -108,6 +108,6 @@ public class S3Service {
 
         String presignedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
 
-        return new PresignedUrlResponseDto(presignedUrl);
+        return new PresignedUrlResponseDto(presignedUrl,uniqueFileName);
     }
 }
