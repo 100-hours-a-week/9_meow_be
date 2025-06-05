@@ -173,9 +173,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public ResponseEntity<?> logout(Integer userId) {
-        tokenRepository.findByUserId(userId).ifPresent(tokenRepository::delete);
-
-
+        tokenRepository.deleteByUserId(userId);
 
         ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
