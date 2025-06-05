@@ -95,26 +95,19 @@ public class S3Service {
         return Optional.of(filename.substring(filename.lastIndexOf('.') + 1));
     }
 
-    public List<PresignedUrlResponseDto> generatePresignedUrls(List<PresignedUrlRequestDto> fileInfoList, int expirationMinutes) {
-        List<PresignedUrlResponseDto> urls = new ArrayList<>();
+    public PresignedUrlResponseDto generatePresignedUrl(PresignedUrlRequestDto fileInfo, int expirationMinutes) {
+        String ext = getFileExtension(fileInfo.getFileName()).orElse("jpg").toLowerCase();
+        String uniqueFileName = UUID.randomUUID() + "." + ext;
 
-        for (PresignedUrlRequestDto fileInfo : fileInfoList) {
-            String ext = getFileExtension(fileInfo.getFileName()).orElse("jpg");
-            String uniqueFileName = UUID.randomUUID() + "." + ext;
+        Date expiration = new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000);
 
-            Date expiration = new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000);
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, uniqueFileName)
+                .withMethod(HttpMethod.PUT)
+                .withExpiration(expiration);
+        generatePresignedUrlRequest.addRequestParameter("Content-Type", fileInfo.getContentType());
 
-            GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, uniqueFileName)
-                    .withMethod(HttpMethod.PUT)
-                    .withExpiration(expiration);
+        String presignedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
 
-            generatePresignedUrlRequest.addRequestParameter("Content-Type", fileInfo.getContentType());
-
-            String presignedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
-
-            urls.add(new PresignedUrlResponseDto(presignedUrl));
-        }
-
-        return urls;
+        return new PresignedUrlResponseDto(presignedUrl);
     }
 }
