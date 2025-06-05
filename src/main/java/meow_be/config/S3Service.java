@@ -1,8 +1,12 @@
 package meow_be.config;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
+import meow_be.posts.dto.PresignedUrlRequestDto;
+import meow_be.posts.dto.PresignedUrlResponseDto;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,10 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -92,5 +93,28 @@ public class S3Service {
     private Optional<String> getFileExtension(String filename) {
         if (filename == null || !filename.contains(".")) return Optional.empty();
         return Optional.of(filename.substring(filename.lastIndexOf('.') + 1));
+    }
+
+    public List<PresignedUrlResponseDto> generatePresignedUrls(List<PresignedUrlRequestDto> fileInfoList, int expirationMinutes) {
+        List<PresignedUrlResponseDto> urls = new ArrayList<>();
+
+        for (PresignedUrlRequestDto fileInfo : fileInfoList) {
+            String ext = getFileExtension(fileInfo.getFileName()).orElse("jpg");
+            String uniqueFileName = UUID.randomUUID() + "." + ext;
+
+            Date expiration = new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000);
+
+            GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, uniqueFileName)
+                    .withMethod(HttpMethod.PUT)
+                    .withExpiration(expiration);
+
+            generatePresignedUrlRequest.addRequestParameter("Content-Type", fileInfo.getContentType());
+
+            String presignedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
+
+            urls.add(new PresignedUrlResponseDto(presignedUrl));
+        }
+
+        return urls;
     }
 }
