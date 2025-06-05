@@ -16,7 +16,7 @@ public class Token {
     private Long id;
 
 
-    @Column(name = "user_id", nullable = false, unique = true)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private int userId;
 
     @Column(nullable = false, length = 512)
