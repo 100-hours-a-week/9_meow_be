@@ -49,21 +49,9 @@ public class PostService {
 
     @Transactional
     public int createPost(String content, String emotion, String postType,
-                          List<MultipartFile> images, String transformedContent,Integer userId) {
+                          List<String> imageUrls, String transformedContent, Integer userId) {
 
-        List<MultipartFile> filteredImages = (images != null && !images.isEmpty())
-                ? images.stream()
-                .filter(file -> !file.isEmpty() && file.getOriginalFilename() != null)
-                .collect(Collectors.toList())
-                : List.of();
-
-        List<String> imageUrls = s3Service.uploadImages(filteredImages);
-
-        String thumbnailUrl = null;
-        if (!filteredImages.isEmpty()) {
-            MultipartFile firstImage = filteredImages.get(0);
-            thumbnailUrl = s3Service.uploadThumbnail(firstImage);
-        }
+        String thumbnailUrl = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : null;
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -84,17 +72,20 @@ public class PostService {
         postRepository.save(post);
 
         int index = 0;
-        for (String imageUrl : imageUrls) {
-            PostImage postImage = PostImage.builder()
-                    .post(post)
-                    .imageUrl(imageUrl)
-                    .imageNumber(index++)
-                    .build();
-            postImageRepository.save(postImage);
+        if (imageUrls != null) {
+            for (String imageUrl : imageUrls) {
+                PostImage postImage = PostImage.builder()
+                        .post(post)
+                        .imageUrl(imageUrl)
+                        .imageNumber(index++)
+                        .build();
+                postImageRepository.save(postImage);
+            }
         }
 
         return post.getId();
     }
+
     public Page<PostSummaryDto> getUserPostSummaryPage(Integer userId, Pageable pageable) {
         return postQueryRepository.findUserPostSummaryPage(userId, pageable);
     }

@@ -8,10 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import meow_be.common.ApiResponse;
 import meow_be.common.exception.UnauthorizedException;
 import meow_be.login.security.TokenProvider;
-import meow_be.posts.dto.PageResponse;
-import meow_be.posts.dto.PostDto;
-import meow_be.posts.dto.PostEditInfoDto;
-import meow_be.posts.dto.PostSummaryDto;
+import meow_be.posts.dto.*;
 import meow_be.posts.service.PostLikeService;
 import meow_be.posts.service.PostService;
 import meow_be.users.domain.User;
@@ -94,13 +91,11 @@ public class PostController {
         return ResponseEntity.ok(postDto);
     }
 
-    @PostMapping
+    @PostMapping("/posts")
     @ResponseBody
     @Operation(summary = "게시글 생성")
     public ResponseEntity<ApiResponse<Integer>> createPost(
-            @RequestParam("content") String content,
-            @RequestParam("emotion") String emotion,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            @RequestBody PostCreateRequestDto postData,
             HttpServletRequest request) {
 
         Integer userId = getAuthenticatedUserId(request);
@@ -108,11 +103,21 @@ public class PostController {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         String postType = user.getAnimalType();
 
-        String transformedContent = aiContentClient.transformpostContent(content, emotion, postType);
-        int postId = postService.createPost(content, emotion, postType, images, transformedContent, userId);
+        String transformedContent = aiContentClient.transformpostContent(
+                postData.getContent(), postData.getEmotion(), postType);
+
+        int postId = postService.createPost(
+                postData.getContent(),
+                postData.getEmotion(),
+                postType,
+                postData.getImageUrls(),
+                transformedContent,
+                userId
+        );
 
         return ResponseEntity.ok(ApiResponse.success(postId, "게시글이 성공적으로 생성되었습니다."));
     }
+
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "특정 유저의 게시글 조회")
