@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class PresignedUrlRequestDto {
-    private String fileName;
-    private String contentType;
+    private String filename;
+    private String fileType;
 }
