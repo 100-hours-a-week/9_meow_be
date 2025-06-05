@@ -170,4 +170,24 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("카카오 사용자 정보 파싱 실패", e);
         }
     }
+    @Override
+    @Transactional
+    public ResponseEntity<?> logout(Integer userId) {
+        tokenRepository.findByUserId(userId).ifPresent(tokenRepository::delete);
+
+
+
+        ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, expiredCookie.toString())
+                .body(Map.of("message", "로그아웃 되었습니다."));
+    }
+
 }

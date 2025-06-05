@@ -8,4 +8,6 @@ public interface AuthService {
     ResponseEntity<?> loginWithKakaoId(Long kakaoId);
 
     ResponseEntity<?> refreshTokenFromCookie(String refreshToken);
+    ResponseEntity<?> logout(Integer userId);
+
 }
