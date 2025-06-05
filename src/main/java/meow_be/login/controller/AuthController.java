@@ -7,8 +7,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import meow_be.common.ApiResponse;
+import meow_be.login.security.TokenProvider;
 import meow_be.login.service.AuthService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +31,7 @@ public class AuthController {
     private String kakaoRedirectUri;
 
     private final AuthService authService;
+    private final TokenProvider tokenProvider;
 
     @GetMapping("/url")
     @Operation(summary = "카카오 로그인 url 요청")
@@ -86,5 +90,24 @@ public class AuthController {
 
         return authService.refreshTokenFromCookie(refreshToken);
     }
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "Authorization 헤더에서 accessToken을 받아 서버 저장소에서 access/refresh 토큰을 삭제합니다.")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String token = tokenProvider.extractTokenFromHeader(request);
+        if (token == null || token.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(HttpStatus.UNAUTHORIZED.value(), "Authorization 헤더에 토큰이 없습니다."));
+        }
 
+        try {
+            Integer userId = tokenProvider.getUserIdFromToken(token);
+            return authService.logout(userId);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 토큰입니다."));
+        }
+
+    }
 }
