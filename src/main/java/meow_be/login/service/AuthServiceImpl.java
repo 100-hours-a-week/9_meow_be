@@ -172,8 +172,8 @@ public class AuthServiceImpl implements AuthService {
     }
     @Override
     @Transactional
-    public ResponseEntity<?> logout(Integer userId) {
-        tokenRepository.deleteByUserId(userId);
+    public ResponseEntity<?> logout(int userId) {
+        tokenRepository.deleteByUserIdNative(userId);
 
         ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)

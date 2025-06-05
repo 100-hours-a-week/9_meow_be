@@ -101,7 +101,7 @@ public class AuthController {
         }
 
         try {
-            Integer userId = tokenProvider.getUserIdFromToken(token);
+            int userId = tokenProvider.getUserIdFromToken(token);
             return authService.logout(userId);
         } catch (Exception e) {
             return ResponseEntity
