@@ -6,6 +6,7 @@ import meow_be.config.S3Service;
 import meow_be.posts.dto.PresignedUrlRequestDto;
 import meow_be.posts.dto.PresignedUrlResponseDto;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +17,7 @@ public class ImageController {
 
     private final S3Service s3Service;
 
-    @PutMapping("/presigned-url")
+    @PostMapping("/presigned-url")
     @Operation(summary = "presigned-url 생성")
     public ResponseEntity<PresignedUrlResponseDto> getPresignedUrl(
             @RequestBody PresignedUrlRequestDto requestDto) {
