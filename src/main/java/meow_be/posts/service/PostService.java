@@ -72,15 +72,13 @@ public class PostService {
         postRepository.save(post);
 
         int index = 0;
-        if (imageUrls != null) {
-            for (String imageUrl : imageUrls) {
-                PostImage postImage = PostImage.builder()
-                        .post(post)
-                        .imageUrl(imageUrl)
-                        .imageNumber(index++)
-                        .build();
-                postImageRepository.save(postImage);
-            }
+        for (String imageUrl : imageUrls) {
+            PostImage postImage = PostImage.builder()
+                    .post(post)
+                    .imageUrl(imageUrl)
+                    .imageNumber(index++)
+                    .build();
+            postImageRepository.save(postImage);
         }
 
         return post.getId();
