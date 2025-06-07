@@ -195,14 +195,10 @@ public class PostController {
     }
 
     @PutMapping("/{postId}")
-    @ResponseBody
     @Operation(summary = "게시글 수정")
     public ResponseEntity<?> editPost(@PathVariable("postId") int postId,
-                                      @RequestParam("content") String content,
-                                      @RequestParam("emotion") String emotion,
-                                      @RequestParam(value = "images", required = false) List<MultipartFile> images,
+                                      @RequestBody PostEditRequestDto requestDto,
                                       HttpServletRequest request) {
-
         try {
             Integer userId = getAuthenticatedUserId(request);
 
@@ -210,8 +206,19 @@ public class PostController {
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             String postType = user.getAnimalType();
 
-            String transformedContent = aiContentClient.transformpostContent(content, emotion, postType);
-            postService.editPost(postId, content, emotion, postType, images, transformedContent, userId);
+            String transformedContent = aiContentClient.transformpostContent(
+                    requestDto.getContent(), requestDto.getEmotion(), postType
+            );
+
+            postService.editPost(
+                    postId,
+                    requestDto.getContent(),
+                    requestDto.getEmotion(),
+                    postType,
+                    requestDto.getImageUrls(),
+                    transformedContent,
+                    userId
+            );
 
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("post_id", postId);
@@ -228,6 +235,7 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
 
     @DeleteMapping("/{postId}")
     @Operation(summary = "게시글 삭제")

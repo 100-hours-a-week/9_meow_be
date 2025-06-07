@@ -105,7 +105,7 @@ public class PostService {
     }
     @Transactional
     public void editPost(int postId, String content, String emotion, String postType,
-                         List<MultipartFile> images, String transformedContent, Integer userId) {
+                         List<String> imageUrls, String transformedContent, Integer userId) {
 
         Post post = postRepository.findByIdAndIsDeletedFalse(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
@@ -114,33 +114,25 @@ public class PostService {
             throw new UnauthorizedException("인증되지 않은 사용자입니다.");
         }
 
-        List<MultipartFile> filteredImages = (images != null && !images.isEmpty())
-                ? images.stream()
-                .filter(file -> !file.isEmpty() && file.getOriginalFilename() != null)
-                .collect(Collectors.toList())
-                : List.of();
-
-        List<String> imageUrls = s3Service.uploadImages(filteredImages);
-        String thumbnailUrl = null;
-        if (!filteredImages.isEmpty()) {
-            MultipartFile firstImage = filteredImages.get(0);
-            thumbnailUrl = s3Service.uploadThumbnail(firstImage);
-        }
+        String thumbnailUrl = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : null;
 
         postImageRepository.deleteAllByPost(post);
 
         int index = 0;
-        for (String imageUrl : imageUrls) {
-            PostImage postImage = PostImage.builder()
-                    .post(post)
-                    .imageUrl(imageUrl)
-                    .imageNumber(index++)
-                    .build();
-            postImageRepository.save(postImage);
+        if (imageUrls != null) {
+            for (String imageUrl : imageUrls) {
+                PostImage postImage = PostImage.builder()
+                        .post(post)
+                        .imageUrl(imageUrl)
+                        .imageNumber(index++)
+                        .build();
+                postImageRepository.save(postImage);
+            }
         }
 
         post.update(content, emotion, postType, transformedContent, thumbnailUrl);
     }
+
 
     @Transactional
     public void deletePost(int postId, Integer userId) {
