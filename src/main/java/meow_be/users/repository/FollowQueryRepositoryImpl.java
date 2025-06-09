@@ -50,4 +50,36 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 
         return new PageImpl<>(content, pageable, total);
     }
+
+    @Override
+    public Page<FollowUserDto> findFollowersByUserId(Integer userId, Pageable pageable) {
+        QFollow follow = QFollow.follow;
+        QUser user = QUser.user;
+
+        List<FollowUserDto> content = queryFactory
+                .select(Projections.constructor(FollowUserDto.class,
+                        user.id,
+                        user.nickname,
+                        user.animalType,
+                        user.profileImageUrl
+                ))
+                .from(follow)
+                .join(follow.follower, user)
+                .where(follow.following.id.eq(userId)
+                        .and(user.isDeleted.isFalse()))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = queryFactory
+                .select(user.count())
+                .from(follow)
+                .join(follow.follower, user)
+                .where(follow.following.id.eq(userId)
+                        .and(user.isDeleted.isFalse()))
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
 }

@@ -6,4 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface FollowQueryRepository {
     Page<FollowUserDto> findFollowingsByUserId(Integer userId, Pageable pageable);
+    Page<FollowUserDto> findFollowersByUserId(Integer userId, Pageable pageable);
+
 }

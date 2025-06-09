@@ -32,16 +32,25 @@ public class FollowController {
         followService.unfollowUser(currentUserId, userId);
         return ResponseEntity.ok(ApiResponse.success("언팔로우 완료"));
     }
-    @GetMapping("/followings")
+    @GetMapping("/{userId}/followings")
     public ResponseEntity<?> getFollowings(
-            HttpServletRequest request,
+            @PathVariable int userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Integer currentUserId = getUserIdFromRequest(request);
-        PageResponse<FollowUserDto> response = followService.getFollowings(currentUserId, page, size);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        PageResponse<FollowUserDto> response = followService.getFollowings(userId, page, size);
+        return ResponseEntity.ok(response);
     }
+    @GetMapping("/users/{userId}/followers")
+    public ResponseEntity<?> getFollowers(
+            @PathVariable int userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PageResponse<FollowUserDto> response = followService.getFollowers(userId, page, size);
+        return ResponseEntity.ok(response);
+    }
+
 
     private Integer getUserIdFromRequest(HttpServletRequest request) {
         String token = tokenProvider.extractTokenFromHeader(request);

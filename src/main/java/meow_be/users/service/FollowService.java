@@ -80,4 +80,18 @@ public class FollowService {
                 followings.isLast()
         );
     }
+
+    public PageResponse<FollowUserDto> getFollowers(Integer userId, int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<FollowUserDto> followers = followQueryRepository.findFollowersByUserId(userId, pageable);
+        return new PageResponse<>(
+                followers.getContent(),
+                followers.getNumber(),
+                followers.getTotalPages(),
+                followers.getTotalElements(),
+                followers.getSize(),
+                followers.isLast()
+        );
+    }
+
 }
