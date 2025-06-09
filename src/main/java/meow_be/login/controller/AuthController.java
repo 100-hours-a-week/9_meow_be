@@ -74,7 +74,7 @@ public class AuthController {
     @Operation(summary = "kakaoId 자체 로그인",requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "카카오 ID 요청 예시",
             required = true,
-            content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "kakaoId 예시", value = "{ \"kakaoId\": 1234567890 }"))))
+            content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "kakaoId 예시", value = "{ \"kakaoId\": 4242621681 }"))))
     public ResponseEntity<?> loginWithKakaoId(@RequestBody Map<String, Object> payload) {
         Long kakaoId = ((Number) payload.get("kakaoId")).longValue();
         return authService.loginWithKakaoId(kakaoId);
