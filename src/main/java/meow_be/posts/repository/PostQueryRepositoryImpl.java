@@ -273,14 +273,16 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         QUser user = QUser.user;
         QFollow follow = QFollow.follow;
         QPostLike postLike = QPostLike.postLike;
+        QComment comment = QComment.comment;
 
-
+        // 팔로잉 유저 ID들 조회
         JPQLQuery<Integer> followedUserIds = JPAExpressions
                 .select(follow.following.id)
                 .from(follow)
                 .where(follow.follower.id.eq(userId));
 
-        List<PostSummaryDto> content = queryFactory
+        // 쿼리 작성
+        var query = queryFactory
                 .select(Projections.constructor(PostSummaryDto.class,
                         post.id,
                         user.id,
@@ -289,12 +291,32 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                         post.transformedContent,
                         post.emotion,
                         post.postType,
-                        post.thumbnailUrl,
-                        post.commentCount,
-                        post.likeCount,
+                        JPAExpressions.select(postImage.imageUrl)
+                                .from(postImage)
+                                .where(postImage.post.id.eq(post.id)
+                                        .and(postImage.imageNumber.eq(0)))
+                                .limit(1),
+                        JPAExpressions.select(comment.count())
+                                .from(comment)
+                                .where(comment.post.id.eq(post.id)
+                                        .and(comment.isDeleted.isFalse())),
+                        JPAExpressions.select(postLike.count())
+                                .from(postLike)
+                                .where(postLike.post.id.eq(post.id)
+                                        .and(postLike.isLiked.isTrue())),
+                        userId != null ?
+                                JPAExpressions.selectOne()
+                                        .from(postLike)
+                                        .where(postLike.post.id.eq(post.id)
+                                                .and(postLike.user.id.eq(userId))
+                                                .and(postLike.isLiked.isTrue()))
+                                        .exists()
+                                : Expressions.constant(false),
+                        userId != null ?
+                                post.user.id.eq(userId)
+                                : Expressions.constant(false),
                         post.createdAt,
-                        post.updatedAt,
-                        postLike.isLiked.isTrue()
+                        post.updatedAt
                 ))
                 .from(post)
                 .join(post.user, user)
@@ -303,22 +325,15 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                         .and(postLike.user.id.eq(userId))
                         .and(postLike.isLiked.eq(true)))
                 .where(user.id.in(followedUserIds))
-                .orderBy(post.createdAt.desc())
+                .orderBy(post.createdAt.desc());
+
+        long total = query.fetchCount();
+
+        List<PostSummaryDto> content = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        Long total = queryFactory
-                .select(post.count())
-                .from(post)
-                .join(post.user, user)
-                .where(user.id.in(followedUserIds))
-                .fetchOne();
-
-        return new PageImpl<>(content, pageable, total != null ? total : 0);
+        return new PageImpl<>(content, pageable, total);
     }
-
-
-
-
 }
