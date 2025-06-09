@@ -1,24 +1,27 @@
 package meow_be.users.service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import meow_be.posts.dto.PageResponse;
 import meow_be.users.domain.Follow;
 import meow_be.users.domain.User;
+import meow_be.users.dto.FollowUserDto;
+import meow_be.users.repository.FollowQueryRepository;
 import meow_be.users.repository.FollowRepository;
 import meow_be.users.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class FollowService {
 
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
-
-    public FollowService(FollowRepository followRepository, UserRepository userRepository) {
-        this.followRepository = followRepository;
-        this.userRepository = userRepository;
-    }
+    private final FollowQueryRepository followQueryRepository;
 
     @Transactional
     public void followUser(Integer followerId, Integer followingId) {
@@ -64,5 +67,17 @@ public class FollowService {
             follow.markAsDeleted();
             followRepository.save(follow);
         }
+    }
+    public PageResponse<FollowUserDto> getFollowings(Integer userId, int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<FollowUserDto> followings = followQueryRepository.findFollowingsByUserId(userId, pageable);
+        return new PageResponse<>(
+                followings.getContent(),
+                followings.getNumber(),
+                followings.getTotalPages(),
+                followings.getTotalElements(),
+                followings.getSize(),
+                followings.isLast()
+        );
     }
 }

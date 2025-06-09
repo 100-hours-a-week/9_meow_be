@@ -3,6 +3,8 @@ package meow_be.users.controller;
 import lombok.RequiredArgsConstructor;
 import meow_be.common.ApiResponse;
 import meow_be.login.security.TokenProvider;
+import meow_be.posts.dto.PageResponse;
+import meow_be.users.dto.FollowUserDto;
 import meow_be.users.service.FollowService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,16 @@ public class FollowController {
         Integer currentUserId = getUserIdFromRequest(request);
         followService.unfollowUser(currentUserId, userId);
         return ResponseEntity.ok(ApiResponse.success("언팔로우 완료"));
+    }
+    @GetMapping("/followings")
+    public ResponseEntity<?> getFollowings(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Integer currentUserId = getUserIdFromRequest(request);
+        PageResponse<FollowUserDto> response = followService.getFollowings(currentUserId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     private Integer getUserIdFromRequest(HttpServletRequest request) {
