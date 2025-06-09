@@ -13,20 +13,20 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/follows")
+@RequestMapping("/users")
 public class FollowController {
 
     private final FollowService followService;
     private final TokenProvider tokenProvider;
 
-    @PostMapping("/{userId}")
+    @PostMapping("/follow/{userId}")
     public ResponseEntity<?> follow(@PathVariable int userId, HttpServletRequest request) {
         Integer currentUserId = getUserIdFromRequest(request);
         followService.followUser(currentUserId, userId);
         return ResponseEntity.ok(ApiResponse.success("팔로우 완료"));
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/follow/{userId}")
     public ResponseEntity<?> unfollow(@PathVariable int userId, HttpServletRequest request) {
         Integer currentUserId = getUserIdFromRequest(request);
         followService.unfollowUser(currentUserId, userId);
@@ -41,7 +41,7 @@ public class FollowController {
         PageResponse<FollowUserDto> response = followService.getFollowings(userId, page, size);
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/users/{userId}/followers")
+    @GetMapping("/{userId}/followers")
     public ResponseEntity<?> getFollowers(
             @PathVariable int userId,
             @RequestParam(defaultValue = "0") int page,
