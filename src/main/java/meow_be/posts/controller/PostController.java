@@ -90,8 +90,6 @@ public class PostController {
         PostDto postDto = postService.getPostById(postId, userId);
         return ResponseEntity.ok(postDto);
     }
-
-    @PostMapping("/posts")
     @ResponseBody
     @Operation(summary = "게시글 생성")
     public ResponseEntity<ApiResponse<Integer>> createPost(
