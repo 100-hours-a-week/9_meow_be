@@ -1,0 +1,39 @@
+package meow_be.users.controller;
+
+import lombok.RequiredArgsConstructor;
+import meow_be.common.ApiResponse;
+import meow_be.login.security.TokenProvider;
+import meow_be.users.service.FollowService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/follows")
+public class FollowController {
+
+    private final FollowService followService;
+    private final TokenProvider tokenProvider;
+
+    @PostMapping("/{userId}")
+    public ResponseEntity<?> follow(@PathVariable int userId, HttpServletRequest request) {
+        Integer currentUserId = getUserIdFromRequest(request);
+        followService.followUser(currentUserId, userId);
+        return ResponseEntity.ok(ApiResponse.success("팔로우 완료"));
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> unfollow(@PathVariable int userId, HttpServletRequest request) {
+        Integer currentUserId = getUserIdFromRequest(request);
+        followService.unfollowUser(currentUserId, userId);
+        return ResponseEntity.ok(ApiResponse.success("언팔로우 완료"));
+    }
+
+    private Integer getUserIdFromRequest(HttpServletRequest request) {
+        String token = tokenProvider.extractTokenFromHeader(request);
+        if (token == null) throw new IllegalArgumentException("Authorization 헤더가 유효하지 않습니다.");
+        return tokenProvider.getUserIdFromToken(token);
+    }
+}
