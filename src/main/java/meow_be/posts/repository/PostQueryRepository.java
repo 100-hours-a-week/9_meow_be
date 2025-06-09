@@ -9,4 +9,6 @@ public interface PostQueryRepository {
     Page<PostSummaryDto> findUserPostSummaryPage(Integer userId, Pageable pageable);
     PostDto findPostDetailById(int postId, Integer userId);
     PostEditInfoDto findPostEditInfoById(Integer postId);
+    Page<PostSummaryDto> findFollowingPosts(Integer userId, Pageable pageable);
+
 }

@@ -3,6 +3,7 @@ package meow_be.posts.repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.JPAExpressions;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import meow_be.posts.domain.QPostImage;
 import meow_be.posts.domain.QPostLike;
 import meow_be.posts.dto.PostDto;
 import meow_be.posts.dto.PostEditInfoDto;
+import meow_be.users.domain.QFollow;
 import meow_be.users.domain.QUser;
 import meow_be.posts.dto.PostSummaryDto;
 import org.springframework.data.domain.*;
@@ -264,6 +266,58 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 imageUrls
         );
     }
+
+    @Override
+    public Page<PostSummaryDto> findFollowingPosts(Integer userId, Pageable pageable) {
+        QPost post = QPost.post;
+        QUser user = QUser.user;
+        QFollow follow = QFollow.follow;
+        QPostLike postLike = QPostLike.postLike;
+
+
+        JPQLQuery<Integer> followedUserIds = JPAExpressions
+                .select(follow.following.id)
+                .from(follow)
+                .where(follow.follower.id.eq(userId));
+
+        List<PostSummaryDto> content = queryFactory
+                .select(Projections.constructor(PostSummaryDto.class,
+                        post.id,
+                        user.id,
+                        user.nickname,
+                        user.profileImageUrl,
+                        post.transformedContent,
+                        post.emotion,
+                        post.postType,
+                        post.thumbnailUrl,
+                        post.commentCount,
+                        post.likeCount,
+                        post.createdAt,
+                        post.updatedAt,
+                        postLike.isLiked.isTrue()
+                ))
+                .from(post)
+                .join(post.user, user)
+                .leftJoin(postLike)
+                .on(postLike.post.id.eq(post.id)
+                        .and(postLike.user.id.eq(userId))
+                        .and(postLike.isLiked.eq(true)))
+                .where(user.id.in(followedUserIds))
+                .orderBy(post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long total = queryFactory
+                .select(post.count())
+                .from(post)
+                .join(post.user, user)
+                .where(user.id.in(followedUserIds))
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total != null ? total : 0);
+    }
+
 
 
 
