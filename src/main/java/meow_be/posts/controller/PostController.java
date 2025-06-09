@@ -251,7 +251,43 @@ public class PostController {
             ApiResponse<String> response = ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "internal_server_error");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-
-
     }
+
+    @GetMapping("/posts/following")
+    @ResponseBody
+    @Operation(summary = "팔로우한 사용자의 게시글 조회")
+    public ResponseEntity<PageResponse<PostSummaryDto>> getPostsFromFollowings(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            HttpServletRequest request) {
+
+        String token = tokenProvider.extractTokenFromHeader(request);
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new PageResponse<>(List.of(), page, 0, 0, size, true));
+        }
+
+        Integer userId;
+        try {
+            userId = tokenProvider.getUserIdFromToken(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new PageResponse<>(List.of(), page, 0, 0, size, true));
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PostSummaryDto> postPage = postService.getFollowingPostSummaryPage(userId, pageable);
+
+        PageResponse<PostSummaryDto> response = new PageResponse<>(
+                postPage.getContent(),
+                postPage.getNumber(),
+                postPage.getTotalPages(),
+                postPage.getTotalElements(),
+                postPage.getSize(),
+                postPage.isLast()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
 }

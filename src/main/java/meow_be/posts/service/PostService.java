@@ -2,8 +2,6 @@ package meow_be.posts.service;
 
 import lombok.RequiredArgsConstructor;
 import meow_be.common.exception.UnauthorizedException;
-import meow_be.config.S3Service;
-import meow_be.posts.controller.PostController;
 import meow_be.posts.domain.Post;
 import meow_be.posts.domain.PostImage;
 import meow_be.posts.dto.PostDto;
@@ -18,20 +16,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final S3Service s3Service;
     private final PostImageRepository postImageRepository;
     private final PostQueryRepository postQueryRepository;
 
@@ -141,9 +136,11 @@ public class PostService {
         if (!Objects.equals(userId, post.getUser().getId())) {
             throw new UnauthorizedException("인증되지 않은 사용자입니다.");
         }
-
-
         post.delete();
+    }
+
+    public Page<PostSummaryDto> getFollowingPostSummaryPage(Integer userId, Pageable pageable) {
+        return postQueryRepository.findFollowingPosts(userId, pageable);
     }
 
 }
