@@ -1,0 +1,51 @@
+package meow_be.users.controller;
+
+import lombok.RequiredArgsConstructor;
+import meow_be.common.ApiResponse;
+import meow_be.login.security.TokenProvider;
+import meow_be.posts.dto.PageResponse;
+import meow_be.users.dto.FollowUserDto;
+import meow_be.users.service.FollowService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/follows")
+public class FollowController {
+
+    private final FollowService followService;
+    private final TokenProvider tokenProvider;
+
+    @PostMapping("/{userId}")
+    public ResponseEntity<?> follow(@PathVariable int userId, HttpServletRequest request) {
+        Integer currentUserId = getUserIdFromRequest(request);
+        followService.followUser(currentUserId, userId);
+        return ResponseEntity.ok(ApiResponse.success("팔로우 완료"));
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> unfollow(@PathVariable int userId, HttpServletRequest request) {
+        Integer currentUserId = getUserIdFromRequest(request);
+        followService.unfollowUser(currentUserId, userId);
+        return ResponseEntity.ok(ApiResponse.success("언팔로우 완료"));
+    }
+    @GetMapping("/followings")
+    public ResponseEntity<?> getFollowings(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Integer currentUserId = getUserIdFromRequest(request);
+        PageResponse<FollowUserDto> response = followService.getFollowings(currentUserId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    private Integer getUserIdFromRequest(HttpServletRequest request) {
+        String token = tokenProvider.extractTokenFromHeader(request);
+        if (token == null) throw new IllegalArgumentException("Authorization 헤더가 유효하지 않습니다.");
+        return tokenProvider.getUserIdFromToken(token);
+    }
+}
