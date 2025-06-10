@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class MyProfileResponse {
+    private int userId;
     private String nickname;
     private String animalType;
     private String profileImageUrl;
