@@ -2,6 +2,7 @@ package meow_be.users.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import meow_be.users.dto.EditUserProfileResponse;
 import meow_be.users.dto.UserProfileResponse;
 import meow_be.users.domain.User;
 import org.springframework.stereotype.Repository;
@@ -48,7 +49,6 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
                 .where(follow.follower.id.eq(targetUserId))
                 .fetchOne();
 
-        // 5. 로그인한 유저가 팔로우 중인지 확인
         boolean isFollowing = loginUserId != null &&
                 queryFactory
                         .selectOne()
@@ -57,10 +57,8 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
                                 .and(follow.following.id.eq(targetUserId)))
                         .fetchFirst() != null;
 
-        // 6. 자기 자신의 프로필인지 확인
         boolean isUser = loginUserId != null && loginUserId.equals(targetUserId);
 
-        // 7. 응답 생성
         return new UserProfileResponse(
                 userInfo.getNickname(),
                 userInfo.getAnimalType(),
@@ -72,4 +70,23 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
                 isUser
         );
     }
+
+    @Override
+    public EditUserProfileResponse findEditUserProfile(Integer userId) {
+        User userInfo = queryFactory
+                .selectFrom(user)
+                .where(user.id.eq(userId)
+                        .and(user.isDeleted.isFalse()))
+                .fetchOne();
+
+        if (userInfo == null) {
+            return null;
+        }
+
+        return new EditUserProfileResponse(
+                userInfo.getNickname(),
+                userInfo.getProfileImageUrl()
+        );
+    }
+
 }

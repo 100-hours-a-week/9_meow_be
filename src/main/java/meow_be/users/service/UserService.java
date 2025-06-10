@@ -1,12 +1,18 @@
 package meow_be.users.service;
 
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import meow_be.config.S3Service;
 import meow_be.users.domain.User;
+import meow_be.users.dto.EditUserProfileRequest;
+import meow_be.users.dto.EditUserProfileResponse;
 import meow_be.users.dto.UserProfileResponse;
 import meow_be.users.repository.UserQueryRepository;
 import meow_be.users.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -54,6 +60,28 @@ public int createUser(Long kakaoId,String nickname,String animalType, MultipartF
         return profile;
     }
 
+    public EditUserProfileResponse getEditUserProfile(Integer userId) {
+        EditUserProfileResponse userInfo = userQueryRepository.findEditUserProfile(userId);
+        if (userInfo == null) {
+            throw new IllegalArgumentException("해당 사용자를 찾을 수 없습니다.");
+        }
+        return userInfo;
+    }
+    public void updateUserProfile(Integer userId, EditUserProfileRequest request) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        User updatedUser = User.builder()
+                .id(existingUser.getId())
+                .kakaoId(existingUser.getKakaoId())
+                .nickname(request.getNickname() != null ? request.getNickname() : existingUser.getNickname())
+                .animalType(existingUser.getAnimalType())
+                .profileImageUrl(request.getProfileImageUrl() != null ? request.getProfileImageUrl() : existingUser.getProfileImageUrl())
+                .createdAt(existingUser.getCreatedAt())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        userRepository.save(updatedUser);
+    }
 
 }
