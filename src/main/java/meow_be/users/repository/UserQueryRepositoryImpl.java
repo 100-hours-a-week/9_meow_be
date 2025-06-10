@@ -119,6 +119,7 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
                 .fetchOne();
 
         return MyProfileResponse.builder()
+                .userId(userId)
                 .nickname(userInfo.getNickname())
                 .animalType(userInfo.getAnimalType())
                 .profileImageUrl(userInfo.getProfileImageUrl())
