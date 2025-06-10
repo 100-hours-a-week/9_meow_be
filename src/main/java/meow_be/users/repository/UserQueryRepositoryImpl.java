@@ -57,8 +57,6 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
                                 .and(follow.following.id.eq(targetUserId)))
                         .fetchFirst() != null;
 
-        boolean isUser = loginUserId != null && loginUserId.equals(targetUserId);
-
         return new UserProfileResponse(
                 userInfo.getNickname(),
                 userInfo.getAnimalType(),
@@ -66,8 +64,7 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
                 postCount,
                 followerCount,
                 followingCount,
-                isFollowing,
-                isUser
+                isFollowing
         );
     }
 
