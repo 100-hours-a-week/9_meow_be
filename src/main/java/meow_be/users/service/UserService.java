@@ -7,6 +7,7 @@ import meow_be.config.S3Service;
 import meow_be.users.domain.User;
 import meow_be.users.dto.EditUserProfileRequest;
 import meow_be.users.dto.EditUserProfileResponse;
+import meow_be.users.dto.MyProfileResponse;
 import meow_be.users.dto.UserProfileResponse;
 import meow_be.users.repository.UserQueryRepository;
 import meow_be.users.repository.UserRepository;
@@ -54,6 +55,13 @@ public int createUser(Long kakaoId,String nickname,String animalType, MultipartF
     }
     public UserProfileResponse getUserProfile(Integer targetUserId, Integer loginUserId) {
         UserProfileResponse profile = userQueryRepository.findUserProfile(targetUserId, loginUserId);
+        if (profile == null) {
+            throw new IllegalArgumentException("해당 사용자를 찾을 수 없습니다.");
+        }
+        return profile;
+    }
+    public MyProfileResponse getMyProfile(Integer userId) {
+        MyProfileResponse profile = userQueryRepository.findMyProfile(userId);
         if (profile == null) {
             throw new IllegalArgumentException("해당 사용자를 찾을 수 없습니다.");
         }

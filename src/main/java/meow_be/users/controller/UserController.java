@@ -54,7 +54,7 @@ public class UserController {
         return ResponseEntity.ok(Map.of("profileImageUrl", profileImageUrl));
     }
     @GetMapping("/profile/{userId}")
-    @Operation(summary = "마이페이지 사용자 정보 상단 조회", description = "마이페이지 위쪽에 표시될 회원 정보를 가져옵니다.")
+    @Operation(summary = "회원페이지 사용자 정보 상단 조회", description = "회원페이지 위쪽에 표시될 회원 정보를 가져옵니다.")
     public ResponseEntity<?> getUserProfile(
             @PathVariable("userId") Integer userId,
             HttpServletRequest request
@@ -64,6 +64,13 @@ public class UserController {
 
         return ResponseEntity.ok(userService.getUserProfile(userId, loginUserId));
     }
+    @GetMapping("/my-profile")
+    @Operation(summary = "마이페이지 사용자 정보 상단 조회", description = "마이페이지 위쪽에 표시될 회원정보를 가져옵니다.")
+    public ResponseEntity<?> getMyProfile(HttpServletRequest request) {
+        Integer userId = extractUserIdFromRequest(request);
+        return ResponseEntity.ok(userService.getMyProfile(userId));
+    }
+
 
     @GetMapping("/edit-profile")
     @Operation(summary = "회원정보 수정 페이지 유저 정보 조회", description = "회원정보 수정 페이지에 표시될 닉네임과 프로필 이미지를 불러옵니다.")
