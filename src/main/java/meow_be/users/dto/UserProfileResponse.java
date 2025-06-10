@@ -14,4 +14,5 @@ public class UserProfileResponse {
     private long followerCount;
     private long followingCount;
     private boolean following;
+    private boolean isUser;
 }
