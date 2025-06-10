@@ -14,6 +14,5 @@ public class UserProfileResponse {
     private long followerCount;
     private long followingCount;
     private boolean following;
-    @JsonProperty("User")
     private boolean isUser;
 }
