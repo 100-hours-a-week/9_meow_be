@@ -53,6 +53,18 @@ public class UserController {
         return ResponseEntity.ok().body(Map.of("profileImageUrl", profileImageUrl));
     }
 
+    @GetMapping("/profile/{userId}")
+    @Operation(summary = "마이페이지 사용자 정보 상단 조회", description = "마이페이지 위쪽에 표시될 회원 정보를 가져옵니다.")
+    public ResponseEntity<?> getUserProfile(
+            @PathVariable("userId") Integer userId,
+            HttpServletRequest request
+    ) {
+        String token = tokenProvider.extractTokenFromHeader(request);
+        Integer loginUserId = (token != null) ? tokenProvider.getUserIdFromToken(token) : null;
+
+        return ResponseEntity.ok(userService.getUserProfile(userId, loginUserId));
+    }
+
 
 
 }
