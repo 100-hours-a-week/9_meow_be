@@ -6,7 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 public interface PostQueryRepository {
     Page<PostSummaryDto> findPostsByPostType(String postType, Pageable pageable, Integer userId);
-    Page<PostSummaryDto> findUserPostSummaryPage(Integer targetUserId, Integer loginUserId, Pageable pageable);
+    Page<PostSummaryDto> findUserPostSummaryPage(Integer targetUserId, Integer loginUserId, boolean isOwner, Pageable pageable);
+
     PostDto findPostDetailById(int postId, Integer userId);
     PostEditInfoDto findPostEditInfoById(Integer postId);
     Page<PostSummaryDto> findFollowingPosts(Integer userId, Pageable pageable);
