@@ -211,7 +211,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                 .exists(),
                         loginUserId != null ?
                                 post.user.id.eq(loginUserId)
-                                : Expressions.constant(false),
+                                : Expressions.FALSE,
                         post.createdAt,
                         post.updatedAt
                 ))
