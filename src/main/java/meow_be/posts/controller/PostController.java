@@ -126,7 +126,14 @@ public class PostController {
             @RequestParam(value = "size", defaultValue = "10") int size,
             HttpServletRequest request) {
 
-        Integer loginUserId = getAuthenticatedUserId(request);
+        String token = tokenProvider.extractTokenFromHeader(request);
+        Integer loginUserId = null;
+        if (token != null) {
+            try {
+                loginUserId = tokenProvider.getUserIdFromToken(token);
+            } catch (Exception e) {
+            }
+        }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<PostSummaryDto> postPage = postService.getUserPostSummaryPage(targetUserId, loginUserId, pageable);

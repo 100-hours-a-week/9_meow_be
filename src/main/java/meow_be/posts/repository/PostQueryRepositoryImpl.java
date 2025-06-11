@@ -208,7 +208,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                         .and(postLike.user.id.eq(loginUserId))
                                         .and(postLike.isLiked.isTrue()))
                                 .exists(),
-                        Expressions.constant(isOwner),  
+                        Expressions.constant(isOwner),
                         post.createdAt,
                         post.updatedAt
                 ))
