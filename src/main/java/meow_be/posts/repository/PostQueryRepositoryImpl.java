@@ -40,6 +40,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         QComment comment = QComment.comment;
 
 
+
         var query = queryFactory
                         .select(Projections.constructor(PostSummaryDto.class,
                                 post.id,
@@ -208,7 +209,9 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                         .and(postLike.user.id.eq(loginUserId))
                                         .and(postLike.isLiked.isTrue()))
                                 .exists(),
-                        Expressions.constant(isOwner),
+                        loginUserId != null ?
+                                post.user.id.eq(loginUserId)
+                                : Expressions.constant(false),
                         post.createdAt,
                         post.updatedAt
                 ))
