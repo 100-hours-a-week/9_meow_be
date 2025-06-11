@@ -173,18 +173,12 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     }
 
 
-    public Page<PostSummaryDto> findUserPostSummaryPage(Integer targetUserId, Integer loginUserId, Pageable pageable) {
+    public Page<PostSummaryDto> findUserPostSummaryPage(Integer targetUserId, Integer loginUserId, boolean isOwner, Pageable pageable) {
         QPost post = QPost.post;
         QUser user = QUser.user;
         QPostImage postImage = QPostImage.postImage;
         QPostLike postLike = QPostLike.postLike;
         QComment comment = QComment.comment;
-        var isAuthor = loginUserId != null
-                ? new CaseBuilder()
-                .when(post.user.id.eq(loginUserId))
-                .then(true)
-                .otherwise(false)
-                : Expressions.constant(false);
 
         var query = queryFactory
                 .select(Projections.constructor(PostSummaryDto.class,
@@ -214,7 +208,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                         .and(postLike.user.id.eq(loginUserId))
                                         .and(postLike.isLiked.isTrue()))
                                 .exists(),
-                        isAuthor,
+                        Expressions.constant(isOwner),  
                         post.createdAt,
                         post.updatedAt
                 ))
@@ -233,6 +227,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
         return new PageImpl<>(content, pageable, total);
     }
+
 
 
     @Override

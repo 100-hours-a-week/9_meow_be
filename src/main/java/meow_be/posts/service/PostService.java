@@ -80,8 +80,10 @@ public class PostService {
     }
 
     public Page<PostSummaryDto> getUserPostSummaryPage(Integer targetUserId, Integer loginUserId, Pageable pageable) {
-        return postQueryRepository.findUserPostSummaryPage(targetUserId, loginUserId, pageable);
+        boolean isOwner = (loginUserId != null) && loginUserId.equals(targetUserId);
+        return postQueryRepository.findUserPostSummaryPage(targetUserId, loginUserId, isOwner, pageable);
     }
+
 
     @Transactional(readOnly = true)
     public PostEditInfoDto getPostEditInfo(Integer postId, Integer userId) {
