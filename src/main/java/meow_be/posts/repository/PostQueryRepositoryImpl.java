@@ -2,6 +2,7 @@ package meow_be.posts.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -178,6 +179,12 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         QPostImage postImage = QPostImage.postImage;
         QPostLike postLike = QPostLike.postLike;
         QComment comment = QComment.comment;
+        var isAuthor = loginUserId != null
+                ? new CaseBuilder()
+                .when(post.user.id.eq(loginUserId))
+                .then(true)
+                .otherwise(false)
+                : Expressions.constant(false);
 
         var query = queryFactory
                 .select(Projections.constructor(PostSummaryDto.class,
@@ -207,9 +214,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                         .and(postLike.user.id.eq(loginUserId))
                                         .and(postLike.isLiked.isTrue()))
                                 .exists(),
-                        loginUserId != null ?
-                                post.user.id.eq(loginUserId)
-                                : Expressions.constant(false),
+                        isAuthor,
                         post.createdAt,
                         post.updatedAt
                 ))
