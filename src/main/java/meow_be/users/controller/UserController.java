@@ -68,7 +68,7 @@ public class UserController {
     @Operation(summary = "마이페이지 사용자 정보 상단 조회", description = "마이페이지 위쪽에 표시될 회원정보를 가져옵니다.")
     public ResponseEntity<?> getMyProfile(HttpServletRequest request) {
         Integer userId = extractUserIdFromRequest(request);
-        return ResponseEntity.ok(userService.getMyProfile(userId));
+        return ResponseEntity.ok(Map.of("userId", userId));
     }
 
 
