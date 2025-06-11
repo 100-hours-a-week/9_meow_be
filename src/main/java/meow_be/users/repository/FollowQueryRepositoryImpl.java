@@ -35,6 +35,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
                 .from(follow)
                 .join(follow.following, user)
                 .where(follow.follower.id.eq(userId)
+                        .and(follow.isDeleted.isFalse())
                         .and(user.isDeleted.isFalse()))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -45,6 +46,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
                 .from(follow)
                 .join(follow.following, user)
                 .where(follow.follower.id.eq(userId)
+                        .and(follow.isDeleted.isFalse())
                         .and(user.isDeleted.isFalse()))
                 .fetchOne();
 
@@ -66,6 +68,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
                 .from(follow)
                 .join(follow.follower, user)
                 .where(follow.following.id.eq(userId)
+                        .and(follow.isDeleted.isFalse())
                         .and(user.isDeleted.isFalse()))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -76,6 +79,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
                 .from(follow)
                 .join(follow.follower, user)
                 .where(follow.following.id.eq(userId)
+                        .and(follow.isDeleted.isFalse())
                         .and(user.isDeleted.isFalse()))
                 .fetchOne();
 
