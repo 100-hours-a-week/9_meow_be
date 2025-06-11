@@ -79,9 +79,10 @@ public class PostService {
         return post.getId();
     }
 
-    public Page<PostSummaryDto> getUserPostSummaryPage(Integer userId, Pageable pageable) {
-        return postQueryRepository.findUserPostSummaryPage(userId, pageable);
+    public Page<PostSummaryDto> getUserPostSummaryPage(Integer targetUserId, Integer loginUserId, Pageable pageable) {
+        return postQueryRepository.findUserPostSummaryPage(targetUserId, loginUserId, pageable);
     }
+
     @Transactional(readOnly = true)
     public PostEditInfoDto getPostEditInfo(Integer postId, Integer userId) {
         PostEditInfoDto dto = postQueryRepository.findPostEditInfoById(postId);
