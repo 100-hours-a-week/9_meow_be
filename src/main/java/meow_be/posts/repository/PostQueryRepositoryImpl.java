@@ -210,8 +210,11 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                         .and(postLike.isLiked.isTrue()))
                                 .exists(),
                         loginUserId != null ?
-                                post.user.id.eq(loginUserId)
-                                : Expressions.FALSE,
+                                Expressions.cases()
+                                        .when(post.user.id.eq(loginUserId))
+                                        .then(true)
+                                        .otherwise(false)
+                                : Expressions.constant(false),
                         post.createdAt,
                         post.updatedAt
                 ))
