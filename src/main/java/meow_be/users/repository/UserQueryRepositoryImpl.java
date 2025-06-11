@@ -41,13 +41,15 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
         long followerCount = queryFactory
                 .select(follow.count())
                 .from(follow)
-                .where(follow.following.id.eq(targetUserId))
+                .where(follow.following.id.eq(targetUserId)
+                        .and(follow.isDeleted.isFalse()))
                 .fetchOne();
 
         long followingCount = queryFactory
                 .select(follow.count())
                 .from(follow)
-                .where(follow.follower.id.eq(targetUserId))
+                .where(follow.follower.id.eq(targetUserId)
+                        .and(follow.isDeleted.isFalse()))
                 .fetchOne();
 
         boolean isFollowing = loginUserId != null &&
@@ -55,8 +57,10 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
                         .selectOne()
                         .from(follow)
                         .where(follow.follower.id.eq(loginUserId)
-                                .and(follow.following.id.eq(targetUserId)))
+                                .and(follow.following.id.eq(targetUserId))
+                                .and(follow.isDeleted.isFalse()))
                         .fetchFirst() != null;
+
         boolean isUser = loginUserId != null && loginUserId.equals(targetUserId);
 
         return new UserProfileResponse(
