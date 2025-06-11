@@ -172,14 +172,12 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     }
 
 
-    @Override
-    public Page<PostSummaryDto> findUserPostSummaryPage(Integer userId, Pageable pageable) {
+    public Page<PostSummaryDto> findUserPostSummaryPage(Integer targetUserId, Integer loginUserId, Pageable pageable) {
         QPost post = QPost.post;
         QUser user = QUser.user;
         QPostImage postImage = QPostImage.postImage;
         QPostLike postLike = QPostLike.postLike;
         QComment comment = QComment.comment;
-
 
         var query = queryFactory
                 .select(Projections.constructor(PostSummaryDto.class,
@@ -206,17 +204,17 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                         JPAExpressions.selectOne()
                                 .from(postLike)
                                 .where(postLike.post.id.eq(post.id)
-                                        .and(postLike.user.id.eq(userId))
+                                        .and(postLike.user.id.eq(loginUserId))
                                         .and(postLike.isLiked.isTrue()))
                                 .exists(),
-                        post.user.id.eq(userId),
+                        post.user.id.eq(loginUserId), // isMyPost 비교
                         post.createdAt,
                         post.updatedAt
                 ))
                 .from(post)
                 .join(post.user, user)
                 .where(post.isDeleted.isFalse()
-                        .and(post.user.id.eq(userId)));
+                        .and(post.user.id.eq(targetUserId)));
 
         long total = query.fetchCount();
 
@@ -228,6 +226,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
         return new PageImpl<>(content, pageable, total);
     }
+
 
     @Override
     public PostEditInfoDto findPostEditInfoById(Integer postId) {

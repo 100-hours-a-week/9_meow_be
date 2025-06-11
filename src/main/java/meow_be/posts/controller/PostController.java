@@ -121,12 +121,15 @@ public class PostController {
     @GetMapping("/user/{userId}")
     @Operation(summary = "특정 유저의 게시글 조회")
     public ResponseEntity<PageResponse<PostSummaryDto>> getUserPosts(
-            @PathVariable("userId") Integer userId,
+            @PathVariable("userId") Integer targetUserId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            HttpServletRequest request) {
+
+        Integer loginUserId = getAuthenticatedUserId(request);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<PostSummaryDto> postPage = postService.getUserPostSummaryPage(userId, pageable);
+        Page<PostSummaryDto> postPage = postService.getUserPostSummaryPage(targetUserId, loginUserId, pageable);
 
         PageResponse<PostSummaryDto> response = new PageResponse<>(
                 postPage.getContent(),
@@ -139,6 +142,7 @@ public class PostController {
 
         return ResponseEntity.ok(response);
     }
+
 
     @PostMapping("/{postId}/likes")
     @Operation(summary = "게시글 좋아요")
