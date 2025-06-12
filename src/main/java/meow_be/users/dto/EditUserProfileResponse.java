@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 public class EditUserProfileResponse {
     private String nickname;
     private String profileImageUrl;
+    private String postType;
 }
