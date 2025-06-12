@@ -38,6 +38,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         QPostImage postImage = QPostImage.postImage;
         QPostLike postLike = QPostLike.postLike;
         QComment comment = QComment.comment;
+        QFollow follow = QFollow.follow;
 
 
 
@@ -75,7 +76,14 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                         post.user.id.eq(userId)
                                         : Expressions.constant(false),
                                 post.createdAt,
-                                post.updatedAt
+                                post.updatedAt,
+                                userId != null ?
+                                        JPAExpressions.selectOne()
+                                                .from(follow)
+                                                .where(follow.follower.id.eq(userId)
+                                                        .and(follow.following.id.eq(post.user.id)))
+                                                .exists()
+                                        : Expressions.constant(false)
 
                 ))
                 .from(post)
@@ -103,6 +111,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         QPostLike postLike = QPostLike.postLike;
         QComment comment = QComment.comment;
         QPostImage postImage = QPostImage.postImage;
+        QFollow follow = QFollow.follow;
 
         PostDto basePostDto = queryFactory
                 .select(Projections.constructor(PostDto.class,
@@ -132,6 +141,13 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                 : Expressions.constant(false),
                         userId != null ?
                                 post.user.id.eq(userId)
+                                : Expressions.constant(false),
+                        userId != null ?
+                                JPAExpressions.selectOne()
+                                        .from(follow)
+                                        .where(follow.follower.id.eq(userId)
+                                                .and(follow.following.id.eq(post.user.id)))
+                                        .exists()
                                 : Expressions.constant(false),
                         post.createdAt,
                         post.updatedAt
@@ -166,6 +182,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .likeCount(basePostDto.getLikeCount())
                 .isLiked(basePostDto.isLiked())
                 .isMyPost(basePostDto.isMyPost())
+                .isFollowing(basePostDto.isFollowing())
                 .createdAt(basePostDto.getCreatedAt())
                 .updatedAt(basePostDto.getUpdatedAt())
                 .build();
@@ -180,6 +197,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         QPostImage postImage = QPostImage.postImage;
         QPostLike postLike = QPostLike.postLike;
         QComment comment = QComment.comment;
+        QFollow follow = QFollow.follow;
 
         var query = queryFactory
                 .select(Projections.constructor(PostSummaryDto.class,
@@ -216,7 +234,14 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                         .otherwise(false)
                                 : Expressions.constant(false),
                         post.createdAt,
-                        post.updatedAt
+                        post.updatedAt,
+                        loginUserId != null ?
+                                JPAExpressions.selectOne()
+                                        .from(follow)
+                                        .where(follow.follower.id.eq(loginUserId)
+                                                .and(follow.following.id.eq(post.user.id)))
+                                        .exists()
+                                : Expressions.constant(false)
                 ))
                 .from(post)
                 .join(post.user, user)
@@ -282,13 +307,11 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         QPostLike postLike = QPostLike.postLike;
         QComment comment = QComment.comment;
 
-        // 팔로잉 유저 ID들 조회
         JPQLQuery<Integer> followedUserIds = JPAExpressions
                 .select(follow.following.id)
                 .from(follow)
                 .where(follow.follower.id.eq(userId));
 
-        // 쿼리 작성
         var query = queryFactory
                 .select(Projections.constructor(PostSummaryDto.class,
                         post.id,
@@ -321,6 +344,13 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                 : Expressions.constant(false),
                         userId != null ?
                                 post.user.id.eq(userId)
+                                : Expressions.constant(false),
+                        userId != null ?
+                                JPAExpressions.selectOne()
+                                        .from(follow)
+                                        .where(follow.follower.id.eq(userId)
+                                                .and(follow.following.id.eq(post.user.id)))
+                                        .exists()
                                 : Expressions.constant(false),
                         post.createdAt,
                         post.updatedAt
