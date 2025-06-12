@@ -83,7 +83,7 @@ public int createUser(Long kakaoId,String nickname,String animalType, MultipartF
                 .id(existingUser.getId())
                 .kakaoId(existingUser.getKakaoId())
                 .nickname(request.getNickname() != null ? request.getNickname() : existingUser.getNickname())
-                .animalType(existingUser.getAnimalType())
+                .animalType(request.getPostType())
                 .profileImageUrl(request.getProfileImageUrl() != null ? request.getProfileImageUrl() : existingUser.getProfileImageUrl())
                 .createdAt(existingUser.getCreatedAt())
                 .updatedAt(LocalDateTime.now())
