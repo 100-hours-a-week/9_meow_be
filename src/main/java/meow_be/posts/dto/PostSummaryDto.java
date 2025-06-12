@@ -20,6 +20,7 @@ public class PostSummaryDto {
     private Long likeCount;
     private boolean isLiked;
     private boolean isMyPost;
+    private boolean isFollowing;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -41,7 +42,8 @@ public class PostSummaryDto {
             Boolean isLiked,
             Boolean isMyPost,
             LocalDateTime createdAt,
-            LocalDateTime updatedAt
+            LocalDateTime updatedAt,
+            Boolean isFollowing
     ) {
         this.id = id;
         this.userId = userId;
@@ -57,6 +59,7 @@ public class PostSummaryDto {
         this.isMyPost = isMyPost;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.isFollowing = isFollowing;
     }
 
 }
