@@ -89,7 +89,8 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
 
         return new EditUserProfileResponse(
                 userInfo.getNickname(),
-                userInfo.getProfileImageUrl()
+                userInfo.getProfileImageUrl(),
+                userInfo.getAnimalType()
         );
     }
 
