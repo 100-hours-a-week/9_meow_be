@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import meow_be.login.security.TokenProvider;
 import meow_be.users.dto.EditUserProfileRequest;
 import meow_be.users.dto.EditUserProfileResponse;
+import meow_be.users.dto.UserCreateRequestDto;
 import meow_be.users.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,17 +24,13 @@ public class UserController {
     private final UserService userService;
     private final TokenProvider tokenProvider;
 
-    @PostMapping(consumes = "multipart/form-data")
+    @PostMapping
     @Operation(summary = "회원가입")
-    public ResponseEntity<Long> createUser(
-            @RequestParam("kakaoId") Long kakaoId,
-            @RequestParam("nickname") String nickname,
-            @RequestParam("animalType") String animalType,
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
-    ) {
-        int userId = userService.createUser(kakaoId, nickname, animalType, profileImage);
+    public ResponseEntity<?> createUser(@RequestBody UserCreateRequestDto request) {
+        long kakaoId = userService.createUser(request);
         return ResponseEntity.ok(kakaoId);
     }
+
 
     @GetMapping("/check-nickname")
     @Operation(summary = "닉네임 중복 확인")
