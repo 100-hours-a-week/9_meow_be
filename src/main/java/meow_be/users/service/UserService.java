@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,18 @@ private final UserQueryRepository userQueryRepository;
         return userRepository.save(user).getKakaoId();
     }
 
-    public boolean isNicknameDuplicate(String nickname) {
+    public boolean isNicknameDuplicate(String nickname, Integer userId) {
+        if (userId == null) {
+            return userRepository.existsByNickname(nickname);
+        }
+
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (nickname.equals(user.getNickname())) {
+                return false;
+            }
+        }
         return userRepository.existsByNickname(nickname);
     }
     public String getProfileImageUrlByUserId(Integer userId) {

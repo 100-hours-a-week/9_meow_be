@@ -34,10 +34,14 @@ public class UserController {
 
     @GetMapping("/check-nickname")
     @Operation(summary = "닉네임 중복 확인")
-    public ResponseEntity<Boolean> checkNicknameDuplicate(@RequestParam("nickname") String nickname) {
-        boolean isDuplicate = userService.isNicknameDuplicate(nickname);
+    public ResponseEntity<Boolean> checkNicknameDuplicate(
+            @RequestParam("nickname") String nickname,
+            HttpServletRequest request
+    ) { Integer userId = extractUserIdFromRequest(request);
+        boolean isDuplicate = userService.isNicknameDuplicate(nickname, userId);
         return ResponseEntity.ok(isDuplicate);
     }
+
 
     @GetMapping("/profileimage")
     @Operation(summary = "유저 프로필 이미지 조회")
