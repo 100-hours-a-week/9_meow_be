@@ -96,6 +96,19 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 합니다.")
+    public ResponseEntity<?> deleteUser(HttpServletRequest request) {
+        Integer userId = extractUserIdFromRequest(request);
+        if (userId == null) {
+            return ResponseEntity.status(401).body("token not provided or invalid");
+        }
+
+        userService.deleteUser(userId);
+        return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+    }
+
+
     private Integer extractUserIdFromRequest(HttpServletRequest request) {
         String token = tokenProvider.extractTokenFromHeader(request);
         if (token == null) return null;

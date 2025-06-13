@@ -26,7 +26,25 @@ private final S3Service s3Service;
 private final UserQueryRepository userQueryRepository;
 
     public Long createUser(UserCreateRequestDto request) {
-        User user = User.builder()
+        Optional<User> existingUserOpt = userRepository.findByKakaoId(request.getKakaoId());
+
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            if (existingUser.isDeleted()) {
+                User restoredUser = existingUser.toBuilder()
+                        .nickname(request.getNickname())
+                        .animalType(request.getAnimalType())
+                        .profileImageUrl(request.getProfileImage())
+                        .isDeleted(false)
+                        .updatedAt(LocalDateTime.now())
+                        .build();
+                return userRepository.save(restoredUser).getKakaoId();
+            } else {
+                throw new IllegalArgumentException("이미 가입된 사용자입니다.");
+            }
+        }
+
+        User newUser = User.builder()
                 .kakaoId(request.getKakaoId())
                 .nickname(request.getNickname())
                 .animalType(request.getAnimalType())
@@ -35,7 +53,7 @@ private final UserQueryRepository userQueryRepository;
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        return userRepository.save(user).getKakaoId();
+        return userRepository.save(newUser).getKakaoId();
     }
 
     public boolean isNicknameDuplicate(String nickname, Integer userId) {
@@ -95,5 +113,15 @@ private final UserQueryRepository userQueryRepository;
 
         userRepository.save(updatedUser);
     }
+    public void deleteUser(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        User deletedUser = user.toBuilder()
+                .isDeleted(true)
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        userRepository.save(deletedUser);
+    }
 }
