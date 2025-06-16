@@ -143,11 +143,16 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                 post.user.id.eq(userId)
                                 : Expressions.constant(false),
                         userId != null ?
-                                JPAExpressions.selectOne()
-                                        .from(follow)
-                                        .where(follow.follower.id.eq(userId)
-                                                .and(follow.following.id.eq(post.user.id)))
-                                        .exists()
+                                Expressions.cases()
+                                        .when(
+                                                JPAExpressions.selectOne()
+                                                        .from(follow)
+                                                        .where(follow.follower.id.eq(userId)
+                                                                .and(follow.following.id.eq(post.user.id)))
+                                                        .exists()
+                                        )
+                                        .then(true)
+                                        .otherwise(false)
                                 : Expressions.constant(false),
                         post.createdAt,
                         post.updatedAt
