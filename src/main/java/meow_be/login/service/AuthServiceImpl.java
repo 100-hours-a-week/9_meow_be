@@ -67,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
         String name = (String) kakaoUserInfo.get("name");
         Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
 
-        boolean isMember = optionalUser.isPresent();
+        boolean isMember = optionalUser.isPresent() && !optionalUser.get().isDeleted();
         if (isMember) {
             User existingUser = optionalUser.get();
             User updatedUser = existingUser.toBuilder()
