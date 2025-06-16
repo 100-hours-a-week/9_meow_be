@@ -152,7 +152,8 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                                 JPAExpressions.selectOne()
                                                         .from(follow)
                                                         .where(follow.follower.id.eq(userId)
-                                                                .and(follow.following.id.eq(post.user.id)))
+                                                                .and(follow.following.id.eq(post.user.id))
+                                                                .and(follow.isDeleted.isFalse())) 
                                                         .exists()
                                         )
                                         .then(true)
@@ -178,7 +179,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .orderBy(postImage.imageNumber.asc())
                 .fetch();
 
-        PostDto postDtoWithImages = PostDto.builder()
+        return PostDto.builder()
                 .id(basePostDto.getId())
                 .userId(basePostDto.getUserId())
                 .nickname(basePostDto.getNickname())
@@ -195,8 +196,6 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .createdAt(basePostDto.getCreatedAt())
                 .updatedAt(basePostDto.getUpdatedAt())
                 .build();
-
-        return postDtoWithImages;
     }
 
 
