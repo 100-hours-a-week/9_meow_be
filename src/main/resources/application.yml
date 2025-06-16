@@ -19,7 +19,7 @@ spring:
     name:api
   data:
     redis:
-      host: ${SERVER_URL}
+      host: ${SERVER_URL1}
       port: 6379
 springdoc:
   swagger-ui:
