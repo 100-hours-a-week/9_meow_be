@@ -153,7 +153,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                                         .from(follow)
                                                         .where(follow.follower.id.eq(userId)
                                                                 .and(follow.following.id.eq(post.user.id))
-                                                                .and(follow.isDeleted.isFalse())) 
+                                                                .and(follow.isDeleted.isFalse()))
                                                         .exists()
                                         )
                                         .then(true)
