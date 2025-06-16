@@ -32,6 +32,7 @@ private final UserQueryRepository userQueryRepository;
             User existingUser = existingUserOpt.get();
             if (existingUser.isDeleted()) {
                 User restoredUser = existingUser.toBuilder()
+                        .kakaoId(request.getKakaoId())
                         .nickname(request.getNickname())
                         .animalType(request.getAnimalType())
                         .profileImageUrl(request.getProfileImage())
@@ -58,18 +59,20 @@ private final UserQueryRepository userQueryRepository;
 
     public boolean isNicknameDuplicate(String nickname, Integer userId) {
         if (userId == null) {
-            return userRepository.existsByNickname(nickname);
+            return userRepository.existsByNicknameAndIsDeletedFalse(nickname);
         }
 
-        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<User> userOpt = userRepository.findByIdAndIsDeletedFalse(userId);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (nickname.equals(user.getNickname())) {
                 return false;
             }
         }
-        return userRepository.existsByNickname(nickname);
+
+        return userRepository.existsByNicknameAndIsDeletedFalse(nickname);
     }
+
     public String getProfileImageUrlByUserId(Integer userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
