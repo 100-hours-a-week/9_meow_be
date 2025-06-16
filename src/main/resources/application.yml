@@ -61,5 +61,5 @@ cloud:
       auto: false
 logging:
   discord:
-    webhook-url: https://discord.com/api/webhooks/1372112974524842065/sUvX_uIHdbEnv8Dph9vZv5Exck5WEX9aPZCxKuktoNxLMbpOvdcKTFa3PmjR04CNZj43
+    webhook-url: ${WEBHOOK_URL:}
     config: classpath:logback-spring.xml
