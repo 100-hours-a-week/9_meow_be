@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 // 프록시 경로인 /api/health 에 매핑
 public class HealthController {
 
-    @GetMapping("/api/health")
+    @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("OK");
     }
