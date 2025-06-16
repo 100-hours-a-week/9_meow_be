@@ -11,7 +11,6 @@ import meow_be.common.ApiResponse;
 import meow_be.login.security.TokenProvider;
 import meow_be.login.service.AuthService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -64,7 +63,10 @@ public class AuthController {
             redirectUri = "http://localhost:5173/redirect";
         } else if (referer != null && referer.contains("3.39.3.208")) {
             redirectUri = "http://3.39.3.208/redirect";
-        } else {
+        } else if (referer != null && referer.contains("testdev.meowng.com")) {
+            redirectUri = "http://testdev.meowng.com/redirect";
+        }
+        else {
             redirectUri = kakaoRedirectUri;
         }
 
