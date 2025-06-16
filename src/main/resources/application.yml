@@ -17,6 +17,10 @@ spring:
     secret-key: V1JZQk1BTVNEQ1ZCV1ZKR0hVSUdVSk1OT1BLWVNXTEtTTk9PT0xLS0xKTU5VSk1MS1NKT1A=
   application:
     name:api
+  data:
+    redis:
+      host: 10.0.4.155
+      port: 6379
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
