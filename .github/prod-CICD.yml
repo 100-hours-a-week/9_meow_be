@@ -3,38 +3,39 @@ name: MeowBe CI & CD
 on:
   push:
     branches:
-      - develop
+      - main
   pull_request:
     branches:
-      - develop
+      - main
 
 jobs:
-  build:
-    name: ⚙️ Build & Unit Test
-    runs-on: ubuntu-latest
-    if: >
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      !contains(github.event.head_commit.message, '[ci skip]') &&
-      github.event_name == 'pull_request' &&
-      github.base_ref == 'develop' 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 17
-      - name: Cache Gradle
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle','**/settings.gradle') }}
-      - name: Ensure gradlew is executable
-        run: chmod +x gradlew
-      - name: Run tests
-        run: ./gradlew clean test
+  # build:
+  #   name: ⚙️ Build & Unit Test
+  #   runs-on: ubuntu-latest
+  #   if: >
+  #     !contains(github.event.head_commit.message, '[skip ci]') &&
+  #     !contains(github.event.head_commit.message, '[ci skip]') &&
+  #     github.event_name == 'pull_request' &&
+  #     github.base_ref == 'develop' &&
+  #     contains(github.head_ref, 'feat')
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Set up JDK 17
+  #       uses: actions/setup-java@v3
+  #       with:
+  #         distribution: temurin
+  #         java-version: 17
+  #     - name: Cache Gradle
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           ~/.gradle/caches
+  #           ~/.gradle/wrapper
+  #         key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle','**/settings.gradle') }}
+  #     - name: Ensure gradlew is executable
+  #       run: chmod +x gradlew
+  #     - name: Run tests
+  #       run: ./gradlew clean test
 
   # integration:
   #   name: 🔗 Integration Tests
@@ -105,11 +106,13 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'push' &&
-      github.ref == 'refs/heads/develop' &&
       !contains(github.event.head_commit.message, '[skip cd]') &&
       !contains(github.event.head_commit.message, '[cd skip]')
     steps:
+      - name: Checkout Repository
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Ensure full history is available for deployments
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -126,10 +129,11 @@ jobs:
         shell: bash
         run: |
           # 1) 배포 stage
-          deploy_env=dev
-          
+          deploy_env=prod
+
           # 2) 서비스명 고정
           service_name=9_meow_be
+          
           registry="${{ secrets.ECR_REGISTRY }}"; registry="${registry%/}"
           image_uri="${registry}/${deploy_env}/${service_name}"
 
@@ -153,7 +157,17 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ env.ENV }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-${{ env.ENV }}-
+      - name: Fetch all Git Tags
+        run: git fetch --tags --quiet
 
+      - name: Determine version tag
+        id: get_version
+        shell: bash
+        run: |
+          #If head commit is tagged, use that tag, if not, use the latest tag
+          VERSION=$(git describe --tags --exact-match 2>/dev/null || echo "lastest")
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          
       - name: Build & Push Docker Image
         uses: docker/build-push-action@v4
         with:
