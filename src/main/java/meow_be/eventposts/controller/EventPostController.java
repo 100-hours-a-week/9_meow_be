@@ -1,5 +1,6 @@
 package meow_be.eventposts.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import meow_be.eventposts.dto.EventPostRequest;
@@ -10,10 +11,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-
-@RequestMapping("/event-posts")
 @Controller
+@RequestMapping("/event-posts")
 @RequiredArgsConstructor
+@Tag(name="이벤트 게시글 컨트롤러",description = "이벤트 게시글 작성,랭킹 조회")
 public class EventPostController {
     private final EventPostService eventPostService;
     private final TokenProvider tokenProvider;
