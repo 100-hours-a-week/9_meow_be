@@ -74,6 +74,9 @@ public class EventPostService {
                 .likeCount(0)
                 .createdAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
                 .build();
+        
+        String redisKey = "event:likes:week:" + currentWeek;
+        redisTemplate.opsForZSet().add(redisKey, String.valueOf(eventPost.getId()), 0);
 
         return eventPostRepository.save(eventPost).getId();
     }
