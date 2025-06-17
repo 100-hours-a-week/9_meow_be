@@ -17,21 +17,21 @@ public class EventWeek {
     @Id
     @Column(name = "week")
     private int week;
-
-    @Column(name = "start_apply_at", nullable = false)
-    private LocalDateTime startApplyAt;
-
-    @Column(name = "end_apply_at", nullable = false)
-    private LocalDateTime endApplyAt;
-
-    @Column(name = "start_vote_at", nullable = false)
-    private LocalDateTime startVoteAt;
-
-    @Column(name = "end_vote_at", nullable = false)
-    private LocalDateTime endVoteAt;
-
+    
     @Column(name = "topic", nullable = false)
     private String topic;
+
+    @Column(name = "apply_start_at", nullable = false)
+    private LocalDateTime startApplyAt;
+
+    @Column(name = "apply_end_at", nullable = false)
+    private LocalDateTime endApplyAt;
+
+    @Column(name = "vote_start_at", nullable = false)
+    private LocalDateTime startVoteAt;
+
+    @Column(name = "vote_end_at", nullable = false)
+    private LocalDateTime endVoteAt;
 
     @OneToMany(mappedBy = "eventWeek")
     private List<EventPost> eventPosts;
