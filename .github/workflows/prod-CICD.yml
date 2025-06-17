@@ -174,14 +174,14 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.IMAGE_URI }}:${{ github.sha }}
+            ${{ env.IMAGE_URI }}:${{ env.VERSION }}
             ${{ env.IMAGE_URI }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
-      - name: Trigger CodeDeploy
-        run: |
-          aws deploy create-deployment \
-            --application-name ${{ env.APP_NAME }} \
-            --deployment-group-name ${{ env.DG_NAME }} \
-            --s3-location bucket=${{ secrets.DEPLOY_BUCKET }},key=${{ env.ENV }}/deploy-bundle.zip,bundleType=zip
+      # - name: Trigger CodeDeploy
+      #   run: |
+      #     aws deploy create-deployment \
+      #       --application-name ${{ env.APP_NAME }} \
+      #       --deployment-group-name ${{ env.DG_NAME }} \
+      #       --s3-location bucket=${{ secrets.DEPLOY_BUCKET }},key=${{ env.ENV }}/deploy-bundle.zip,bundleType=zip
