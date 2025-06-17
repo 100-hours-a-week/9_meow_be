@@ -110,7 +110,7 @@ jobs:
       !contains(github.event.head_commit.message, '[cd skip]')
     steps:
       - name: Checkout Repository
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Ensure full history is available for deployments
 
