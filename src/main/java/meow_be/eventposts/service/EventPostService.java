@@ -39,7 +39,7 @@ public class EventPostService {
                 eventPostRepository.findById(postId).ifPresent(post -> {
                     EventPost updated = post.toBuilder()
                             .likeCount(likeCount)
-                            .rank(currentRank)
+                            .ranking(currentRank)
                             .build();
                     eventPostRepository.save(updated);
                 });
@@ -69,7 +69,7 @@ public class EventPostService {
                 .user(user)
                 .eventWeek(eventWeek)
                 .imageUrl(imageUrl)
-                .rank(0)
+                .ranking(0)
                 .likeCount(0)
                 .createdAt(LocalDateTime.now())
                 .build();

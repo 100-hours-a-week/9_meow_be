@@ -29,8 +29,8 @@ public class EventPost {
     @Column(name = "image_url", nullable = false, length = 255)
     private String imageUrl;
 
-    @Column
-    private int rank;
+    @Column(name = "ranking")
+    private int ranking;
 
     @Column(name = "like_count")
     private int likeCount;
