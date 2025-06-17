@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RequestMapping("/event-posts")
 @RequiredArgsConstructor
-public class EvenrPostController {
+public class EventPostController {
     private final EventPostService eventPostService;
     private final TokenProvider tokenProvider;
 
