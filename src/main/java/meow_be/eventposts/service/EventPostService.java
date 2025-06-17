@@ -75,7 +75,17 @@ public class EventPostService {
                 .createdAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
                 .build();
 
+        String redisKey = "event:likes:week:" + currentWeek;
+        redisTemplate.opsForZSet().add(redisKey, String.valueOf(eventPost.getId()), 0);
+
         return eventPostRepository.save(eventPost).getId();
+    }
+    public boolean hasAppliedToCurrentWeek(Integer userId) {
+        int currentWeek = getCurrentWeek();
+        EventWeek eventWeek = eventWeekRepository.findById(currentWeek)
+                .orElseThrow(() -> new NotFoundException("이벤트 주차 정보를 찾을 수 없습니다."));
+
+        return eventPostRepository.existsByUserIdAndEventWeek(userId, eventWeek);
     }
 
 

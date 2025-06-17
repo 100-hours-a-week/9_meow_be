@@ -7,10 +7,8 @@ import meow_be.eventposts.service.EventPostService;
 import meow_be.login.security.TokenProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.Map;
 
 @RequestMapping("/event-posts")
@@ -36,5 +34,13 @@ public class EventPostController {
                 "postId", postId,
                 "message", "이벤트 게시물이 성공적으로 등록되었습니다."
         ));
+    }
+    @GetMapping("/applied")
+    public ResponseEntity<?> checkUserApplied(HttpServletRequest httpRequest) {
+        String token = tokenProvider.extractTokenFromHeader(httpRequest);
+        Integer userId = tokenProvider.getUserIdFromToken(token);
+
+        boolean hasApplied = eventPostService.hasAppliedToCurrentWeek(userId);
+        return ResponseEntity.ok(Map.of("hasApplied", hasApplied));
     }
 }

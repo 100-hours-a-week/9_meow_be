@@ -10,5 +10,7 @@ import java.util.List;
 @Repository
 public interface EventPostRepository extends JpaRepository<EventPost, Integer> {
     List<EventPost> findAllByEventWeek(EventWeek eventWeek);
+    boolean existsByUserIdAndEventWeek(Integer userId, EventWeek eventWeek);
+
 
 }
