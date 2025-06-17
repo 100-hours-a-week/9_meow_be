@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
@@ -71,7 +72,7 @@ public class EventPostService {
                 .imageUrl(imageUrl)
                 .ranking(0)
                 .likeCount(0)
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
                 .build();
 
         return eventPostRepository.save(eventPost).getId();
@@ -81,7 +82,8 @@ public class EventPostService {
 
     private int getCurrentWeek() {
         LocalDate start = LocalDate.of(2025, 6, 16);
-        LocalDate now = LocalDate.now();
+        ZoneId koreaZone = ZoneId.of("Asia/Seoul");
+        LocalDate now = LocalDate.now(koreaZone);
         return (int) ChronoUnit.WEEKS.between(start, now) + 1;
     }
 }

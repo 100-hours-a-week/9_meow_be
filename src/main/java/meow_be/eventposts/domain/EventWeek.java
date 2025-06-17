@@ -17,7 +17,7 @@ public class EventWeek {
     @Id
     @Column(name = "week")
     private int week;
-    
+
     @Column(name = "topic", nullable = false)
     private String topic;
 
