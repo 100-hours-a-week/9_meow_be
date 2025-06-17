@@ -229,12 +229,14 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                 .from(postLike)
                                 .where(postLike.post.id.eq(post.id)
                                         .and(postLike.isLiked.isTrue())),
-                        JPAExpressions.selectOne()
-                                .from(postLike)
-                                .where(postLike.post.id.eq(post.id)
-                                        .and(postLike.user.id.eq(loginUserId))
-                                        .and(postLike.isLiked.isTrue()))
-                                .exists(),
+                        loginUserId != null ?
+                                JPAExpressions.selectOne()
+                                        .from(postLike)
+                                        .where(postLike.post.id.eq(post.id)
+                                                .and(postLike.user.id.eq(loginUserId))
+                                                .and(postLike.isLiked.isTrue()))
+                                        .exists()
+                                : Expressions.constant(false),
                         loginUserId != null ?
                                 Expressions.cases()
                                         .when(post.user.id.eq(loginUserId))
