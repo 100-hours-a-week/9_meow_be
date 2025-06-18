@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 @RestController
 @RequestMapping("/event-posts")
@@ -44,4 +45,9 @@ public class EventPostController {
         boolean hasApplied = eventPostService.hasAppliedToCurrentWeek(userId);
         return ResponseEntity.ok(Map.of("hasApplied", hasApplied));
     }
+    @GetMapping("/all")
+    public ResponseEntity<List<Map<String, Object>>> getAllEventPosts() {
+        return ResponseEntity.ok(eventPostService.getAllCachedEventPosts());
+    }
+
 }

@@ -1,6 +1,7 @@
 package meow_be.eventposts.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import meow_be.eventposts.domain.EventPost;
 import meow_be.eventposts.domain.EventWeek;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -75,11 +76,17 @@ public class EventPostService {
                 .createdAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
                 .build();
 
-        String redisKey = "event:likes:week:" + currentWeek;
-        redisTemplate.opsForZSet().add(redisKey, String.valueOf(eventPost.getId()), 0);
+        EventPost savedPost = eventPostRepository.save(eventPost);
+        Integer postId = savedPost.getId();
 
-        return eventPostRepository.save(eventPost).getId();
+        String redisKey = "event:likes:week:" + currentWeek;
+        redisTemplate.opsForZSet().add(redisKey, String.valueOf(postId), 0);
+
+        cachePostWithUserInfo(savedPost);
+
+        return postId;
     }
+
     public boolean hasAppliedToCurrentWeek(Integer userId) {
         int currentWeek = getCurrentWeek();
         EventWeek eventWeek = eventWeekRepository.findById(currentWeek)
@@ -87,14 +94,119 @@ public class EventPostService {
 
         return eventPostRepository.existsByUserIdAndEventWeek(userId, eventWeek);
     }
+    public List<Map<String, Object>> getTop3Ranking() {
+        int currentWeek = getCurrentWeek();
+        String key = "event:likes:week:" + currentWeek;
 
+        Set<ZSetOperations.TypedTuple<String>> top3 = redisTemplate.opsForZSet()
+                .reverseRangeWithScores(key, 0, 2);
 
+        if (top3 == null || top3.isEmpty()) {
+            return List.of();
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        int ranking = 1;
+
+        for (ZSetOperations.TypedTuple<String> tuple : top3) {
+            Integer postId = Integer.parseInt(tuple.getValue());
+            int likeCount = (int) tuple.getScore().doubleValue();
+
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("postId", postId);
+            entry.put("ranking", ranking++);
+            entry.put("likeCount", likeCount);
+            result.add(entry);
+        }
+
+        return result;
+    }
+
+    public List<Map<String, Object>> getPostLikeSummary() {
+        int currentWeek = getCurrentWeek();
+        String key = "event:likes:week:" + currentWeek;
+
+        Set<ZSetOperations.TypedTuple<String>> all = redisTemplate.opsForZSet()
+                .rangeWithScores(key, 0, -1);
+
+        if (all == null || all.isEmpty()) {
+            return List.of();
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (ZSetOperations.TypedTuple<String> tuple : all) {
+            Integer postId = Integer.parseInt(tuple.getValue());
+            int likeCount = (int) tuple.getScore().doubleValue();
+
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("postId", postId);
+            entry.put("likeCount", likeCount);
+            result.add(entry);
+        }
+
+        return result;
+    }
+    public List<Map<String, Object>> getAllCachedEventPosts() {
+        int currentWeek = getCurrentWeek();
+        String redisKey = "event:likes:week:" + currentWeek;
+
+        Set<String> postIds = redisTemplate.opsForZSet().range(redisKey, 0, -1);
+        if (postIds == null || postIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<String> keys = postIds.stream()
+                .map(id -> "event:post:" + id)
+                .toList();
+
+        List<String> cachedJsonList = redisTemplate.opsForValue().multiGet(keys);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (int i = 0; i < postIds.size(); i++) {
+            String json = cachedJsonList.get(i);
+            if (json == null) continue;
+
+            try {
+                Map<String, Object> postData = objectMapper.readValue(json, Map.class);
+
+                Double score = redisTemplate.opsForZSet().score(redisKey, postIds.toArray(new String[0])[i]);
+                postData.put("likeCount", score == null ? 0 : score.intValue());
+
+                result.add(postData);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
 
     private int getCurrentWeek() {
         LocalDate start = LocalDate.of(2025, 6, 16);
         ZoneId koreaZone = ZoneId.of("Asia/Seoul");
         LocalDate now = LocalDate.now(koreaZone);
         return (int) ChronoUnit.WEEKS.between(start, now) + 1;
+    }
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public void cachePostWithUserInfo(EventPost post) {
+        try {
+            Map<String, Object> postData = new HashMap<>();
+            postData.put("postId", post.getId());
+            postData.put("imageUrl", post.getImageUrl());
+            postData.put("nickname", post.getUser().getNickname());
+            postData.put("profileImageUrl", post.getUser().getProfileImageUrl());
+            postData.put("likeCount", 0);
+
+            String redisKey = "event:post:" + post.getId();
+            String json = objectMapper.writeValueAsString(postData);
+
+            redisTemplate.opsForValue().set(redisKey, json);
+        } catch (Exception e) {
+            throw new RuntimeException("Redis 캐싱 실패", e);
+        }
     }
 }
 
