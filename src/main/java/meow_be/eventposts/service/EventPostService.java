@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -56,8 +57,24 @@ public class EventPostService {
         int week = post.getEventWeek().getWeek();
         String key = "event:likes:week:" + week;
 
-        redisTemplate.opsForZSet().incrementScore(key, postId.toString(), 1);
+        Double newScore = redisTemplate.opsForZSet().incrementScore(key, postId.toString(), 1);
+
+        String redisPostKey = "event:post:" + postId;
+        String json = redisTemplate.opsForValue().get(redisPostKey);
+
+        if (json != null && newScore != null) {
+            try {
+                Map<String, Object> postData = objectMapper.readValue(json, Map.class);
+                postData.put("likeCount", newScore.intValue());
+                String updatedJson = objectMapper.writeValueAsString(postData);
+                redisTemplate.opsForValue().set(redisPostKey, updatedJson);
+            } catch (Exception e) {
+                // 로깅 처리 권장
+                e.printStackTrace();
+            }
+        }
     }
+
     public Integer createEventPost(Integer userId, String imageUrl) {
         int currentWeek = getCurrentWeek();
 
@@ -151,37 +168,47 @@ public class EventPostService {
         int currentWeek = getCurrentWeek();
         String redisKey = "event:likes:week:" + currentWeek;
 
-        Set<String> postIds = redisTemplate.opsForZSet().range(redisKey, 0, -1);
-        if (postIds == null || postIds.isEmpty()) {
+        Set<ZSetOperations.TypedTuple<String>> tuples =
+                redisTemplate.opsForZSet().reverseRangeWithScores(redisKey, 0, -1);
+
+        if (tuples == null || tuples.isEmpty()) {
             return List.of();
         }
+        
+        List<String> postIds = new ArrayList<>();
+        Map<String, Integer> likeCountMap = new HashMap<>();
+        for (ZSetOperations.TypedTuple<String> tuple : tuples) {
+            String postId = tuple.getValue();
+            if (postId != null) {
+                postIds.add("event:post:" + postId);
+                likeCountMap.put(postId, tuple.getScore() == null ? 0 : tuple.getScore().intValue());
+            }
+        }
 
-        List<String> keys = postIds.stream()
-                .map(id -> "event:post:" + id)
-                .toList();
-
-        List<String> cachedJsonList = redisTemplate.opsForValue().multiGet(keys);
+        List<String> jsonList = redisTemplate.opsForValue().multiGet(postIds);
 
         List<Map<String, Object>> result = new ArrayList<>();
+        if (jsonList != null) {
+            for (int i = 0; i < jsonList.size(); i++) {
+                String json = jsonList.get(i);
+                if (json == null) continue;
 
-        for (int i = 0; i < postIds.size(); i++) {
-            String json = cachedJsonList.get(i);
-            if (json == null) continue;
-
-            try {
-                Map<String, Object> postData = objectMapper.readValue(json, Map.class);
-
-                Double score = redisTemplate.opsForZSet().score(redisKey, postIds.toArray(new String[0])[i]);
-                postData.put("likeCount", score == null ? 0 : score.intValue());
-
-                result.add(postData);
-            } catch (Exception e) {
-                e.printStackTrace();
+                try {
+                    Map<String, Object> postData = objectMapper.readValue(json, Map.class);
+                    String fullKey = postIds.get(i);
+                    String postId = fullKey.substring("event:post:".length());
+                    postData.put("likeCount", likeCountMap.getOrDefault(postId, 0));
+                    result.add(postData);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
         return result;
     }
+
+
 
     private int getCurrentWeek() {
         LocalDate start = LocalDate.of(2025, 6, 16);
@@ -203,7 +230,7 @@ public class EventPostService {
             String redisKey = "event:post:" + post.getId();
             String json = objectMapper.writeValueAsString(postData);
 
-            redisTemplate.opsForValue().set(redisKey, json);
+            redisTemplate.opsForValue().set(redisKey, json, Duration.ofDays(7));
         } catch (Exception e) {
             throw new RuntimeException("Redis 캐싱 실패", e);
         }
