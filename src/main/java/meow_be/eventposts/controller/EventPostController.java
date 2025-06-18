@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-@Controller
+@RestController
 @RequestMapping("/event-posts")
 @RequiredArgsConstructor
 @Tag(name="이벤트 게시글 컨트롤러",description = "이벤트 게시글 작성,랭킹 조회")
