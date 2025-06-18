@@ -19,23 +19,23 @@ public class EventWeekService {
         Optional<EventWeek> optionalWeek = eventWeekRepository.findByDate(dateTime);
 
         if (optionalWeek.isEmpty()) {
-            return new EventStatusResponse(4, null);
+            return new EventStatusResponse(null, null);
         }
 
         EventWeek week = optionalWeek.get();
 
         if (!dateTime.isBefore(week.getStartApplyAt()) && dateTime.isBefore(week.getEndApplyAt())) {
             // 신청 기간
-            return new EventStatusResponse(1, week.getEndApplyAt());
+            return new EventStatusResponse("신청", week.getEndApplyAt());
         } else if (!dateTime.isBefore(week.getEndApplyAt()) && dateTime.isBefore(week.getStartVoteAt())) {
             // 신청 마감 ~ 투표 시작 사이
-            return new EventStatusResponse(2, week.getStartApplyAt());
+            return new EventStatusResponse("투표전", week.getStartApplyAt());
         } else if (!dateTime.isBefore(week.getStartVoteAt()) && dateTime.isBefore(week.getEndVoteAt())) {
             // 투표 기간
-            return new EventStatusResponse(3, week.getEndVoteAt());
+            return new EventStatusResponse("투표중", week.getEndVoteAt());
         } else {
             // 그 외 (예: 투표 끝난 후)
-            return new EventStatusResponse(4, null);
+            return new EventStatusResponse(null, null);
         }
     }
 }

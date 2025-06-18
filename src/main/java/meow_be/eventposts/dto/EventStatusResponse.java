@@ -9,6 +9,6 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class EventStatusResponse {
-    private int status;
+    private String status;
     private LocalDateTime time;
 }
