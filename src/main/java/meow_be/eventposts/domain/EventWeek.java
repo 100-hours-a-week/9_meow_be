@@ -33,6 +33,9 @@ public class EventWeek {
     @Column(name = "vote_end_at", nullable = false)
     private LocalDateTime endVoteAt;
 
+    @Column(name = "event_end_at")
+    private LocalDateTime endEventAt;
+
     @OneToMany(mappedBy = "eventWeek")
     private List<EventPost> eventPosts;
 }

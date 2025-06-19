@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 
 @RestController
@@ -17,12 +18,11 @@ public class EventWeekController {
     private final EventWeekService eventWeekService;
 
     @GetMapping("/status")
-    public EventStatusResponse getEventStatus(
-            @RequestParam("datetime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime datetime
-    ) {
-        return eventWeekService.getStatus(datetime);
+    public EventStatusResponse getEventStatus() {
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        return eventWeekService.getStatus(now);
     }
+
 
     @GetMapping("/topic")
     public Map<String, Object> getCurrentWeekTopic() {
