@@ -29,7 +29,7 @@ public class EventWeekService {
             return new EventStatusResponse("신청", week.getEndApplyAt());
         } else if (!dateTime.isBefore(week.getEndApplyAt()) && dateTime.isBefore(week.getStartVoteAt())) {
             // 신청 마감 ~ 투표 시작 사이
-            return new EventStatusResponse("투표전", week.getStartApplyAt());
+            return new EventStatusResponse("투표전", week.getStartVoteAt());
         } else if (!dateTime.isBefore(week.getStartVoteAt()) && dateTime.isBefore(week.getEndVoteAt())) {
             // 투표 기간
             return new EventStatusResponse("투표중", week.getEndVoteAt());
