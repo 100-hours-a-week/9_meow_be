@@ -1,10 +1,12 @@
 package meow_be.eventposts.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import meow_be.eventposts.dto.EventPostRankingDto;
 import meow_be.eventposts.dto.EventPostRequest;
+import meow_be.eventposts.dto.EventTopRankDto;
 import meow_be.eventposts.service.EventPostService;
 import meow_be.login.security.TokenProvider;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +24,13 @@ public class EventPostController {
     private final TokenProvider tokenProvider;
 
     @PostMapping("/{eventPostId}/likes")
+    @Operation(summary = "이벤트 게시물 좋아요")
     public ResponseEntity<?> likeEventPost(@PathVariable Integer eventPostId) {
         eventPostService.likeEventPost(eventPostId);
         return ResponseEntity.ok().build();
     }
     @PostMapping
+    @Operation(summary = "이벤트 게시물 생성")
     public ResponseEntity<?> createEventPost(@RequestBody EventPostRequest request,
                                              HttpServletRequest httpRequest) {
         String token = tokenProvider.extractTokenFromHeader(httpRequest);
@@ -39,6 +43,7 @@ public class EventPostController {
         ));
     }
     @GetMapping("/applied")
+    @Operation(summary = "이벤트 참여 여부 조회")
     public ResponseEntity<?> checkUserApplied(HttpServletRequest httpRequest) {
         String token = tokenProvider.extractTokenFromHeader(httpRequest);
         Integer userId = tokenProvider.getUserIdFromToken(token);
@@ -47,10 +52,12 @@ public class EventPostController {
         return ResponseEntity.ok(Map.of("hasApplied", hasApplied));
     }
     @GetMapping("/all")
+    @Operation(summary = "진행되고 있는 이벤트 게시물 조회")
     public ResponseEntity<List<Map<String, Object>>> getAllEventPosts() {
         return ResponseEntity.ok(eventPostService.getAllCachedEventPosts());
     }
     @GetMapping("/{rankWeek}")
+    @Operation(summary = "주차별 이벤트 게시물 조회")
     public ResponseEntity<List<EventPostRankingDto>> getRankedPostsByWeek(
             @PathVariable("rankWeek") int rankWeek) {
         List<EventPostRankingDto> rankedPosts = eventPostService.getRankedPostsByWeek(rankWeek);
@@ -61,6 +68,12 @@ public class EventPostController {
         eventPostService.saveWeeklyRanking(week);
         return ResponseEntity.ok("saveWeeklyRanking executed for week " + week);
     }
+    @GetMapping("/rankings")
+    @Operation(summary = "역대 이벤트 랭킹1-3등 조회")
+    public ResponseEntity<List<EventTopRankDto>> getAllEventRankings() {
+        return ResponseEntity.ok(eventPostService.getAllTop3Rankings());
+    }
+
 
 
 }
