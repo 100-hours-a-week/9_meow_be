@@ -44,6 +44,8 @@ public class EventWeekService {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         Optional<EventWeek> optionalWeek = eventWeekRepository.findByDate(now);
 
+
+
         if (optionalWeek.isEmpty()) {
             return Map.of(
                     "week", null,
@@ -54,7 +56,7 @@ public class EventWeekService {
         EventWeek week = optionalWeek.get();
         return Map.of(
                 "week", week.getWeek(),
-                "topic", week.getTopic().trim()
+                "topic", week.getTopic()
         );
     }
 
