@@ -69,7 +69,6 @@ public class EventPostService {
                 String updatedJson = objectMapper.writeValueAsString(postData);
                 redisTemplate.opsForValue().set(redisPostKey, updatedJson);
             } catch (Exception e) {
-                // 로깅 처리 권장
                 e.printStackTrace();
             }
         }
@@ -100,6 +99,20 @@ public class EventPostService {
         redisTemplate.opsForZSet().add(redisKey, String.valueOf(postId), 0);
 
         cachePostWithUserInfo(savedPost);
+
+
+        String triggerKey = "saveWeeklyRankingTrigger:" + currentWeek;
+        Boolean hasKey = redisTemplate.hasKey(triggerKey);
+        if (Boolean.FALSE.equals(hasKey)) {
+            LocalDateTime voteEnd = eventWeek.getEndVoteAt().plusMinutes(10);
+            long secondsUntilExpire = java.time.Duration.between(LocalDateTime.now(ZoneId.of("Asia/Seoul")), voteEnd).getSeconds();
+
+            if (secondsUntilExpire > 0) {
+                redisTemplate.opsForValue().set(triggerKey, "1", java.time.Duration.ofSeconds(secondsUntilExpire));
+            } else {
+                saveWeeklyRanking(currentWeek);
+            }
+        }
 
         return postId;
     }
