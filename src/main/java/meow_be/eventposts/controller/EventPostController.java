@@ -3,6 +3,7 @@ package meow_be.eventposts.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import meow_be.eventposts.dto.EventPostRankingDto;
 import meow_be.eventposts.dto.EventPostRequest;
 import meow_be.eventposts.service.EventPostService;
 import meow_be.login.security.TokenProvider;
@@ -49,5 +50,17 @@ public class EventPostController {
     public ResponseEntity<List<Map<String, Object>>> getAllEventPosts() {
         return ResponseEntity.ok(eventPostService.getAllCachedEventPosts());
     }
+    @GetMapping("/{rankWeek}")
+    public ResponseEntity<List<EventPostRankingDto>> getRankedPostsByWeek(
+            @PathVariable("rankWeek") int rankWeek) {
+        List<EventPostRankingDto> rankedPosts = eventPostService.getRankedPostsByWeek(rankWeek);
+        return ResponseEntity.ok(rankedPosts);
+    }
+    @GetMapping("/test")
+    public ResponseEntity<String> testSaveWeeklyRanking(@RequestParam("week") int week) {
+        eventPostService.saveWeeklyRanking(week);
+        return ResponseEntity.ok("saveWeeklyRanking executed for week " + week);
+    }
+
 
 }
