@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import meow_be.eventposts.domain.EventPost;
 import meow_be.eventposts.domain.EventWeek;
+import meow_be.eventposts.dto.EventPostRankingDto;
+import meow_be.eventposts.repository.EventPostQueryRepository;
 import meow_be.eventposts.repository.EventPostRepository;
 import meow_be.eventposts.repository.EventWeekRepository;
 import meow_be.users.domain.User;
@@ -27,6 +29,7 @@ public class EventPostService {
     private final EventPostRepository eventPostRepository;
     private final UserRepository userRepository;
     private final EventWeekRepository eventWeekRepository;
+    private final EventPostQueryRepository eventPostQueryRepository;
     public void saveWeeklyRanking(int week) {
         String redisKey = "event:likes:week:" + week;
         ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
@@ -219,6 +222,9 @@ public class EventPostService {
         }
 
         return result;
+    }
+    public List<EventPostRankingDto> getRankedPostsByWeek(int week) {
+        return eventPostQueryRepository.findRankedPostsByWeek(week);
     }
 
 
