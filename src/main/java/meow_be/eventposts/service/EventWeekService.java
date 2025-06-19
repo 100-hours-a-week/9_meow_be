@@ -7,6 +7,7 @@ import meow_be.eventposts.repository.EventWeekRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -38,4 +39,22 @@ public class EventWeekService {
             return new EventStatusResponse(null, null);
         }
     }
+    public Map<String, Object> getCurrentWeekTopic() {
+        LocalDateTime now = LocalDateTime.now();
+        Optional<EventWeek> optionalWeek = eventWeekRepository.findByDate(now);
+
+        if (optionalWeek.isEmpty()) {
+            return Map.of(
+                    "week", null,
+                    "topic", null
+            );
+        }
+
+        EventWeek week = optionalWeek.get();
+        return Map.of(
+                "week", week.getWeek(),
+                "topic", week.getTopic()
+        );
+    }
+
 }

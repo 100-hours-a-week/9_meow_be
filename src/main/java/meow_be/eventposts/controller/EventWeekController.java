@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/event-weeks")
@@ -22,4 +23,10 @@ public class EventWeekController {
     ) {
         return eventWeekService.getStatus(datetime);
     }
+
+    @GetMapping("/topic")
+    public Map<String, Object> getCurrentWeekTopic() {
+        return eventWeekService.getCurrentWeekTopic();
+    }
+
 }
