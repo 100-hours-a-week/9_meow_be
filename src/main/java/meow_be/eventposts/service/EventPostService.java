@@ -226,6 +226,8 @@ public class EventPostService {
             postData.put("nickname", post.getUser().getNickname());
             postData.put("profileImageUrl", post.getUser().getProfileImageUrl());
             postData.put("likeCount", 0);
+            postData.put("userId", post.getUser().getId());
+            postData.put("animalType", post.getUser().getAnimalType());
 
             String redisKey = "event:post:" + post.getId();
             String json = objectMapper.writeValueAsString(postData);
