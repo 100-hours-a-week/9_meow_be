@@ -52,7 +52,8 @@ public class EventPostQueryRepository {
                         user.profileImageUrl,
                         user.animalType,
                         post.likeCount,
-                        post.ranking
+                        post.ranking,
+                        week.topic
                 ))
                 .from(post)
                 .join(post.user, user)
