@@ -142,19 +142,40 @@ public class EventPostService {
         List<Map<String, Object>> result = new ArrayList<>();
         int ranking = 1;
 
+        List<String> redisPostKeys = new ArrayList<>();
         for (ZSetOperations.TypedTuple<String> tuple : top3) {
-            Integer postId = Integer.parseInt(tuple.getValue());
-            int likeCount = (int) tuple.getScore().doubleValue();
+            redisPostKeys.add("event:post:" + tuple.getValue());
+        }
+        List<String> jsonList = redisTemplate.opsForValue().multiGet(redisPostKeys);
 
-            Map<String, Object> entry = new HashMap<>();
-            entry.put("postId", postId);
-            entry.put("ranking", ranking++);
-            entry.put("likeCount", likeCount);
-            result.add(entry);
+        for (int i = 0; i < jsonList.size(); i++) {
+            String json = jsonList.get(i);
+            if (json == null) continue;
+
+            try {
+                Map<String, Object> postData = objectMapper.readValue(json, Map.class);
+                Integer postId = Integer.parseInt(top3.stream().skip(i).findFirst().get().getValue());
+                int likeCount = (int) top3.stream().skip(i).findFirst().get().getScore().doubleValue();
+
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("postId", postId);
+                entry.put("ranking", ranking++);
+                entry.put("likeCount", likeCount);
+                entry.put("profileImageUrl", postData.get("profileImageUrl"));
+                entry.put("animalType", postData.get("animalType"));
+                entry.put("imageUrl", postData.get("imageUrl"));
+                entry.put("userId", postData.get("userId"));
+                entry.put("nickname", postData.get("nickname"));
+
+                result.add(entry);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return result;
     }
+
 
     public List<Map<String, Object>> getPostLikeSummary() {
         int currentWeek = getCurrentWeek();
