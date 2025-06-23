@@ -20,6 +20,4 @@ public class EventTopRankDto {
     private String animalType;
     private Integer likeCount;
     private Integer ranking;
-    private String topic;
-    private LocalDateTime endAt;
 }
