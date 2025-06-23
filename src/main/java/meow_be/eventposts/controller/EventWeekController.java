@@ -24,9 +24,9 @@ public class EventWeekController {
     }
 
 
-    @GetMapping("/topic")
-    public Map<String, Object> getCurrentWeekTopic() {
-        return eventWeekService.getCurrentWeekTopic();
+    @GetMapping("/topic/{week}")
+    public Map<String, Object> getCurrentWeekTopic(@PathVariable("week") int week) {
+        return eventWeekService.getCurrentWeekTopic(week);
     }
 
 }

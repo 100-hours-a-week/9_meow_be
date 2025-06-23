@@ -6,8 +6,10 @@ import meow_be.eventposts.dto.EventStatusResponse;
 import meow_be.eventposts.repository.EventWeekRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,28 +21,29 @@ public class EventWeekService {
 
     public EventStatusResponse getStatus(LocalDateTime dateTime) {
         Optional<EventWeek> optionalWeek = eventWeekRepository.findByDate(dateTime);
+        int Currentweek=getCurrentWeek();
 
         if (optionalWeek.isEmpty()) {
-            return new EventStatusResponse(null, null);
+            return new EventStatusResponse(null, null,Currentweek);
         }
 
         EventWeek week = optionalWeek.get();
 
         if (!dateTime.isBefore(week.getStartApplyAt()) && dateTime.isBefore(week.getEndApplyAt())) {
             // 신청 기간
-            return new EventStatusResponse("신청", week.getEndApplyAt());
+            return new EventStatusResponse("신청", week.getEndApplyAt(),Currentweek);
         } else if (!dateTime.isBefore(week.getEndApplyAt()) && dateTime.isBefore(week.getStartVoteAt())) {
             // 신청 마감 ~ 투표 시작 사이
-            return new EventStatusResponse("투표전", week.getStartVoteAt());
+            return new EventStatusResponse("투표전", week.getStartVoteAt(),Currentweek);
         } else if (!dateTime.isBefore(week.getStartVoteAt()) && dateTime.isBefore(week.getEndVoteAt())) {
             // 투표 기간
-            return new EventStatusResponse("투표중", week.getEndVoteAt());
+            return new EventStatusResponse("투표중", week.getEndVoteAt(),Currentweek);
         } else {
             // 그 외 (예: 투표 끝난 후)
-            return new EventStatusResponse(null, null);
+            return new EventStatusResponse(null, null,Currentweek);
         }
     }
-    public Map<String, Object> getCurrentWeekTopic() {
+    public Map<String, Object> getCurrentWeekTopic(int Currentweek) {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         Optional<EventWeek> optionalWeek = eventWeekRepository.findByDate(now);
 
@@ -48,16 +51,20 @@ public class EventWeekService {
 
         if (optionalWeek.isEmpty()) {
             return Map.of(
-                    "week", null,
                     "topic", null
             );
         }
 
         EventWeek week = optionalWeek.get();
         return Map.of(
-                "week", week.getWeek(),
                 "topic", week.getTopic()
         );
+    }
+    private int getCurrentWeek() {
+        LocalDate start = LocalDate.of(2025, 6, 16);
+        ZoneId koreaZone = ZoneId.of("Asia/Seoul");
+        LocalDate now = LocalDate.now(koreaZone);
+        return (int) ChronoUnit.WEEKS.between(start, now) + 1;
     }
 
 }
