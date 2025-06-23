@@ -1,3 +1,4 @@
+/*
 package meow_be.config;
 
 import meow_be.eventposts.listener.KeyExpirationEventMessageListener;
@@ -41,3 +42,4 @@ public class RedisConfig {
         return container;
     }
 }
+*/
