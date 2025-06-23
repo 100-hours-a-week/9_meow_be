@@ -105,18 +105,18 @@ public class EventPostService {
         cachePostWithUserInfo(savedPost);
 
 
-        /*String triggerKey = "saveWeeklyRankingTrigger:" + currentWeek;
+        String triggerKey = "saveWeeklyRankingTrigger:" + currentWeek;
         Boolean hasKey = redisTemplate.hasKey(triggerKey);
         if (Boolean.FALSE.equals(hasKey)) {
             LocalDateTime voteEnd = eventWeek.getEndVoteAt().plusMinutes(10);
             long secondsUntilExpire = java.time.Duration.between(LocalDateTime.now(ZoneId.of("Asia/Seoul")), voteEnd).getSeconds();
 
             if (secondsUntilExpire > 0) {
-                redisTemplate.opsForValue().set(triggerKey, "1", java.time.Duration.ofSeconds(secondsUntilExpire));
+                redisTemplate.opsForValue().set(triggerKey, "1" , java.time.Duration.ofSeconds(secondsUntilExpire));
             } else {
                 saveWeeklyRanking(currentWeek);
             }
-        }*/
+        }
 
         return postId;
     }
