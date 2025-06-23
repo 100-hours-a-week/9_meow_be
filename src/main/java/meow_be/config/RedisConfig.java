@@ -1,6 +1,5 @@
 package meow_be.config;
 
-import meow_be.eventposts.listener.KeyExpirationEventMessageListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +30,7 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    @Bean
+   /* @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
             KeyExpirationEventMessageListener listener) {
@@ -39,5 +38,5 @@ public class RedisConfig {
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(listener, new PatternTopic("__keyevent@0__:expired"));
         return container;
-    }
+    }*/
 }
