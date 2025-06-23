@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import meow_be.eventposts.domain.EventPost;
 import meow_be.eventposts.domain.EventWeek;
+import meow_be.eventposts.dto.EventImageRankDto;
 import meow_be.eventposts.dto.EventPostRankingDto;
-import meow_be.eventposts.dto.EventWeekRankDto;
 import meow_be.eventposts.repository.EventPostQueryRepository;
 import meow_be.eventposts.repository.EventPostRepository;
 import meow_be.eventposts.repository.EventWeekRepository;
@@ -247,11 +247,9 @@ public class EventPostService {
     public List<EventPostRankingDto> getRankedPostsByWeek(int week) {
         return eventPostQueryRepository.findRankedPostsByWeek(week);
     }
-    public List<EventWeekRankDto> findTop3RankedPostsGroupedByWeek() {
+    public List<EventImageRankDto> findTop3RankedPostsGroupedByWeek() {
         return eventPostQueryRepository.findTop3RankedPostsGroupedByWeek();
     }
-
-
 
     private int getCurrentWeek() {
         LocalDate start = LocalDate.of(2025, 6, 16);

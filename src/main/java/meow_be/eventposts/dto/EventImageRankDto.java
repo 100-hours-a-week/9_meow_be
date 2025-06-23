@@ -8,9 +8,9 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class EventWeekRankDto {
+public class EventImageRankDto {
     private Integer week;
     private String topic;
     private LocalDateTime endAt;
-    private List<EventTopRankDto> rank;
+    private List<String> imageUrl;
 }
