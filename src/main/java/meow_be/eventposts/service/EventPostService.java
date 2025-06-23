@@ -107,7 +107,7 @@ public class EventPostService {
         String triggerKey = "saveWeeklyRankingTrigger:" + currentWeek;
         Boolean hasKey = redisTemplate.hasKey(triggerKey);
         if (Boolean.FALSE.equals(hasKey)) {
-            LocalDateTime voteEnd = eventWeek.getEndVoteAt().plusMinutes(10);
+            LocalDateTime voteEnd = eventWeek.getEndVoteAt().plusMinutes(1);
             long secondsUntilExpire = java.time.Duration.between(LocalDateTime.now(ZoneId.of("Asia/Seoul")), voteEnd).getSeconds();
 
             if (secondsUntilExpire > 0) {
