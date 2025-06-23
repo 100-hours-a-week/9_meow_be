@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -76,8 +77,15 @@ private final UserQueryRepository userQueryRepository;
     public String getProfileImageUrlByUserId(Integer userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        return user.getProfileImageUrl();
+
+        String profileImageUrl = user.getProfileImageUrl();
+        if (profileImageUrl == null || profileImageUrl.isBlank()) {
+            throw new NoSuchElementException("프로필 이미지가 없습니다.");
+        }
+
+        return profileImageUrl;
     }
+
     public UserProfileResponse getUserProfile(Integer targetUserId, Integer loginUserId) {
         UserProfileResponse profile = userQueryRepository.findUserProfile(targetUserId, loginUserId);
         if (profile == null) {
