@@ -12,6 +12,7 @@ import meow_be.users.domain.QUser;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Repository
@@ -45,6 +46,8 @@ public class EventPostQueryRepository {
         QUser user = QUser.user;
         QEventWeek week = QEventWeek.eventWeek;
 
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+
         List<Tuple> tuples = queryFactory
                 .select(
                         week.week,
@@ -56,8 +59,11 @@ public class EventPostQueryRepository {
                 .from(post)
                 .join(post.user, user)
                 .join(post.eventWeek, week)
-                .where(post.ranking.between(1, 3))
-                .orderBy(week.week.asc(), post.ranking.asc())
+                .where(
+                        post.ranking.between(1, 3),
+                        week.endVoteAt.before(now) 
+                )
+                .orderBy(week.week.desc(), post.ranking.asc()) // 최신 주차 우선
                 .fetch();
 
         Map<Integer, List<String>> imageUrlMap = new LinkedHashMap<>();
@@ -84,6 +90,7 @@ public class EventPostQueryRepository {
 
         return result;
     }
+
 
 
 }
