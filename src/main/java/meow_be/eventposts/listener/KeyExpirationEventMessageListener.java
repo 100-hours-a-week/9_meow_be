@@ -1,4 +1,3 @@
-/*
 package meow_be.eventposts.listener;
 
 import lombok.RequiredArgsConstructor;
@@ -28,4 +27,3 @@ public class KeyExpirationEventMessageListener implements MessageListener {
         }
     }
 }
-*/
