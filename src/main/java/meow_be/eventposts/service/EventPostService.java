@@ -248,9 +248,10 @@ public class EventPostService {
         return eventPostQueryRepository.findRankedPostsByWeek(week);
     }
 
-    public List<EventTopRankDto> getAllTop3Rankings() {
-        return eventPostQueryRepository.findTop3RankedPostsByWeek();
+    public Map<Integer, List<EventTopRankDto>> getAllTop3Rankings() {
+        return eventPostQueryRepository.findTop3RankedPostsGroupedByWeek();
     }
+
 
 
 

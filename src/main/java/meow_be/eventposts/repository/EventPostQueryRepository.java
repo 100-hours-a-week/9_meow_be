@@ -9,8 +9,12 @@ import meow_be.eventposts.domain.QEventPost;
 import meow_be.eventposts.dto.EventTopRankDto;
 import meow_be.users.domain.QUser;
 import org.springframework.stereotype.Repository;
+import java.util.LinkedHashMap;
+
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -38,12 +42,12 @@ public class EventPostQueryRepository {
                 .orderBy(post.ranking.asc())
                 .fetch();
     }
-    public List<EventTopRankDto> findTop3RankedPostsByWeek() {
+    public Map<Integer, List<EventTopRankDto>> findTop3RankedPostsGroupedByWeek() {
         QEventPost post = QEventPost.eventPost;
         QUser user = QUser.user;
         QEventWeek week = QEventWeek.eventWeek;
 
-        return queryFactory
+        List<EventTopRankDto> results = queryFactory
                 .select(Projections.constructor(EventTopRankDto.class,
                         week.week,
                         post.id,
@@ -53,7 +57,8 @@ public class EventPostQueryRepository {
                         user.animalType,
                         post.likeCount,
                         post.ranking,
-                        week.topic
+                        week.topic,
+                        week.endVoteAt
                 ))
                 .from(post)
                 .join(post.user, user)
@@ -61,5 +66,8 @@ public class EventPostQueryRepository {
                 .where(post.ranking.between(1, 3))
                 .orderBy(week.week.asc(), post.ranking.asc())
                 .fetch();
+
+        return results.stream()
+                .collect(Collectors.groupingBy(EventTopRankDto::getWeek, LinkedHashMap::new, Collectors.toList()));
     }
 }
