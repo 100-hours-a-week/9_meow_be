@@ -31,7 +31,7 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    @Bean
+   /* @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
             KeyExpirationEventMessageListener listener) {
@@ -39,5 +39,5 @@ public class RedisConfig {
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(listener, new PatternTopic("__keyevent@0__:expired"));
         return container;
-    }
+    }*/
 }
