@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,4 +21,5 @@ public class EventTopRankDto {
     private Integer likeCount;
     private Integer ranking;
     private String topic;
+    private LocalDateTime endAt;
 }

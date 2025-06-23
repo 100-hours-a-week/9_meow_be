@@ -69,11 +69,8 @@ public class EventPostController {
         return ResponseEntity.ok("saveWeeklyRanking executed for week " + week);
     }
     @GetMapping("/rankings")
-    @Operation(summary = "역대 이벤트 랭킹1-3등 조회")
-    public ResponseEntity<List<EventTopRankDto>> getAllEventRankings() {
+    @Operation(summary = "역대 이벤트 랭킹 1~3등 조회")
+    public ResponseEntity<Map<Integer, List<EventTopRankDto>>> getAllEventRankings() {
         return ResponseEntity.ok(eventPostService.getAllTop3Rankings());
     }
-
-
-
 }
