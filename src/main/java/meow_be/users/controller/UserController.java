@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/users")
@@ -51,9 +52,16 @@ public class UserController {
             return ResponseEntity.status(401).body("token not provided or invalid");
         }
 
-        String profileImageUrl = userService.getProfileImageUrlByUserId(userId);
-        return ResponseEntity.ok(Map.of("profileImageUrl", profileImageUrl));
+        try {
+            String profileImageUrl = userService.getProfileImageUrlByUserId(userId);
+            return ResponseEntity.ok(Map.of("profileImageUrl", profileImageUrl));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(404).body("프로필 이미지가 존재하지 않습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body("사용자를 찾을 수 없습니다.");
+        }
     }
+
     @GetMapping("/profile/{userId}")
     @Operation(summary = "회원페이지 사용자 정보 상단 조회1", description = "회원페이지 위쪽에 표시될 회원 정보를 가져옵니다.")
     public ResponseEntity<?> getUserProfile(
