@@ -104,7 +104,6 @@ public class EventPostService {
 
         cachePostWithUserInfo(savedPost);
 
-/*
         String triggerKey = "saveWeeklyRankingTrigger:" + currentWeek;
         Boolean hasKey = redisTemplate.hasKey(triggerKey);
         if (Boolean.FALSE.equals(hasKey)) {
@@ -116,7 +115,7 @@ public class EventPostService {
             } else {
                 saveWeeklyRanking(currentWeek);
             }
-        }*/
+        }
 
         return postId;
     }
