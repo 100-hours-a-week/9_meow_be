@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import meow_be.eventposts.domain.EventPost;
 import meow_be.eventposts.domain.EventWeek;
 import meow_be.eventposts.dto.EventPostRankingDto;
-import meow_be.eventposts.dto.EventTopRankDto;
+import meow_be.eventposts.dto.EventWeekRankDto;
 import meow_be.eventposts.repository.EventPostQueryRepository;
 import meow_be.eventposts.repository.EventPostRepository;
 import meow_be.eventposts.repository.EventWeekRepository;
@@ -247,12 +247,9 @@ public class EventPostService {
     public List<EventPostRankingDto> getRankedPostsByWeek(int week) {
         return eventPostQueryRepository.findRankedPostsByWeek(week);
     }
-
-    public Map<Integer, List<EventTopRankDto>> getAllTop3Rankings() {
+    public List<EventWeekRankDto> findTop3RankedPostsGroupedByWeek() {
         return eventPostQueryRepository.findTop3RankedPostsGroupedByWeek();
     }
-
-
 
 
 

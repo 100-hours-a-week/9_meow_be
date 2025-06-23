@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import meow_be.eventposts.dto.EventPostRankingDto;
 import meow_be.eventposts.dto.EventPostRequest;
 import meow_be.eventposts.dto.EventTopRankDto;
+import meow_be.eventposts.dto.EventWeekRankDto;
 import meow_be.eventposts.service.EventPostService;
 import meow_be.login.security.TokenProvider;
 import org.springframework.http.ResponseEntity;
@@ -70,7 +71,8 @@ public class EventPostController {
     }
     @GetMapping("/rankings")
     @Operation(summary = "역대 이벤트 랭킹 1~3등 조회")
-    public ResponseEntity<Map<Integer, List<EventTopRankDto>>> getAllEventRankings() {
-        return ResponseEntity.ok(eventPostService.getAllTop3Rankings());
+    public ResponseEntity<List<EventWeekRankDto>> getAllEventRankings() {
+        return ResponseEntity.ok(eventPostService.findTop3RankedPostsGroupedByWeek());
     }
+
 }
