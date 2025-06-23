@@ -12,4 +12,5 @@ public interface EventWeekRepository extends JpaRepository<EventWeek, Integer> {
     @Query("SELECT e FROM EventWeek e WHERE " +
             ":datetime BETWEEN e.startApplyAt AND e.endEventAt")
     Optional<EventWeek> findByDate(LocalDateTime datetime);
+    Optional<EventWeek> findByWeek(Integer week);
 }
