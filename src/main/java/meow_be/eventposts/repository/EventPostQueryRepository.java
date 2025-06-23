@@ -7,8 +7,11 @@ import meow_be.eventposts.domain.QEventWeek;
 import meow_be.eventposts.dto.EventPostRankingDto;
 import meow_be.eventposts.domain.QEventPost;
 import meow_be.eventposts.dto.EventTopRankDto;
+import meow_be.eventposts.dto.EventWeekRankDto;
 import meow_be.users.domain.QUser;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 
@@ -42,7 +45,7 @@ public class EventPostQueryRepository {
                 .orderBy(post.ranking.asc())
                 .fetch();
     }
-    public Map<Integer, List<EventTopRankDto>> findTop3RankedPostsGroupedByWeek() {
+    public List<EventWeekRankDto> findTop3RankedPostsGroupedByWeek() {
         QEventPost post = QEventPost.eventPost;
         QUser user = QUser.user;
         QEventWeek week = QEventWeek.eventWeek;
@@ -67,7 +70,23 @@ public class EventPostQueryRepository {
                 .orderBy(week.week.asc(), post.ranking.asc())
                 .fetch();
 
-        return results.stream()
+        Map<Integer, List<EventTopRankDto>> grouped = results.stream()
                 .collect(Collectors.groupingBy(EventTopRankDto::getWeek, LinkedHashMap::new, Collectors.toList()));
+
+        List<EventWeekRankDto> result = new ArrayList<>();
+        for (Map.Entry<Integer, List<EventTopRankDto>> entry : grouped.entrySet()) {
+            Integer week1 = entry.getKey();
+            List<EventTopRankDto> rankList = entry.getValue();
+            EventTopRankDto first = rankList.get(0); // 각 주차의 공통 데이터 (topic, endAt 등)
+            result.add(new EventWeekRankDto(
+                    week1,
+                    first.getTopic(),
+                    first.getEndAt(),
+                    rankList
+            ));
+        }
+
+        return result;
     }
+
 }
