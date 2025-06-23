@@ -11,4 +11,5 @@ import java.time.LocalDateTime;
 public class EventStatusResponse {
     private String status;
     private LocalDateTime time;
+    private int week;
 }
