@@ -122,11 +122,9 @@ public class EventPostService {
 
     public boolean hasAppliedToCurrentWeek(Integer userId) {
         int currentWeek = getCurrentWeek();
-        EventWeek eventWeek = eventWeekRepository.findById(currentWeek)
-                .orElseThrow(() -> new NotFoundException("이벤트 주차 정보를 찾을 수 없습니다."));
-
-        return eventPostRepository.existsByUserIdAndEventWeek(userId, eventWeek);
+        return eventPostRepository.existsByUserIdAndEventWeek_Week(userId, currentWeek);
     }
+
     public List<Map<String, Object>> getTop3Ranking() {
         int currentWeek = getCurrentWeek();
         String key = "event:likes:week:" + currentWeek;
