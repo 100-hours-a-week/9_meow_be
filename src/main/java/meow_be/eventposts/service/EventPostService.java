@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,8 @@ public class EventPostService {
     private final UserRepository userRepository;
     private final EventWeekRepository eventWeekRepository;
     private final EventPostQueryRepository eventPostQueryRepository;
+
+    private final Map<Integer, Boolean> voteEnabledCache = new ConcurrentHashMap<>();
     public void saveWeeklyRanking(int week) {
         String redisKey = "event:likes:week:" + week;
         ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
@@ -59,6 +62,13 @@ public class EventPostService {
                 .orElseThrow(() -> new NotFoundException("이벤트 게시물을 찾을 수 없습니다."));
 
         int week = post.getEventWeek().getWeek();
+        boolean isEnabled = voteEnabledCache.computeIfAbsent(week, w -> {
+            return Boolean.TRUE.equals(redisTemplate.hasKey("vote_enabled:week:" + w));
+        });
+
+        if (!isEnabled) {
+            throw new IllegalStateException("해당 주차는 투표가 종료되었습니다.");
+        }
         String key = "event:likes:week:" + week;
 
         Double newScore = redisTemplate.opsForZSet().incrementScore(key, postId.toString(), 1);
@@ -103,20 +113,7 @@ public class EventPostService {
         redisTemplate.opsForZSet().add(redisKey, String.valueOf(postId), 0);
 
         cachePostWithUserInfo(savedPost);
-
-        String triggerKey = "saveWeeklyRankingTrigger:" + currentWeek;
-        Boolean hasKey = redisTemplate.hasKey(triggerKey);
-        if (Boolean.FALSE.equals(hasKey)) {
-            LocalDateTime voteEnd = eventWeek.getEndVoteAt().plusMinutes(1);
-            long secondsUntilExpire = java.time.Duration.between(LocalDateTime.now(ZoneId.of("Asia/Seoul")), voteEnd).getSeconds();
-
-            if (secondsUntilExpire > 0) {
-                redisTemplate.opsForValue().set(triggerKey, "1" , java.time.Duration.ofSeconds(secondsUntilExpire));
-            } else {
-                saveWeeklyRanking(currentWeek);
-            }
-        }
-
+        setupRankingAndVoteKeys(currentWeek, eventWeek);
         return postId;
     }
 
@@ -288,5 +285,29 @@ public class EventPostService {
             throw new RuntimeException("Redis 캐싱 실패", e);
         }
     }
+    public void removeVoteEnabledCache(int week) {
+        voteEnabledCache.remove(week);
+    }
+    private void setupRankingAndVoteKeys(int currentWeek, EventWeek eventWeek) {
+        String voteKey = "vote_enabled:week:" + currentWeek;
+        if (!Boolean.TRUE.equals(redisTemplate.hasKey(voteKey))) {
+            long secondsUntilVoteEnd = Duration.between(LocalDateTime.now(), eventWeek.getEndVoteAt()).getSeconds();
+            if (secondsUntilVoteEnd > 0) {
+                redisTemplate.opsForValue().set(voteKey, "1", Duration.ofSeconds(secondsUntilVoteEnd));
+            }
+        }
+
+        String triggerKey = "saveWeeklyRankingTrigger:" + currentWeek;
+        if (!Boolean.TRUE.equals(redisTemplate.hasKey(triggerKey))) {
+            long secondsUntilTrigger = Duration.between(LocalDateTime.now(), eventWeek.getEndVoteAt().plusSeconds(1)).getSeconds();
+            if (secondsUntilTrigger > 0) {
+                redisTemplate.opsForValue().set(triggerKey, "1", Duration.ofSeconds(secondsUntilTrigger));
+            } else {
+                saveWeeklyRanking(currentWeek);
+            }
+        }
+    }
+
+
 }
 

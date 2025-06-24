@@ -25,5 +25,15 @@ public class KeyExpirationEventMessageListener implements MessageListener {
                 System.err.println("잘못된 주차 키 형식: " + expiredKey);
             }
         }
+        else if (expiredKey.startsWith("vote_enabled:week:")) {
+            String weekStr = expiredKey.substring("vote_enabled:week:".length());
+            try {
+                int week = Integer.parseInt(weekStr);
+                eventPostService.removeVoteEnabledCache(week);
+            } catch (NumberFormatException e) {
+                System.err.println("잘못된 vote_enabled 키 형식: " + expiredKey);
+            }
+        }
     }
+
 }
