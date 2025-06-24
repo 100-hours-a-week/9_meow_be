@@ -71,6 +71,12 @@ public class EventPostController {
     public ResponseEntity<List<EventImageRankDto>> getAllEventRankings() {
         return ResponseEntity.ok(eventPostService.findTop3RankedPostsGroupedByWeek());
     }
+    @GetMapping("/recent-images")
+    @Operation(summary = "현재 주차의 최신 이벤트 게시물 3개 이미지 조회")
+    public ResponseEntity<List<String>> getRecent3ImageUrls() {
+        List<String> imageUrls = eventPostService.getRecent3ImageUrlsOfCurrentWeek();
+        return ResponseEntity.ok(imageUrls);
+    }
 
 
 }
