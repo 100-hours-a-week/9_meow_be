@@ -122,7 +122,7 @@ public class EventPostService {
 
     public boolean hasAppliedToCurrentWeek(Integer userId) {
         int currentWeek = getCurrentWeek();
-        return eventPostRepository.existsByUserIdAndEventWeek_Week(userId, currentWeek);
+        return eventPostRepository.existsByUserIdAndWeek(userId, currentWeek);
     }
 
     public List<Map<String, Object>> getTop3Ranking() {
