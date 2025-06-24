@@ -248,6 +248,18 @@ public class EventPostService {
     public List<EventImageRankDto> findTop3RankedPostsGroupedByWeek() {
         return eventPostQueryRepository.findTop3RankedPostsGroupedByWeek();
     }
+    // EventPostService.java
+
+    public List<String> getRecent3ImageUrlsOfCurrentWeek() {
+        int currentWeek = getCurrentWeek();
+        List<EventPost> recentPosts = eventPostRepository
+                .findTop3ByEventWeek_WeekOrderByCreatedAtDesc(currentWeek);
+
+        return recentPosts.stream()
+                .map(EventPost::getImageUrl)
+                .toList();
+    }
+
 
     private int getCurrentWeek() {
         LocalDate start = LocalDate.of(2025, 6, 16);

@@ -14,4 +14,7 @@ public interface EventPostRepository extends JpaRepository<EventPost, Integer> {
     @Query("SELECT CASE WHEN COUNT(p) > 0 THEN TRUE ELSE FALSE END " +
             "FROM EventPost p WHERE p.user.id = :userId AND p.eventWeek.week = :week")
     boolean existsByUserIdAndWeek(@Param("userId") Integer userId, @Param("week") Integer week);
+
+    List<EventPost> findTop3ByEventWeek_WeekOrderByCreatedAtDesc(int week);
+
 }
