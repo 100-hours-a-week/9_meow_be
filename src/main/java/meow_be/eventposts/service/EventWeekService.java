@@ -32,6 +32,8 @@ public class EventWeekService {
         log.info("현재 시간: {}", dateTime);
 
         EventWeek week = optionalWeek.get();
+        log.info("startVoteAt: {}, endVoteAt: {}", week.getStartVoteAt(), week.getEndVoteAt());
+        log.info("getstart: {}, getend: {}", week.getStartApplyAt(), week.getEndApplyAt());
 
         if (!dateTime.isBefore(week.getStartApplyAt()) && dateTime.isBefore(week.getEndApplyAt())) {
             // 신청 기간
