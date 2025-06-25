@@ -61,7 +61,3 @@ cloud:
       domain: https://ds36vr51hmfa7.cloudfront.net
     stack:
       auto: false
-logging:
-  discord:
-    webhook-url: ${WEBHOOK_URL:}
-    config: classpath:logback-spring.xml
