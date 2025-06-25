@@ -43,7 +43,7 @@ public class EventWeekService {
             return new EventStatusResponse("투표중", week.getEndVoteAt(),Currentweek);
         } else {
             // 그 외 (예: 투표 끝난 후)
-            return new EventStatusResponse(null, null,Currentweek);
+            return new EventStatusResponse(null, dateTime,week.getWeek());
         }
     }
     public Map<String, Object> getCurrentWeekTopic(int Currentweek) {
