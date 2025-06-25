@@ -24,7 +24,7 @@ public class EventWeekService {
         int Currentweek=getCurrentWeek();
 
         if (optionalWeek.isEmpty()) {
-            return new EventStatusResponse(null, null,Currentweek);
+            return new EventStatusResponse(null, null,1);
         }
 
         EventWeek week = optionalWeek.get();
