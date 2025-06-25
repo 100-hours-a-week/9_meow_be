@@ -1,4 +1,4 @@
-erver:
+server:
   servlet:
     context-path: /api
 spring:
