@@ -1,6 +1,9 @@
+erver:
+  servlet:
+    context-path: /api
 spring:
   datasource:
-    url: jdbc:mysql://db:3306/meow1?serverTimezone=Asia/Seoul
+    url: jdbc:mysql://10.1.0.139:3306/meow1?serverTimezone=Asia/Seoul
     username: root
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -10,15 +13,15 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-    context-path: /api
   jwt:
     secret-key: V1JZQk1BTVNEQ1ZCV1ZKR0hVSUdVSk1OT1BLWVNXTEtTTk9PT0xLS0xKTU5VSk1MS1NKT1A=
   application:
     name:api
   data:
     redis:
-      host: redis
+      host: 10.1.0.139
       port: 6379
+      password: 1234
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

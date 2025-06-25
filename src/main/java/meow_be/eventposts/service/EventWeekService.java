@@ -1,6 +1,7 @@
 package meow_be.eventposts.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import meow_be.eventposts.domain.EventWeek;
 import meow_be.eventposts.dto.EventStatusResponse;
 import meow_be.eventposts.repository.EventWeekRepository;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventWeekService {
 
     private final EventWeekRepository eventWeekRepository;
@@ -26,6 +28,7 @@ public class EventWeekService {
         if (optionalWeek.isEmpty()) {
             return new EventStatusResponse(null, null,1);
         }
+        log.info("현재 시간: {}", dateTime);
 
         EventWeek week = optionalWeek.get();
 
