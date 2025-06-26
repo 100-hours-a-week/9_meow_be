@@ -259,10 +259,10 @@ public class EventPostService {
 
 
     private int getCurrentWeek() {
-        LocalDate start = LocalDate.of(2025, 6, 16);
+        LocalDate start = LocalDate.of(2025, 6, 30);
         ZoneId koreaZone = ZoneId.of("Asia/Seoul");
         LocalDate now = LocalDate.now(koreaZone);
-        return (int) ChronoUnit.WEEKS.between(start, now) + 1;
+        return (int) ChronoUnit.WEEKS.between(start, now) + 5;
     }
     private final ObjectMapper objectMapper = new ObjectMapper();
 
