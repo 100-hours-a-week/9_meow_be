@@ -291,7 +291,7 @@ public class EventPostService {
     private void setupRankingAndVoteKeys(int currentWeek, EventWeek eventWeek) {
         String voteKey = "vote_enabled:week:" + currentWeek;
         if (!Boolean.TRUE.equals(redisTemplate.hasKey(voteKey))) {
-            long secondsUntilVoteEnd = Duration.between(LocalDateTime.now(), eventWeek.getEndVoteAt()).getSeconds();
+            long secondsUntilVoteEnd = Duration.between(LocalDateTime.now( ZoneId.of("Asia/Seoul")), eventWeek.getEndVoteAt()).getSeconds();
             if (secondsUntilVoteEnd > 0) {
                 redisTemplate.opsForValue().set(voteKey, "1", Duration.ofSeconds(secondsUntilVoteEnd));
             }
@@ -299,7 +299,7 @@ public class EventPostService {
 
         String triggerKey = "saveWeeklyRankingTrigger:" + currentWeek;
         if (!Boolean.TRUE.equals(redisTemplate.hasKey(triggerKey))) {
-            long secondsUntilTrigger = Duration.between(LocalDateTime.now(), eventWeek.getEndVoteAt().plusSeconds(1)).getSeconds();
+            long secondsUntilTrigger = Duration.between(LocalDateTime.now( ZoneId.of("Asia/Seoul")), eventWeek.getEndVoteAt().plusSeconds(1)).getSeconds();
             if (secondsUntilTrigger > 0) {
                 redisTemplate.opsForValue().set(triggerKey, "1", Duration.ofSeconds(secondsUntilTrigger));
             } else {
