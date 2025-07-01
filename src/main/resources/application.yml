@@ -1,0 +1,64 @@
+server:
+  servlet:
+    context-path: /api
+spring:
+  datasource:
+    url: jdbc:mysql://10.0.4.155:3306/meow1?serverTimezone=Asia/Seoul
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+    context-path: /api
+  jwt:
+    secret-key: V1JZQk1BTVNEQ1ZCV1ZKR0hVSUdVSk1OT1BLWVNXTEtTTk9PT0xLS0xKTU5VSk1MS1NKT1A=
+  application:
+    name:api
+  data:
+    redis:
+      host: 10.0.4.155
+      port: 6379
+      password: 1234
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /api/api-docs
+    groups-order: DESC
+    tags-sorter: alpha
+    operations-sorter: method
+    disable-swagger-default-url: true
+    display-request-duration: true
+    defaultModelsExpandDepth: 2
+    defaultModelExpandDepth: 2
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  writer-with-default-pretty-printer: true
+  model-and-view-allowed: true
+  paths-to-match:
+    - /**
+
+kakao:
+  client-id: faf26a5a6001ba7f6b3cd14f9fbc1d26
+  redirect-uri: https://www.meowng.com/redirect
+  token-uri: https://kauth.kakao.com/oauth/token
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID:}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:}
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: s3-an2-image-meowng
+      domain: https://s3-an2-image-meowng.s3.ap-northeast-2.amazonaws.com
+    cloudfront:
+      domain: https://ds36vr51hmfa7.cloudfront.net
+    stack:
+      auto: false
