@@ -19,7 +19,7 @@ WEBHOOK_URL=$(aws ssm get-parameter --name /meow/prod/WEBHOOK_URL --with-decrypt
 
 # ── 4) AWS 자격 증명은 Secrets Manager에서 가져오기 ─────
 SECRET=$(aws secretsmanager get-secret-value \
-  --secret-id /meow/prod/aws_credentials \
+  --secret-id /meow/aws_credentials \
   --query SecretString \
   --output text)
 
