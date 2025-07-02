@@ -164,9 +164,10 @@ jobs:
         id: get_version
         shell: bash
         run: |
-          #If head commit is tagged, use that tag, if not, use the latest tag
-          VERSION=$(git describe --tags --exact-match 2>/dev/null || echo "lastest")
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          # If head commit is tagged, use that tag or fallback to "latest"
+          VERSION=$(git describe --tags --exact-match 2>/dev/null || echo "latest")
+          echo "Determined version =${VERSION}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
           
       - name: Build & Push Docker Image
         uses: docker/build-push-action@v4
@@ -178,10 +179,44 @@ jobs:
             ${{ env.IMAGE_URI }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
+      - name: Create stop_backend.sh script
+        run: |
+          echo -e '#!/bin/bash\necho "no backend to stop"' > scripts/stop_backend.sh
+          chmod +x scripts/stop_backend.sh
+      - name: Prepare deployment scripts from template
+        run: |
+          mkdir -p scripts
+          # 템플릿 치환 필요 없음
+          cp scripts/deploy_backend.sh.tmpl scripts/deploy_backend.sh
+          chmod +x scripts/deploy_backend.sh
+      - name: Prepare appspec.yml
+        run: | 
+          cat <<EOF > appspec.yml
+          version: 0.0
+          os: linux
+          hooks:
+            BeforeInstall:
+              - location: scripts/stop_backend.sh
+                timeout: 300
+                runas: ubuntu
+            AfterInstall:
+              - location: scripts/deploy_backend.sh
+                timeout: 300
+                runas: ubuntu
+          EOF
+      - name: Zip deployment bundle
+        run: zip -r deploy-bundle.zip appspec.yml scripts/ 
+      
+      - name: Upload bundle to S3
+        run: |
+          aws s3 cp deploy-bundle.zip \
+            s3://${{ secrets.DEPLOY_BUCKET }}/prod/backend/deploy-bundle.zip
+          
 
-      # - name: Trigger CodeDeploy
-      #   run: |
-      #     aws deploy create-deployment \
-      #       --application-name ${{ env.APP_NAME }} \
-      #       --deployment-group-name ${{ env.DG_NAME }} \
-      #       --s3-location bucket=${{ secrets.DEPLOY_BUCKET }},key=${{ env.ENV }}/deploy-bundle.zip,bundleType=zip
+      - name: Trigger CodeDeploy
+        run: |
+          aws deploy create-deployment \
+            --application-name ${{ env.APP_NAME }} \
+            --deployment-group-name ${{ env.DG_NAME }} \
+            --s3-location bucket=${{ secrets.DEPLOY_BUCKET }},key=${{ env.ENV }}/deploy-bundle.zip,bundleType=zip \
+            --description "Deploy ${{ env.VERSION }} to production"

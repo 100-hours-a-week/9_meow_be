@@ -1,0 +1,65 @@
+#!/bin/bash
+set -eux
+
+# ── 1) 공통 환경 변수 설정 ───────────────────────────────
+export AWS_REGION=ap-northeast-2
+export AWS_DEFAULT_REGION=ap-northeast-2
+
+# ── 2) AWS Secrets Manager에서 자격증명 & DB·Redis 사용자 정보 가져오기 ─────────
+SECRET=$(aws secretsmanager get-secret-value \
+  --secret-id /meow/backend_credentials \
+  --query SecretString --output text)
+
+DB_USERNAME=$(echo "$SECRET" | jq -r .SPRING_DATASOURCE_USERNAME)
+DB_PASSWORD=$(echo "$SECRET" | jq -r .SPRING_DATASOURCE_PASSWORD)
+AWS_ACCESS_KEY_ID=$(echo "$SECRET" | jq -r .AWS_ACCESS_KEY_ID)
+AWS_SECRET_ACCESS_KEY=$(echo "$SECRET" | jq -r .AWS_SECRET_ACCESS_KEY)
+WEBHOOK_URL=$(echo "$SECRET" | jq -r .WEBHOOK_URL)
+REDIS_PASSWORD=$(echo "$SECRET" | jq -r .REDIS_PASSWORD)
+
+# ── 3) SSM에서 나머지 파라미터 가져오기 ────────────────────
+DB_HOST=$(aws ssm get-parameter \
+  --name /meow/prod/DB_HOST \
+  --query Parameter.Value --output text)
+
+REDIS_HOST=$(aws ssm get-parameter \
+  --name /meow/prod/REDIS_HOST \
+  --query Parameter.Value --output text)
+
+REDIS_PORT=$(aws ssm get-parameter \
+  --name /meow/prod/REDIS_PORT \
+  --query Parameter.Value --output text)
+
+ECR_REGISTRY=$(aws ssm get-parameter \
+  --name /meow/prod/ECR_REGISTRY/backend \
+  --query Parameter.Value --output text)
+
+VERSION=$(aws ssm get-parameter \
+  --name /meow/prod/BACKEND_IMAGE_TAG \
+  --query Parameter.Value --output text)
+
+# ── 4) ECR 로그인 & 이미지 Pull ────────────────────────────
+aws ecr get-login-password --region $AWS_REGION \
+  | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+
+docker pull "$ECR_REGISTRY:$VERSION"
+
+# ── 5) 기존 컨테이너 중지·삭제 ─────────────────────────────
+docker stop backend-container || true
+docker rm   backend-container || true
+
+# ── 6) 새 백엔드 컨테이너 실행 ─────────────────────────────
+docker run -d \
+  --name backend-container \
+  --restart unless-stopped \
+  -p 8080:8080 \
+  -e DB_HOST="$DB_HOST" \
+  -e DB_USERNAME="$DB_USERNAME" \
+  -e DB_PASSWORD="$DB_PASSWORD" \
+  -e REDIS_HOST="$REDIS_HOST" \
+  -e REDIS_PORT="$REDIS_PORT" \
+  -e REDIS_PASSWORD="$REDIS_PASSWORD" \
+  -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
+  -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
+  -e WEBHOOK_URL="$WEBHOOK_URL" \
+  "$ECR_REGISTRY:$VERSION"
