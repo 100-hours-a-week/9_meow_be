@@ -11,7 +11,6 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-    context-path: /api
   jwt:
     secret-key: V1JZQk1BTVNEQ1ZCV1ZKR0hVSUdVSk1OT1BLWVNXTEtTTk9PT0xLS0xKTU5VSk1MS1NKT1A=
   application:
@@ -59,3 +58,6 @@ cloud:
       domain: https://ds36vr51hmfa7.cloudfront.net
     stack:
       auto: false
+server:
+  servlet:
+    context-path: /api
