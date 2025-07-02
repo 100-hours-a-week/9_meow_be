@@ -168,6 +168,12 @@ jobs:
           VERSION=$(git describe --tags --exact-match 2>/dev/null || echo "latest")
           echo "Determined version =${VERSION}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          # update ssm version tag
+          aws ssm put-parameter \
+            --name /meow/prod/BACKEND_IMAGE_TAG \
+            --value "${{ env.VERSION }}" \
+            --type String \
+            --overwrite
           
       - name: Build & Push Docker Image
         uses: docker/build-push-action@v4
