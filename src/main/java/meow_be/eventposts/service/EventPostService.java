@@ -68,7 +68,7 @@ public class EventPostService {
 
         if (!isEnabled) {
             throw new IllegalStateException("해당 주차는 투표가 종료되었습니다.");
-        }*/
+        }*/ 
         String key = "event:likes:week:" + week;
 
         Double newScore = redisTemplate.opsForZSet().incrementScore(key, postId.toString(), 1);
