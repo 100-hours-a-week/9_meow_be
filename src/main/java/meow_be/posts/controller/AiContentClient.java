@@ -66,4 +66,29 @@ public class AiContentClient {
             throw new RuntimeException("AI 서버 요청 실패: " + e.getMessage(), e);
         }
     }
+    public String transformChatMessage(String originalContent, String animalType) {
+        try {
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("text", originalContent);
+            requestBody.put("post_type", animalType);
+
+            AiContentResponse aiResponse = webClient.post()
+                    .uri("/generate/chat")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(AiContentResponse.class)
+                    .block();
+
+            if (aiResponse != null && aiResponse.getStatusCode() == 200) {
+                return aiResponse.getData();
+            } else {
+                throw new RuntimeException("AI 응답 오류: " +
+                        (aiResponse != null ? aiResponse.getMessage() : "응답 없음"));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("AI 호출 실패: " + e.getMessage(), e);
+        }
+    }
+
 }
