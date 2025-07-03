@@ -62,13 +62,13 @@ public class EventPostService {
                 .orElseThrow(() -> new NotFoundException("이벤트 게시물을 찾을 수 없습니다."));
 
         int week = post.getEventWeek().getWeek();
-        boolean isEnabled = voteEnabledCache.computeIfAbsent(week, w -> {
+        /*boolean isEnabled = voteEnabledCache.computeIfAbsent(week, w -> {
             return Boolean.TRUE.equals(redisTemplate.hasKey("vote_enabled:week:" + w));
         });
 
         if (!isEnabled) {
             throw new IllegalStateException("해당 주차는 투표가 종료되었습니다.");
-        }
+        }*/
         String key = "event:likes:week:" + week;
 
         Double newScore = redisTemplate.opsForZSet().incrementScore(key, postId.toString(), 1);
