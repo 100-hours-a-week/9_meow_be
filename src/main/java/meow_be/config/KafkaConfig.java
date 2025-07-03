@@ -1,3 +1,4 @@
+/*
 package meow_be.config;
 
 import meow_be.chat.dto.ChatMessageDto;
@@ -54,3 +55,4 @@ public class KafkaConfig {
         return factory;
     }
 }
+*/

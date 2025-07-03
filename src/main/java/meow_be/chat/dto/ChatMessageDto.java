@@ -1,19 +1,17 @@
 package meow_be.chat.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ChatMessageDto {
-    private String chatRoomId;
-    private String senderId;
+    private Integer chatroomId;
+    private Integer senderId;
+    private String animalType;
     private String message;
     private LocalDateTime timestamp;
 }
-
