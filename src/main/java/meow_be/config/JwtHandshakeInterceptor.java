@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import meow_be.chat.controller.ChatRoomParticipantManager;
 import meow_be.chat.dto.ChatParticipantCountDto;
 import meow_be.login.security.TokenProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -21,7 +22,13 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
     private final TokenProvider tokenProvider;
     private final ChatRoomParticipantManager participantManager;
-    private final SimpMessagingTemplate messagingTemplate;
+    private SimpMessagingTemplate messagingTemplate;
+
+    @Autowired
+    public void setMessagingTemplate(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+    }
+
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
@@ -62,7 +69,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
         return message;
     }
 
-    public class ChatRoomFullException extends RuntimeException {
+    public static class ChatRoomFullException extends RuntimeException {
         public ChatRoomFullException(String message) {
             super(message);
         }
