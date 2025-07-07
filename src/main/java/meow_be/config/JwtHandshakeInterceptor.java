@@ -24,10 +24,10 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
     private final ChatRoomParticipantManager participantManager;
     private SimpMessagingTemplate messagingTemplate;
 
-    @Autowired
+    /*@Autowired
     public void setMessagingTemplate(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
-    }
+    }*/
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -55,9 +55,9 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                             throw new ChatRoomFullException("채팅방 최대 인원 초과 (20명)");
                         }
 
-                        int count = participantManager.getParticipantCount(chatroomId);
+                        /*int count = participantManager.getParticipantCount(chatroomId);
                         ChatParticipantCountDto payload = new ChatParticipantCountDto(chatroomId, count);
-                        messagingTemplate.convertAndSend("/sub/chatroom." + chatroomId + ".participants", payload);
+                        messagingTemplate.convertAndSend("/sub/chatroom." + chatroomId + ".participants", payload);*/
 
                     } catch (Exception e) {
                         throw new IllegalArgumentException("웹소켓 인증 실패: " + e.getMessage());
