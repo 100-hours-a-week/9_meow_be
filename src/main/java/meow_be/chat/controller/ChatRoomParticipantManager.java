@@ -20,6 +20,10 @@ public class ChatRoomParticipantManager {
         redisTemplate.opsForSet().add(key, sessionId);
         return true;
     }
+    public int getParticipantCount(Integer chatroomId) {
+        Long count = redisTemplate.opsForSet().size(getKey(chatroomId));
+        return count != null ? count.intValue() : 0;
+    }
 
     public void leave(Integer chatroomId, String sessionId) {
         redisTemplate.opsForSet().remove(getKey(chatroomId), sessionId);
