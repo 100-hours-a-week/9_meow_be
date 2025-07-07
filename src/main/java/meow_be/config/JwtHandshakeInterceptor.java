@@ -1,9 +1,8 @@
 package meow_be.config;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import meow_be.chat.controller.ChatRoomParticipantManager;
 import meow_be.login.security.TokenProvider;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -19,28 +18,36 @@ import java.util.List;
 public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
     private final TokenProvider tokenProvider;
+    private final ChatRoomParticipantManager participantManager;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
-        if (accessor.getCommand() != null && accessor.getCommand().equals(StompCommand.CONNECT)) {
+        if (accessor.getCommand() == StompCommand.CONNECT) {
             List<String> authHeader = accessor.getNativeHeader("Authorization");
 
             if (authHeader != null && !authHeader.isEmpty()) {
                 String token = authHeader.get(0).replace("Bearer ", "").trim();
-
                 if (StringUtils.hasText(token)) {
                     try {
                         Integer userId = tokenProvider.getUserIdFromToken(token);
-                        if (tokenProvider.validateToken(token, userId)) {
-                            accessor.setUser(() -> String.valueOf(userId));
-                        } else {
+                        if (!tokenProvider.validateToken(token, userId)) {
                             throw new IllegalArgumentException("JWT 토큰이 유효하지 않음");
                         }
 
+                        accessor.setUser(() -> String.valueOf(userId));
+                        Integer chatroomId = 1;
+                        String sessionId = accessor.getSessionId();
+                        boolean joined = participantManager.tryJoin(chatroomId, sessionId);
+
+                        if (!joined) {
+                            throw new ChatRoomFullException("채팅방 최대 인원 초과 (20명)");
+                        }
+
+
                     } catch (Exception e) {
-                        throw new IllegalArgumentException("JWT 처리 중 오류: " + e.getMessage());
+                        throw new IllegalArgumentException("웹소켓 인증 실패: " + e.getMessage());
                     }
                 }
             }
@@ -48,5 +55,11 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
         return message;
     }
+    public class ChatRoomFullException extends RuntimeException {
+        public ChatRoomFullException(String message) {
+            super(message);
+        }
+    }
 
 }
+
