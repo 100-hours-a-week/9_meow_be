@@ -2,9 +2,11 @@ package meow_be.config;
 
 import lombok.RequiredArgsConstructor;
 import meow_be.chat.controller.ChatRoomParticipantManager;
+import meow_be.chat.dto.ChatParticipantCountDto;
 import meow_be.login.security.TokenProvider;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -19,7 +21,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
     private final TokenProvider tokenProvider;
     private final ChatRoomParticipantManager participantManager;
-
+    private final SimpMessagingTemplate messagingTemplate;
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
@@ -37,6 +39,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                         }
 
                         accessor.setUser(() -> String.valueOf(userId));
+
                         Integer chatroomId = 1;
                         String sessionId = accessor.getSessionId();
                         boolean joined = participantManager.tryJoin(chatroomId, sessionId);
@@ -45,6 +48,9 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                             throw new ChatRoomFullException("채팅방 최대 인원 초과 (20명)");
                         }
 
+                        int count = participantManager.getParticipantCount(chatroomId);
+                        ChatParticipantCountDto payload = new ChatParticipantCountDto(chatroomId, count);
+                        messagingTemplate.convertAndSend("/sub/chatroom." + chatroomId + ".participants", payload);
 
                     } catch (Exception e) {
                         throw new IllegalArgumentException("웹소켓 인증 실패: " + e.getMessage());
@@ -55,11 +61,10 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
         return message;
     }
+
     public class ChatRoomFullException extends RuntimeException {
         public ChatRoomFullException(String message) {
             super(message);
         }
     }
-
 }
-
