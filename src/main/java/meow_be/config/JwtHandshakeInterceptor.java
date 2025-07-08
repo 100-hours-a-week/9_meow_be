@@ -2,12 +2,10 @@ package meow_be.config;
 
 import lombok.RequiredArgsConstructor;
 import meow_be.chat.controller.ChatRoomParticipantManager;
-import meow_be.chat.dto.ChatParticipantCountDto;
+import meow_be.chat.service.ParticipantNotifier;
 import meow_be.login.security.TokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -22,12 +20,8 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
     private final TokenProvider tokenProvider;
     private final ChatRoomParticipantManager participantManager;
-    private SimpMessagingTemplate messagingTemplate;
+    private final ParticipantNotifier participantNotifier;
 
-    /*@Autowired
-    public void setMessagingTemplate(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
-    }*/
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -55,9 +49,8 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                             throw new ChatRoomFullException("채팅방 최대 인원 초과 (20명)");
                         }
 
-                        /*int count = participantManager.getParticipantCount(chatroomId);
-                        ChatParticipantCountDto payload = new ChatParticipantCountDto(chatroomId, count);
-                        messagingTemplate.convertAndSend("/sub/chatroom." + chatroomId + ".participants", payload);*/
+                        int count = participantManager.getParticipantCount(chatroomId);
+                        participantNotifier.notifyCount(chatroomId,count);
 
                     } catch (Exception e) {
                         throw new IllegalArgumentException("웹소켓 인증 실패: " + e.getMessage());
