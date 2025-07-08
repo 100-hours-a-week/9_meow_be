@@ -47,6 +47,8 @@ public class AiContentClient {
             Map<String, String> requestBody = new HashMap<>();
             requestBody.put("content", originalContent);
             requestBody.put("post_type", post_type);
+            requestBody.put("emotion", "normal");
+
 
             AiContentResponse aiResponse = webClient.post()
                     .uri("/generate/comment")
