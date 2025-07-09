@@ -65,6 +65,7 @@ public class ChatMessageController {
                     .message(saveRequest.getMessage())
                     .timestamp(LocalDateTime.now())
                     .build();
+            log.info("메시지 전송 → {}", messageDto);
 
             // 메시지 전송
             messagingTemplate.convertAndSend(
