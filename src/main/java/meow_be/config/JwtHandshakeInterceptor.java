@@ -1,6 +1,7 @@
 package meow_be.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import meow_be.chat.controller.ChatRoomParticipantManager;
 import meow_be.chat.service.ParticipantNotifier;
 import meow_be.login.security.TokenProvider;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
     private final TokenProvider tokenProvider;
@@ -47,6 +49,8 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                                         List.of()
                                 );
                         accessor.setUser(authentication);
+                        log.info("[JWT] Authentication 객체 설정 완료: {}", authentication.getPrincipal());
+
 
                         Integer chatroomId = 1;
                         String sessionId = accessor.getSessionId();

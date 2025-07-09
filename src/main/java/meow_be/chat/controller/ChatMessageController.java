@@ -35,6 +35,7 @@ public class ChatMessageController {
 
     @MessageMapping("/chat.send")
     public void sendMessage(ChatMessageRequest messageRequest, Principal principal) {
+        log.info("[WS] @MessageMapping principal = {}", principal);
         try {
             Integer userId = Integer.parseInt(principal.getName());
             User user = userRepository.findById(userId)
