@@ -11,16 +11,9 @@ import java.time.LocalDateTime;
 public class ChatMessageRequest {
     private Integer chatroomId;
     private Integer senderId;
+    private String senderNickname;
+    private String senderProfileImage;
     private String animalType;
     private String message;
-
-    public ChatMessageDto toDto() {
-        return ChatMessageDto.builder()
-                .chatroomId(this.chatroomId)
-                .senderId(this.senderId)
-                .animalType(this.animalType)
-                .message(this.message)
-                .timestamp(LocalDateTime.now())
-                .build();
-    }
 }
+

@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 public class ChatMessageDto {
     private Integer chatroomId;
     private Integer senderId;
+    private String senderNickname;
+    private String senderProfileImage;
     private String animalType;
     private String message;
     private LocalDateTime timestamp;
