@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import meow_be.chat.controller.ChatRoomParticipantManager;
 import meow_be.chat.service.ParticipantNotifier;
 import meow_be.login.security.TokenProvider;
+import meow_be.users.domain.User;
+import meow_be.users.repository.UserRepository;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -24,6 +26,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
     private final TokenProvider tokenProvider;
     private final ChatRoomParticipantManager participantManager;
     private final ParticipantNotifier participantNotifier;
+    private final UserRepository userRepository;
 
 
     @Override
@@ -41,10 +44,10 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                         if (!tokenProvider.validateToken(token, userId)) {
                             throw new IllegalArgumentException("JWT 토큰이 유효하지 않음");
                         }
-
+                        User user = userRepository.findById(userId).orElseThrow();
                         UsernamePasswordAuthenticationToken authentication =
                                 new UsernamePasswordAuthenticationToken(
-                                        String.valueOf(userId),
+                                        user,
                                         null,
                                         List.of()
                                 );
