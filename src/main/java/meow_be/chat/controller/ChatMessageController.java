@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,14 +38,17 @@ public class ChatMessageController {
     public void sendMessage(ChatMessageRequest messageRequest, Principal principal) {
         log.info("[WS] @MessageMapping principal = {}", principal);
         try {
-            Integer userId = Integer.parseInt(principal.getName());
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+            if (!(principal instanceof UsernamePasswordAuthenticationToken token)) {
+                throw new IllegalStateException("WebSocket 인증 실패: Principal 타입이 올바르지 않습니다.");
+            }
+            User user = (User) token.getPrincipal();
+            Integer userId = user.getId();
 
             String transformedMessage = aiContentClient.transformChatMessage(
                     messageRequest.getMessage(),
                     messageRequest.getAnimalType()
             );
+
             ChatMessageRequest saveRequest = ChatMessageRequest.builder()
                     .chatroomId(messageRequest.getChatroomId())
                     .senderId(userId)
@@ -66,9 +70,9 @@ public class ChatMessageController {
                     .message(saveRequest.getMessage())
                     .timestamp(LocalDateTime.now())
                     .build();
-            log.info("메시지 전송 → {}", messageDto);
 
-            // 메시지 전송
+            log.info("메시지 전송 → {}", messageDto);
+            
             messagingTemplate.convertAndSend(
                     "/sub/chatroom." + messageDto.getChatroomId(),
                     messageDto
@@ -77,6 +81,7 @@ public class ChatMessageController {
             log.error("채팅 처리 중 오류 발생", e);
         }
     }
+
 
 
     @GetMapping("/chat/{chatroomId}")
