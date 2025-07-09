@@ -2,8 +2,12 @@ package meow_be.users.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Getter
@@ -11,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자 보호
 @AllArgsConstructor(access = AccessLevel.PRIVATE)  // 빌더를 통한 생성만 허용
 @Builder(toBuilder = true) // 기존 객체를 기반으로 새로운 객체 생성 가능하도록 설정
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -39,4 +43,15 @@ public class User {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+    @Override
+    public String getUsername() {
+        return String.valueOf(this.id);
+    }
+
+    @Override public Collection<? extends GrantedAuthority> getAuthorities() { return List.of(); }
+    @Override public String getPassword() { return null; }
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return !this.isDeleted; }
 }
