@@ -7,6 +7,8 @@ import meow_be.chat.dto.ChatMessageRequest;
 import meow_be.chat.service.ChatMessageService;
 import meow_be.posts.controller.AiContentClient;
 import meow_be.posts.dto.PageResponse;
+import meow_be.users.domain.User;
+import meow_be.users.repository.UserRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 
 
 @Slf4j
@@ -28,33 +31,52 @@ public class ChatMessageController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
     private final AiContentClient aiContentClient;
+    private final UserRepository userRepository;
 
     @MessageMapping("/chat.send")
     public void sendMessage(ChatMessageRequest messageRequest, Principal principal) {
         try {
-            String userId = principal.getName();
+            Integer userId = Integer.parseInt(principal.getName());
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
 
             String transformedMessage = aiContentClient.transformChatMessage(
                     messageRequest.getMessage(),
                     messageRequest.getAnimalType()
             );
-
-            ChatMessageRequest updatedRequest = ChatMessageRequest.builder()
+            ChatMessageRequest saveRequest = ChatMessageRequest.builder()
                     .chatroomId(messageRequest.getChatroomId())
-                    .senderId(Integer.parseInt(userId))
+                    .senderId(userId)
                     .animalType(messageRequest.getAnimalType())
                     .message(transformedMessage)
                     .build();
-            chatMessageService.saveMessage(messageRequest);
 
+            chatMessageService.saveMessage(saveRequest);
+
+            String senderNickname = user.getNickname();
+            String senderProfileImage = user.getProfileImageUrl();
+
+            ChatMessageDto messageDto = ChatMessageDto.builder()
+                    .chatroomId(saveRequest.getChatroomId())
+                    .senderId(userId)
+                    .senderNickname(senderNickname)
+                    .senderProfileImage(senderProfileImage)
+                    .animalType(saveRequest.getAnimalType())
+                    .message(saveRequest.getMessage())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            // 메시지 전송
             messagingTemplate.convertAndSend(
-                    "/sub/chatroom." + updatedRequest.getChatroomId(),
-                    updatedRequest
+                    "/sub/chatroom." + messageDto.getChatroomId(),
+                    messageDto
             );
         } catch (Exception e) {
             log.error("채팅 처리 중 오류 발생", e);
         }
     }
+
+
     @GetMapping("/chat/{chatroomId}")
     public PageResponse<ChatMessageDto> getChatMessages(
             @PathVariable Integer chatroomId,

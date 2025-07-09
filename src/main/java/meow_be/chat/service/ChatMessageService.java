@@ -43,6 +43,8 @@ public class ChatMessageService {
                 .map(chatMessage -> ChatMessageDto.builder()
                         .chatroomId(chatMessage.getChatroomId())
                         .senderId(chatMessage.getUser().getId())
+                        .senderNickname(chatMessage.getUser().getNickname())
+                        .senderProfileImage(chatMessage.getUser().getProfileImageUrl())
                         .animalType(chatMessage.getAnimalType())
                         .message(chatMessage.getContent())
                         .timestamp(chatMessage.getCreatedAt())
@@ -58,4 +60,5 @@ public class ChatMessageService {
                 page.isLast()
         );
     }
+
 }
