@@ -9,6 +9,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -39,7 +40,13 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                             throw new IllegalArgumentException("JWT 토큰이 유효하지 않음");
                         }
 
-                        accessor.setUser(() -> String.valueOf(userId));
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(
+                                        String.valueOf(userId),
+                                        null,
+                                        List.of()
+                                );
+                        accessor.setUser(authentication);
 
                         Integer chatroomId = 1;
                         String sessionId = accessor.getSessionId();
