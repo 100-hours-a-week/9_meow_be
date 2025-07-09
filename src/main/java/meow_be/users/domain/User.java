@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자 보호
 @AllArgsConstructor(access = AccessLevel.PRIVATE)  // 빌더를 통한 생성만 허용
 @Builder(toBuilder = true) // 기존 객체를 기반으로 새로운 객체 생성 가능하도록 설정
-public class User implements UserDetails {
+public class User implements UserDetails, Principal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
