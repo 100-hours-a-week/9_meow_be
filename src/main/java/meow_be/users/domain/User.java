@@ -55,4 +55,8 @@ public class User implements UserDetails, Principal {
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
     @Override public boolean isEnabled() { return !this.isDeleted; }
+    @Override
+    public String getName() {
+        return String.valueOf(this.id);
+    }
 }

@@ -12,8 +12,10 @@ import meow_be.users.repository.UserRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,15 +37,19 @@ public class ChatMessageController {
     private final UserRepository userRepository;
 
     @MessageMapping("/chat.send")
-    public void sendMessage(ChatMessageRequest messageRequest, Principal principal) {
-        log.info("[WS] @MessageMapping principal = {}", principal);
+    public void sendMessage(ChatMessageRequest messageRequest,  Message<?> message) {
         try {
-            if (!(principal instanceof UsernamePasswordAuthenticationToken token)) {
-                throw new IllegalStateException("WebSocket 인증 실패: Principal 타입이 올바르지 않습니다.");
-            }
-            User user = (User) token.getPrincipal();
-            Integer userId = user.getId();
+            StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+            var principal = accessor.getUser();
 
+            log.info("[WS] @MessageMapping principal = {}", principal);
+
+            if (principal == null) {
+                throw new IllegalStateException("WebSocket 인증 정보 없음");
+            }
+
+            User user = (User) ((org.springframework.security.authentication.UsernamePasswordAuthenticationToken) principal).getPrincipal();
+            Integer userId = user.getId();
             String transformedMessage = aiContentClient.transformChatMessage(
                     messageRequest.getMessage(),
                     messageRequest.getAnimalType()
@@ -72,7 +78,7 @@ public class ChatMessageController {
                     .build();
 
             log.info("메시지 전송 → {}", messageDto);
-            
+
             messagingTemplate.convertAndSend(
                     "/sub/chatroom." + messageDto.getChatroomId(),
                     messageDto
