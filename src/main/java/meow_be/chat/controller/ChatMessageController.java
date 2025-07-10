@@ -37,18 +37,14 @@ public class ChatMessageController {
     private final UserRepository userRepository;
 
     @MessageMapping("/chat.send")
-    public void sendMessage(ChatMessageRequest messageRequest,  Message<?> message) {
+    public void sendMessage(ChatMessageRequest messageRequest,  Principal principal) {
         try {
-            StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-            var principal = accessor.getUser();
-
             log.info("[WS] @MessageMapping principal = {}", principal);
-
             if (principal == null) {
                 throw new IllegalStateException("WebSocket 인증 정보 없음");
             }
 
-            User user = (User) ((org.springframework.security.authentication.UsernamePasswordAuthenticationToken) principal).getPrincipal();
+            User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
             Integer userId = user.getId();
             String transformedMessage = aiContentClient.transformChatMessage(
                     messageRequest.getMessage(),
