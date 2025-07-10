@@ -9,24 +9,24 @@ import meow_be.posts.controller.AiContentClient;
 import meow_be.posts.dto.PageResponse;
 import meow_be.users.domain.User;
 import meow_be.users.repository.UserRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
 
 
 @Slf4j
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class ChatMessageController {
 
@@ -89,9 +89,12 @@ public class ChatMessageController {
     @GetMapping("/chat/{chatroomId}")
     public PageResponse<ChatMessageDto> getChatMessages(
             @PathVariable Integer chatroomId,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
     ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt"));
         return chatMessageService.getMessages(chatroomId, pageable);
     }
+
 
 }
