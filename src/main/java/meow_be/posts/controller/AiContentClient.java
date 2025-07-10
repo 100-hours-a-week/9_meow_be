@@ -14,7 +14,7 @@ public class AiContentClient {
     private final WebClient webClient;
 
     public AiContentClient(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://34.47.119.223:8000").build();
+        this.webClient = webClientBuilder.baseUrl("http://34.64.213.48:8000").build();
     }
 
     public String transformpostContent(String originalContent, String emotion, String post_type) {
