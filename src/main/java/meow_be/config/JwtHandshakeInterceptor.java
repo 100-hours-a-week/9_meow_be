@@ -34,7 +34,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
-        if (accessor.getCommand() == StompCommand.CONNECT) {
+        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             List<String> authHeader = accessor.getNativeHeader("Authorization");
 
             if (authHeader != null && !authHeader.isEmpty()) {
@@ -45,27 +45,24 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                         if (!tokenProvider.validateToken(token, userId)) {
                             throw new IllegalArgumentException("JWT 토큰이 유효하지 않음");
                         }
-                        User user = userRepository.findById(userId).orElseThrow();
-                        UsernamePasswordAuthenticationToken authentication =
-                                new UsernamePasswordAuthenticationToken(
-                                        user,
-                                        null,
-                                        List.of()
-                                );
-                        accessor.setUser(authentication);
-                        log.info("[JWT] Authentication 객체 설정 완료: {}", authentication.getPrincipal());
 
+                        User user = userRepository.findById(userId).orElseThrow();
+
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(user, null, List.of());
+
+                        accessor.setUser(authentication);
+
+                        log.info("[JWT] Authentication 객체 설정 완료: {}", user);
 
                         Integer chatroomId = 1;
                         String sessionId = accessor.getSessionId();
-                        boolean joined = participantManager.tryJoin(chatroomId, sessionId);
-
-                        if (!joined) {
+                        if (!participantManager.tryJoin(chatroomId, sessionId)) {
                             throw new ChatRoomFullException("채팅방 최대 인원 초과 (20명)");
                         }
 
                         int count = participantManager.getParticipantCount(chatroomId);
-                        participantNotifier.notifyCount(chatroomId,count);
+                        participantNotifier.notifyCount(chatroomId, count);
 
                         return MessageBuilder.withPayload(message.getPayload())
                                 .copyHeaders(accessor.getMessageHeaders())
@@ -79,8 +76,9 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
             }
         }
 
-        return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
+        return message;
     }
+
 
     public static class ChatRoomFullException extends RuntimeException {
         public ChatRoomFullException(String message) {
