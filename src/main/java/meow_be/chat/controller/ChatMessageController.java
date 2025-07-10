@@ -16,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,14 +38,17 @@ public class ChatMessageController {
     private final UserRepository userRepository;
 
     @MessageMapping("/chat.send")
-    public void sendMessage(ChatMessageRequest messageRequest,  Principal principal) {
+    public void sendMessage(
+            ChatMessageRequest messageRequest,
+            @AuthenticationPrincipal User user
+    ) {
         try {
-            log.info("[WS] @MessageMapping principal = {}", principal);
-            if (principal == null) {
+            log.info("[WS] @MessageMapping principal = {}", user);
+
+            if (user == null) {
                 throw new IllegalStateException("WebSocket 인증 정보 없음");
             }
 
-            User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
             Integer userId = user.getId();
             String transformedMessage = aiContentClient.transformChatMessage(
                     messageRequest.getMessage(),
@@ -60,14 +64,11 @@ public class ChatMessageController {
 
             chatMessageService.saveMessage(saveRequest);
 
-            String senderNickname = user.getNickname();
-            String senderProfileImage = user.getProfileImageUrl();
-
             ChatMessageDto messageDto = ChatMessageDto.builder()
                     .chatroomId(saveRequest.getChatroomId())
                     .senderId(userId)
-                    .senderNickname(senderNickname)
-                    .senderProfileImage(senderProfileImage)
+                    .senderNickname(user.getNickname())
+                    .senderProfileImage(user.getProfileImageUrl())
                     .animalType(saveRequest.getAnimalType())
                     .message(saveRequest.getMessage())
                     .timestamp(LocalDateTime.now())
@@ -83,6 +84,7 @@ public class ChatMessageController {
             log.error("채팅 처리 중 오류 발생", e);
         }
     }
+
 
 
 
