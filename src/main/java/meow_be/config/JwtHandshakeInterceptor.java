@@ -69,7 +69,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
                         return MessageBuilder.withPayload(message.getPayload())
                                 .copyHeaders(accessor.getMessageHeaders())
-                                .setHeader(StompHeaderAccessor.USER_HEADER, authentication)
+                                .setHeader("simpUser", authentication)
                                 .build();
 
                     } catch (Exception e) {
