@@ -22,7 +22,6 @@ public class EventWeekController {
     @GetMapping("/status")
     public EventStatusResponse getEventStatus() {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-        log.info("현재 시간: {}", now);
         return eventWeekService.getStatus(now);
     }
 

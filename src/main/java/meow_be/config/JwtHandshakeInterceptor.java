@@ -67,6 +67,11 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                         int count = participantManager.getParticipantCount(chatroomId);
                         participantNotifier.notifyCount(chatroomId,count);
 
+                        return MessageBuilder.withPayload(message.getPayload())
+                                .copyHeaders(accessor.getMessageHeaders())
+                                .setHeader(StompHeaderAccessor.USER_HEADER, authentication)
+                                .build();
+
                     } catch (Exception e) {
                         throw new IllegalArgumentException("웹소켓 인증 실패: " + e.getMessage());
                     }
