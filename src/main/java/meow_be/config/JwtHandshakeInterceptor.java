@@ -19,6 +19,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+import static org.apache.http.client.methods.RequestBuilder.put;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -47,11 +49,12 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                         }
 
                         User user = userRepository.findById(userId).orElseThrow();
+                        accessor.getSessionAttributes().put("userId",userId);
 
-                        UsernamePasswordAuthenticationToken authentication =
-                                new UsernamePasswordAuthenticationToken(user, null, List.of());
+                        UsernamePasswordAuthenticationToken auth =
+                                new UsernamePasswordAuthenticationToken(userId, null, List.of());
 
-                        accessor.setUser(authentication);
+                        accessor.setUser(auth);
 
                         log.info("[JWT] Authentication 객체 설정 완료: {}", user);
 
@@ -66,7 +69,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
                         return MessageBuilder.withPayload(message.getPayload())
                                 .copyHeaders(accessor.getMessageHeaders())
-                                .setHeader("simpUser", authentication)
+                                .setHeader("simpUser", auth)
                                 .build();
 
                     } catch (Exception e) {

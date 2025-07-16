@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,17 +41,18 @@ public class ChatMessageController {
     @MessageMapping("/chat.send")
     public void sendMessage(
             ChatMessageRequest messageRequest,
-            Principal principal 
+            SimpMessageHeaderAccessor headerAccessor
     ) {
-        if (principal == null) {
+        Integer userId = (Integer) headerAccessor.getSessionAttributes().get("userId");
+
+        if (userId == null) {
             throw new IllegalStateException("WebSocket 인증 정보 없음");
         }
 
-        User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("유저 정보 없음"));
 
         log.info("[WS] 메시지 수신: userId={}, message={}", user.getId(), messageRequest.getMessage());
-
-        Integer userId = user.getId();
 
         String transformedMessage = aiContentClient.transformChatMessage(
                 messageRequest.getMessage(),
@@ -75,7 +77,6 @@ public class ChatMessageController {
                 .message(saveRequest.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-
         messagingTemplate.convertAndSend(
                 "/sub/chatroom." + messageDto.getChatroomId(),
                 messageDto
