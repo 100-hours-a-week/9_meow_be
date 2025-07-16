@@ -61,7 +61,7 @@ public class AiContentClient {
                     .block();
 
             if (aiResponse != null && aiResponse.getStatusCode() == 200) {
-                return aiResponse.getMessage();
+                return aiResponse.getData();
             } else {
                 throw new RuntimeException("AI 서버 오류 응답: " +
                         (aiResponse != null ? aiResponse.getMessage() : "응답 없음"));
@@ -96,7 +96,7 @@ public class AiContentClient {
                 throw new RuntimeException("AI 서버 오류: " + aiResponse.getMessage());
             }
 
-            String result = aiResponse.getData();
+            String result = aiResponse.getMessage();
 
             if (result == null || result.isBlank()) {
                 throw new RuntimeException("AI가 빈 메시지를 반환함");
