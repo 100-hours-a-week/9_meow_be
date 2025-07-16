@@ -1,0 +1,12 @@
+version: 0.0
+os: linux
+files:
+  # (필요하다면) 애플리케이션 아티팩트 복사
+  - source: /
+    destination: /home/ubuntu/app
+
+hooks:
+  ApplicationStart:
+    - location: scripts/start.sh
+      timeout: 300
+      runas: ubuntu

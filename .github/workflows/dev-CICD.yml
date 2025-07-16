@@ -16,7 +16,7 @@ jobs:
       !contains(github.event.head_commit.message, '[skip ci]') &&
       !contains(github.event.head_commit.message, '[ci skip]') &&
       github.event_name == 'pull_request' &&
-      github.base_ref == 'develop' 
+      github.base_ref == 'develop'
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
@@ -164,6 +164,14 @@ jobs:
             ${{ env.IMAGE_URI }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
+
+      - name: Prepare CodeDeploy bundle
+        run: |
+          zip -r deploy-bundle.zip appspec.yml scripts start.sh
+
+      - name: Upload bundle to S3
+        run: |
+          aws s3 cp deploy-bundle.zip s3://${{ secrets.DEPLOY_BUCKET }}/${{ env.ENV }}/deploy-bundle.zip
 
       - name: Trigger CodeDeploy
         run: |
