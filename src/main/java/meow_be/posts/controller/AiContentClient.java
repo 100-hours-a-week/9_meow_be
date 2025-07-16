@@ -61,7 +61,7 @@ public class AiContentClient {
                     .block();
 
             if (aiResponse != null && aiResponse.getStatusCode() == 200) {
-                return aiResponse.getData();
+                return aiResponse.getMessage();
             } else {
                 throw new RuntimeException("AI 서버 오류 응답: " +
                         (aiResponse != null ? aiResponse.getMessage() : "응답 없음"));
