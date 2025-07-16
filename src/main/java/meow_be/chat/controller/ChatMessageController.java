@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import meow_be.chat.dto.ChatMessageDto;
 import meow_be.chat.dto.ChatMessageRequest;
 import meow_be.chat.service.ChatMessageService;
+import meow_be.common.ApiResponse;
 import meow_be.posts.controller.AiContentClient;
 import meow_be.posts.dto.PageResponse;
 import meow_be.users.domain.User;
@@ -13,9 +14,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,6 +97,13 @@ public class ChatMessageController {
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return chatMessageService.getMessages(chatroomId, pageable);
+    }
+    @MessageExceptionHandler
+    @SendToUser("/errors")
+    public ApiResponse<String> handleWebSocketException(Exception e) {
+        e.printStackTrace();
+
+        return ApiResponse.error(400, e.getMessage());
     }
 
 

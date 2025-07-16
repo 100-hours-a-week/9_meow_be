@@ -37,7 +37,7 @@ public class ChatMessageService {
         chatMessageRepository.save(message);
     }
     public PageResponse<ChatMessageDto> getMessages(Integer chatroomId, Pageable pageable) {
-        Page<ChatMessage> page = chatMessageRepository.findByChatroomIdOrderByCreatedAtAsc(chatroomId, pageable);
+        Page<ChatMessage> page = chatMessageRepository.findByChatroomIdOrderByCreatedAtDesc(chatroomId, pageable);
 
         List<ChatMessageDto> dtoList = page.getContent().stream()
                 .map(chatMessage -> ChatMessageDto.builder()

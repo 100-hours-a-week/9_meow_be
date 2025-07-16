@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Integer> {
-    Page<ChatMessage> findByChatroomIdOrderByCreatedAtAsc(Integer chatroomId, Pageable pageable);
+    Page<ChatMessage> findByChatroomIdOrderByCreatedAtDesc(Integer chatroomId, Pageable pageable);
 }
