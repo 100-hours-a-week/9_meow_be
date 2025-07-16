@@ -58,14 +58,14 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
                         log.info("[JWT] Authentication 객체 설정 완료: {}", user);
 
-                        Integer chatroomId = 1;/*
+                        Integer chatroomId = 1;
                         String sessionId = accessor.getSessionId();
                         if (!participantManager.tryJoin(chatroomId, sessionId)) {
                             throw new ChatRoomFullException("채팅방 최대 인원 초과 (20명)");
                         }
 
                         int count = participantManager.getParticipantCount(chatroomId);
-                        participantNotifier.notifyCount(chatroomId, count);*/
+                        participantNotifier.notifyCount(chatroomId, count);
 
                         return MessageBuilder.withPayload(message.getPayload())
                                 .copyHeaders(accessor.getMessageHeaders())

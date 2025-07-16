@@ -98,13 +98,4 @@ public class ChatMessageController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return chatMessageService.getMessages(chatroomId, pageable);
     }
-    @MessageExceptionHandler
-    @SendToUser("/errors")
-    public ApiResponse<String> handleWebSocketException(Exception e) {
-        e.printStackTrace();
-
-        return ApiResponse.error(400, e.getMessage());
-    }
-
-
 }
