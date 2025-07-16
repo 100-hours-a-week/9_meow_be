@@ -1,5 +1,4 @@
 name: MeowBe CI & CD
-
 on:
   push:
     branches:
@@ -7,7 +6,6 @@ on:
   pull_request:
     branches:
       - develop
-
 jobs:
   build:
     name: ⚙️ Build & Unit Test
@@ -35,7 +33,6 @@ jobs:
         run: chmod +x gradlew
       - name: Run tests
         run: ./gradlew clean test
-
   # integration:
   #   name: 🔗 Integration Tests
   #   runs-on: ubuntu-latest
@@ -99,7 +96,6 @@ jobs:
   #           sleep 5
   #         done
   #         echo "❌ Backend health check failed" && exit 1
-
   deploy-backend:
     name: 🚀 Deploy Backend
     runs-on: ubuntu-latest
@@ -110,17 +106,14 @@ jobs:
       !contains(github.event.head_commit.message, '[cd skip]')
     steps:
       - uses: actions/checkout@v3
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID_FOR_ACTIONS }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_ACTIONS }}
           aws-region:            ${{ secrets.AWS_REGION }}
-
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
-
       - name: Determine ENV & App Names
         id: meta
         shell: bash
@@ -132,20 +125,16 @@ jobs:
           service_name=9_meow_be
           registry="${{ secrets.ECR_REGISTRY }}"; registry="${registry%/}"
           image_uri="${registry}/${deploy_env}/${service_name}"
-
           echo "ENV=${deploy_env}"                             >> $GITHUB_ENV
           echo "SERVICE=${service_name}"                       >> $GITHUB_ENV
           echo "REGISTRY=${registry}"                          >> $GITHUB_ENV
           echo "IMAGE_URI=${image_uri}"                        >> $GITHUB_ENV
           echo "APP_NAME=meow-${deploy_env}-deployment"        >> $GITHUB_ENV
           echo "DG_NAME=meow-${deploy_env}-deployment_group"   >> $GITHUB_ENV
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-
       - name: Cache buildx layers
         uses: actions/cache@v3
         with:
@@ -153,7 +142,6 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ env.ENV }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-${{ env.ENV }}-
-
       - name: Build & Push Docker Image
         uses: docker/build-push-action@v4
         with:
@@ -164,14 +152,6 @@ jobs:
             ${{ env.IMAGE_URI }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
-
-      - name: Prepare CodeDeploy bundle
-        run: |
-          zip -r deploy-bundle.zip appspec.yml scripts start.sh
-
-      - name: Upload bundle to S3
-        run: |
-          aws s3 cp deploy-bundle.zip s3://${{ secrets.DEPLOY_BUCKET }}/${{ env.ENV }}/deploy-bundle.zip
 
       - name: Trigger CodeDeploy
         run: |
