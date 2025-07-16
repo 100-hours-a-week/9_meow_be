@@ -63,7 +63,7 @@ public class ChatMessageController {
                 .chatroomId(messageRequest.getChatroomId())
                 .senderId(userId)
                 .animalType(messageRequest.getAnimalType())
-                .message(messageRequest.getMessage())
+                .message(transformedMessage)
                 .build();
 
         chatMessageService.saveMessage(saveRequest);
