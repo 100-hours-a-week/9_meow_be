@@ -40,49 +40,46 @@ public class ChatMessageController {
     @MessageMapping("/chat.send")
     public void sendMessage(
             ChatMessageRequest messageRequest,
-            @AuthenticationPrincipal User user
+            Principal principal 
     ) {
-        try {
-            log.info("[WS] @MessageMapping principal = {}", user);
-
-            if (user == null) {
-                throw new IllegalStateException("WebSocket 인증 정보 없음");
-            }
-
-            Integer userId = user.getId();
-            String transformedMessage = aiContentClient.transformChatMessage(
-                    messageRequest.getMessage(),
-                    messageRequest.getAnimalType()
-            );
-
-            ChatMessageRequest saveRequest = ChatMessageRequest.builder()
-                    .chatroomId(messageRequest.getChatroomId())
-                    .senderId(userId)
-                    .animalType(messageRequest.getAnimalType())
-                    .message(transformedMessage)
-                    .build();
-
-            chatMessageService.saveMessage(saveRequest);
-
-            ChatMessageDto messageDto = ChatMessageDto.builder()
-                    .chatroomId(saveRequest.getChatroomId())
-                    .senderId(userId)
-                    .senderNickname(user.getNickname())
-                    .senderProfileImage(user.getProfileImageUrl())
-                    .animalType(saveRequest.getAnimalType())
-                    .message(saveRequest.getMessage())
-                    .timestamp(LocalDateTime.now())
-                    .build();
-
-            log.info("메시지 전송 → {}", messageDto);
-
-            messagingTemplate.convertAndSend(
-                    "/sub/chatroom." + messageDto.getChatroomId(),
-                    messageDto
-            );
-        } catch (Exception e) {
-            log.error("채팅 처리 중 오류 발생", e);
+        if (principal == null) {
+            throw new IllegalStateException("WebSocket 인증 정보 없음");
         }
+
+        User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+
+        log.info("[WS] 메시지 수신: userId={}, message={}", user.getId(), messageRequest.getMessage());
+
+        Integer userId = user.getId();
+
+        String transformedMessage = aiContentClient.transformChatMessage(
+                messageRequest.getMessage(),
+                messageRequest.getAnimalType()
+        );
+
+        ChatMessageRequest saveRequest = ChatMessageRequest.builder()
+                .chatroomId(messageRequest.getChatroomId())
+                .senderId(userId)
+                .animalType(messageRequest.getAnimalType())
+                .message(transformedMessage)
+                .build();
+
+        chatMessageService.saveMessage(saveRequest);
+
+        ChatMessageDto messageDto = ChatMessageDto.builder()
+                .chatroomId(saveRequest.getChatroomId())
+                .senderId(userId)
+                .senderNickname(user.getNickname())
+                .senderProfileImage(user.getProfileImageUrl())
+                .animalType(saveRequest.getAnimalType())
+                .message(saveRequest.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        messagingTemplate.convertAndSend(
+                "/sub/chatroom." + messageDto.getChatroomId(),
+                messageDto
+        );
     }
 
 
