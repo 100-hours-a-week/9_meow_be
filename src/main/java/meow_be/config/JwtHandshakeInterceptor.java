@@ -56,8 +56,6 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
                         accessor.setUser(auth);
 
-                        log.info("[JWT] Authentication 객체 설정 완료: {}", user);
-
                         Integer chatroomId = 1;
                         String sessionId = accessor.getSessionId();
                         if (!participantManager.tryJoin(chatroomId, sessionId)) {
