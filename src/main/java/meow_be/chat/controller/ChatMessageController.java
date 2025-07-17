@@ -54,8 +54,7 @@ public class ChatMessageController {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("유저 정보 없음"));
-
-        log.info("[WS] 메시지 수신: userId={}, message={}", user.getId(), messageRequest.getMessage());
+        
 
         String transformedMessage = aiContentClient.transformChatMessage(
                 messageRequest.getMessage(),
