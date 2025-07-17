@@ -1,6 +1,7 @@
 package meow_be.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import meow_be.chat.controller.ChatRoomParticipantManager;
 import meow_be.chat.dto.ChatParticipantCountDto;
 import org.springframework.context.ApplicationListener;
@@ -11,6 +12,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class WebSocketDisconnectListener implements ApplicationListener<SessionDisconnectEvent> {
 
     private final ChatRoomParticipantManager participantManager;
@@ -22,7 +24,9 @@ public class WebSocketDisconnectListener implements ApplicationListener<SessionD
         String sessionId = accessor.getSessionId();
 
         Integer chatroomId = 1;
+        log.info("세션 연결 해제 감지: sessionId = {}", sessionId);
         participantManager.leave(chatroomId, sessionId);
+        log.info("채팅방 {} 에서 세션 제거 완료", chatroomId);
 
         int count = participantManager.getParticipantCount(chatroomId);
         ChatParticipantCountDto payload = new ChatParticipantCountDto(chatroomId, count);

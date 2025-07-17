@@ -47,22 +47,19 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                         if (!tokenProvider.validateToken(token, userId)) {
                             throw new IllegalArgumentException("JWT 토큰이 유효하지 않음");
                         }
-
-                        User user = userRepository.findById(userId).orElseThrow();
                         accessor.getSessionAttributes().put("userId",userId);
 
                         UsernamePasswordAuthenticationToken auth =
                                 new UsernamePasswordAuthenticationToken(userId, null, List.of());
 
                         accessor.setUser(auth);
-
                         Integer chatroomId = 1;
                         String sessionId = accessor.getSessionId();
-                        if (!participantManager.tryJoin(chatroomId, sessionId)) {
-                            throw new ChatRoomFullException("채팅방 최대 인원 초과 (20명)");
-                        }
+                        participantManager.join(chatroomId, sessionId);
+                        log.info("채팅방 {} 참여자 세션 등록: sessionId = {}", chatroomId, sessionId);
 
                         int count = participantManager.getParticipantCount(chatroomId);
+                        log.info("현재 채팅방 {} 참여자 수: {}", chatroomId, count);
                         participantNotifier.notifyCount(chatroomId, count);
 
                         return MessageBuilder.withPayload(message.getPayload())
