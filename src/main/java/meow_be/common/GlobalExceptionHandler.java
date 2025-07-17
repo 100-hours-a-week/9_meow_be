@@ -1,6 +1,7 @@
 package meow_be.common;
 
 import meow_be.common.exception.UnauthorizedException;
+import meow_be.config.JwtHandshakeInterceptor;
 import meow_be.posts.controller.PostController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,12 @@ public class GlobalExceptionHandler {
         ApiResponse<String> response = ApiResponse.error(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
+    @ExceptionHandler(JwtHandshakeInterceptor.ChatRoomFullException.class)
+    public ResponseEntity<ApiResponse<String>> handleChatRoomFull(JwtHandshakeInterceptor.ChatRoomFullException ex) {
+        ApiResponse<String> response = ApiResponse.error(429, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<String>> handleIllegalArgumentException(IllegalArgumentException ex) {

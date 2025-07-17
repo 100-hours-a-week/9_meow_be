@@ -28,7 +28,8 @@ public class CorsConfig {
                 "https://ds36vr51hmfa7.cloudfront.net",
                 "http://3.39.3.208",
                 "http://172.20.5.64:5173",
-                "http://testdev.meowng.com"
+                "http://testdev.meowng.com",
+                "http://34.64.213.48"
         ));
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
