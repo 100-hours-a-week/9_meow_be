@@ -54,9 +54,8 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
                         accessor.setUser(auth);
                         Integer chatroomId = 1;
-                        String sessionId = accessor.getSessionId();
-                        participantManager.join(chatroomId, sessionId);
-                        log.info("채팅방 {} 참여자 세션 등록: sessionId = {}", chatroomId, sessionId);
+                        participantManager.join(chatroomId, userId);
+                        log.info("채팅방 {} 참여자 세션 등록: sessionId = {}", chatroomId, userId);
 
                         int count = participantManager.getParticipantCount(chatroomId);
                         log.info("현재 채팅방 {} 참여자 수: {}", chatroomId, count);

@@ -21,11 +21,11 @@ public class WebSocketDisconnectListener implements ApplicationListener<SessionD
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        String sessionId = accessor.getSessionId();
+        Integer userId = (Integer) accessor.getSessionAttributes().get("userId");
 
         Integer chatroomId = 1;
-        log.info("세션 연결 해제 감지: sessionId = {}", sessionId);
-        participantManager.leave(chatroomId, sessionId);
+        log.info("세션 연결 해제 감지: sessionId = {}",userId);
+        participantManager.leave(chatroomId, userId);
         log.info("채팅방 {} 에서 세션 제거 완료", chatroomId);
 
         int count = participantManager.getParticipantCount(chatroomId);

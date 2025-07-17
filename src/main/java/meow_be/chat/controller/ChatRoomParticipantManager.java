@@ -10,9 +10,8 @@ public class ChatRoomParticipantManager {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void join(Integer chatroomId, String sessionId) {
-        String key = getKey(chatroomId);
-        redisTemplate.opsForSet().add(key, sessionId);
+    public void join(Integer chatroomId, Integer userId) {
+        redisTemplate.opsForSet().add(getKey(chatroomId), String.valueOf(userId));
     }
 
     public int getParticipantCount(Integer chatroomId) {
@@ -20,8 +19,8 @@ public class ChatRoomParticipantManager {
         return count != null ? count.intValue() : 0;
     }
 
-    public void leave(Integer chatroomId, String sessionId) {
-        redisTemplate.opsForSet().remove(getKey(chatroomId), sessionId);
+    public void leave(Integer chatroomId, Integer userId) {
+        redisTemplate.opsForSet().remove(getKey(chatroomId), String.valueOf(userId));
     }
 
     private String getKey(Integer chatroomId) {
