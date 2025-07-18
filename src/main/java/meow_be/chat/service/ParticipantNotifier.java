@@ -14,7 +14,7 @@ public class ParticipantNotifier {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
 
-    public ParticipantNotifier(@Lazy SimpMessagingTemplate messagingTemplate, ChatMessageService chatMessageService) {
+    public ParticipantNotifier(@Lazy SimpMessagingTemplate messagingTemplate, @Lazy ChatMessageService chatMessageService) {
         this.messagingTemplate = messagingTemplate;
         this.chatMessageService= chatMessageService;
     }
