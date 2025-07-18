@@ -65,17 +65,17 @@ public class ChatMessageService {
         );
     }
     public void saveAndSendSystemMessage(Integer chatroomId, String type, String content, Integer senderId) {
+        User user = userRepository.findById(senderId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
         ChatMessageDto request = ChatMessageDto.builder()
                 .chatroomId(chatroomId)
                 .message(content)
+                .animalType(user.getAnimalType())
                 .type(type)
                 .senderId(senderId)
                 .build();
 
         saveMessage(request);
-
-        User user = userRepository.findById(senderId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
         ChatMessageDto messageDto = ChatMessageDto.builder()
                 .chatroomId(chatroomId)
                 .senderId(senderId)
