@@ -61,11 +61,13 @@ public class ChatMessageController {
                 messageRequest.getAnimalType()
         );
 
-        ChatMessageRequest saveRequest = ChatMessageRequest.builder()
+        ChatMessageDto saveRequest = ChatMessageDto.builder()
                 .chatroomId(messageRequest.getChatroomId())
                 .senderId(userId)
                 .animalType(messageRequest.getAnimalType())
                 .message(transformedMessage)
+                .type("message")
+                .timestamp(LocalDateTime.now())
                 .build();
 
         chatMessageService.saveMessage(saveRequest);
@@ -77,6 +79,7 @@ public class ChatMessageController {
                 .senderProfileImage(user.getProfileImageUrl())
                 .animalType(saveRequest.getAnimalType())
                 .message(saveRequest.getMessage())
+                .type(saveRequest.getType())
                 .timestamp(LocalDateTime.now())
                 .build();
         messagingTemplate.convertAndSend(

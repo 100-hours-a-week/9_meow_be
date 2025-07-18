@@ -8,5 +8,4 @@ import lombok.Getter;
 public class ChatParticipantEventDto {
     private Integer chatroomId;
     private Integer participantCount;
-    private String message;
 }

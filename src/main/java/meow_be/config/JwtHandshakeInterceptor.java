@@ -35,6 +35,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        String sessionId = accessor.getSessionId();
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             List<String> authHeader = accessor.getNativeHeader("Authorization");
@@ -54,7 +55,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
                         accessor.setUser(auth);
                         Integer chatroomId = 1;
-                        participantManager.join(chatroomId, userId);
+                        participantManager.join(chatroomId, userId,sessionId);
                         log.info("채팅방 {} 참여자 등록: userId = {}", chatroomId, userId);
 
                         int count = participantManager.getParticipantCount(chatroomId);
@@ -64,7 +65,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                                 .map(User::getNickname)
                                 .orElse("알 수 없는 사용자");
 
-                        participantNotifier.notifyJoin(chatroomId, count, nickname);
+                        participantNotifier.notifyJoin(chatroomId, count, nickname,userId);
                         return MessageBuilder.withPayload(message.getPayload())
                                 .copyHeaders(accessor.getMessageHeaders())
                                 .setHeader("simpUser", auth)
