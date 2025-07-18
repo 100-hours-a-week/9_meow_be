@@ -42,7 +42,7 @@ public class WebSocketEventListener {
                                 .map(user -> user.getNickname())
                                 .orElse("알 수 없는 사용자");
                         participantNotifier.notifyJoin(chatroomId, count, nickname);
-                        log.info("구독 발생 - 채팅방 {}, 사용자 {} 입장 알림 전송", chatroomId, nickname);
+                        log.info("구독 발생 - 채팅방 {}, 사용자 {} 입장 알림 전송, {}명이 접속중", chatroomId, nickname,count);
                     } else {
                         log.info("구독 발생 - 채팅방 {} 참여자 수 알림 전송", chatroomId);
                     }
