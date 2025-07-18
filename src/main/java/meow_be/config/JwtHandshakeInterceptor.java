@@ -60,12 +60,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
                         int count = participantManager.getParticipantCount(chatroomId);
                         log.info("현재 채팅방 {} 참여자 수: {}", chatroomId, count);
-
-                        String nickname = userRepository.findById(userId)
-                                .map(User::getNickname)
-                                .orElse("알 수 없는 사용자");
-
-                        participantNotifier.notifyJoin(chatroomId, count, nickname,userId);
+                        
                         return MessageBuilder.withPayload(message.getPayload())
                                 .copyHeaders(accessor.getMessageHeaders())
                                 .setHeader("simpUser", auth)
