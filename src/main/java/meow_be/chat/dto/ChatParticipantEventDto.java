@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ChatParticipantCountDto {
+public class ChatParticipantEventDto {
     private Integer chatroomId;
     private Integer participantCount;
 }

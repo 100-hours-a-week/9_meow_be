@@ -10,6 +10,7 @@ import meow_be.users.domain.User;
 import meow_be.users.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,8 +22,9 @@ public class ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public void saveMessage(ChatMessageRequest request) {
+    public void saveMessage(ChatMessageDto request) {
         User user = userRepository.findById(request.getSenderId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
 
@@ -31,6 +33,7 @@ public class ChatMessageService {
                 .user(user)
                 .animalType(request.getAnimalType())
                 .content(request.getMessage())
+                .type(request.getType())
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -47,6 +50,7 @@ public class ChatMessageService {
                         .senderProfileImage(chatMessage.getUser().getProfileImageUrl())
                         .animalType(chatMessage.getAnimalType())
                         .message(chatMessage.getContent())
+                        .type(chatMessage.getType())
                         .timestamp(chatMessage.getCreatedAt())
                         .build())
                 .toList();
@@ -59,6 +63,31 @@ public class ChatMessageService {
                 page.getSize(),
                 page.isLast()
         );
+    }
+    public void saveAndSendSystemMessage(Integer chatroomId, String type, String content, Integer senderId) {
+        User user = userRepository.findById(senderId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+        ChatMessageDto request = ChatMessageDto.builder()
+                .chatroomId(chatroomId)
+                .message(content)
+                .animalType(user.getAnimalType())
+                .type(type)
+                .senderId(senderId)
+                .build();
+
+        saveMessage(request);
+        ChatMessageDto messageDto = ChatMessageDto.builder()
+                .chatroomId(chatroomId)
+                .senderId(senderId)
+                .senderNickname(user.getNickname())
+                .senderProfileImage(user.getProfileImageUrl())
+                .animalType(user.getAnimalType())
+                .message(content)
+                .type(type)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        messagingTemplate.convertAndSend("/sub/chatroom." + chatroomId, messageDto);
     }
 
 }

@@ -15,5 +15,6 @@ public class ChatMessageDto {
     private String senderProfileImage;
     private String animalType;
     private String message;
+    private String type;
     private LocalDateTime timestamp;
 }
