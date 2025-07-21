@@ -1,21 +1,39 @@
 package meow_be.chat.service;
 
-import lombok.RequiredArgsConstructor;
-import meow_be.chat.dto.ChatParticipantCountDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+import meow_be.chat.dto.ChatParticipantEventDto;
+
 
 @Component
+@Slf4j
 public class ParticipantNotifier {
 
     private final SimpMessagingTemplate messagingTemplate;
-    public ParticipantNotifier(@Lazy SimpMessagingTemplate messagingTemplate) {
+    private final ChatMessageService chatMessageService;
+
+    public ParticipantNotifier(@Lazy SimpMessagingTemplate messagingTemplate, @Lazy ChatMessageService chatMessageService) {
         this.messagingTemplate = messagingTemplate;
+        this.chatMessageService= chatMessageService;
     }
 
-    public void notifyCount(int chatroomId, int count) {
-        ChatParticipantCountDto payload = new ChatParticipantCountDto(chatroomId, count);
+
+    public void notifyJoin(int chatroomId, int count, String nickname, int userId) {
+        String msg = nickname + "님이 입장하였습니다.";
+        ChatParticipantEventDto payload = new ChatParticipantEventDto(chatroomId, count);
+
         messagingTemplate.convertAndSend("/sub/chatroom." + chatroomId + ".participants", payload);
+
+        chatMessageService.saveAndSendSystemMessage(chatroomId, "enter", msg, userId);
+    }
+
+    public void notifyLeave(int chatroomId, int count, String nickname, int userId) {
+        String msg = nickname + "님이 퇴장하였습니다.";
+        ChatParticipantEventDto payload = new ChatParticipantEventDto(chatroomId, count);
+        messagingTemplate.convertAndSend("/sub/chatroom." + chatroomId + ".participants", payload);
+        chatMessageService.saveAndSendSystemMessage(chatroomId, "exit", msg, userId);
     }
 }
+
