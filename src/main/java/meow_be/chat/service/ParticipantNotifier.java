@@ -25,15 +25,12 @@ public class ParticipantNotifier {
         ChatParticipantEventDto payload = new ChatParticipantEventDto(chatroomId, count);
 
         messagingTemplate.convertAndSend("/sub/chatroom." + chatroomId + ".participants", payload);
-
-        chatMessageService.saveAndSendSystemMessage(chatroomId, "enter", msg, userId);
     }
 
     public void notifyLeave(int chatroomId, int count, String nickname, int userId) {
         String msg = nickname + "님이 퇴장하였습니다.";
         ChatParticipantEventDto payload = new ChatParticipantEventDto(chatroomId, count);
         messagingTemplate.convertAndSend("/sub/chatroom." + chatroomId + ".participants", payload);
-        chatMessageService.saveAndSendSystemMessage(chatroomId, "exit", msg, userId);
     }
 }
 
