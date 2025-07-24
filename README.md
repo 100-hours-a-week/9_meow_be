@@ -56,3 +56,4 @@ meow_be\
 | 좋아요 트래픽 폭주   | Redis Sorted Set 사용                  | 100TPS에서도 지연 없이 랭킹 반영           |
 | 투표 종료 자동화     | Redis TTL + KeyExpirationEvent 활용     | 운영 리소스 감소 + 무효 투표 차단          |
 | UI 실시간 반응       | SSE(Server-Sent Events) 적용           | 사용자 만족도 향상                         |
+=======

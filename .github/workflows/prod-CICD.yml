@@ -142,7 +142,7 @@ jobs:
           echo "REGISTRY=${registry}"                          >> $GITHUB_ENV
           echo "IMAGE_URI=${image_uri}"                        >> $GITHUB_ENV
           echo "APP_NAME=meow-${deploy_env}-deployment"        >> $GITHUB_ENV
-          echo "DG_NAME=meow-${deploy_env}-deployment_group"   >> $GITHUB_ENV
+          echo "DG_NAME=DG-meow-${deploy_env}-be"   >> $GITHUB_ENV
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -165,9 +165,15 @@ jobs:
         shell: bash
         run: |
           # If head commit is tagged, use that tag or fallback to "latest"
-          VERSION=$(git describe --tags --exact-match 2>/dev/null || echo "latest")
+          VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "latest")
           echo "Determined version =${VERSION}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          # update ssm version tag
+          aws ssm put-parameter \
+            --name /meow/prod/BACKEND_IMAGE_TAG \
+            --value "$VERSION" \
+            --type String \
+            --overwrite
           
       - name: Build & Push Docker Image
         uses: docker/build-push-action@v4
